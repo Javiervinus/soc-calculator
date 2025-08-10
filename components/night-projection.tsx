@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Moon, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, Activity } from 'lucide-react';
+import { calculateNightProjection, interpolateSOC } from '@/lib/battery-calculations';
 import { useBatteryStore } from '@/lib/store';
-import { interpolateSOC, calculateNightProjection } from '@/lib/battery-calculations';
-import { getGuayaquilTime, formatGuayaquilTime } from '@/lib/timezone-utils';
+import { formatGuayaquilTime, getGuayaquilTime } from '@/lib/timezone-utils';
+import { Activity, CheckCircle, ChevronDown, ChevronUp, Clock, Moon, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export function NightProjection() {
   const { currentVoltage, getCurrentProfile } = useBatteryStore();
@@ -102,16 +102,16 @@ export function NightProjection() {
 
       {/* Alert Messages - Compact */}
       {!isNightTime && currentHour < 17 && (
-        <Alert className="mb-3 p-2 border-blue-200 bg-blue-50">
-          <AlertDescription className="text-[10px] leading-relaxed">
+        <Alert className="mb-3 p-2 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
+          <AlertDescription className="text-[10px] leading-relaxed dark:text-blue-300">
             Proyección activa desde las 17:00. El banco recarga durante el día.
           </AlertDescription>
         </Alert>
       )}
 
       {!projection.willLastUntil8AM && projection.estimatedEndTime && (
-        <Alert className="mb-3 p-2 border-red-200 bg-red-50">
-          <AlertDescription className="text-[10px] leading-relaxed">
+        <Alert className="mb-3 p-2 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
+          <AlertDescription className="text-[10px] leading-relaxed dark:text-red-300">
             Agotamiento estimado: {formatGuayaquilTime(projection.estimatedEndTime)}
           </AlertDescription>
         </Alert>
