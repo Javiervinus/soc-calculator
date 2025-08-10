@@ -23,6 +23,7 @@ interface BatteryStore {
   currentVoltage: number;
   currentProfileId: string;
   profiles: Profile[];
+  theme: 'light' | 'dark';
   
   setVoltage: (voltage: number) => void;
   getCurrentProfile: () => Profile;
@@ -34,6 +35,7 @@ interface BatteryStore {
   updateVoltageSOCTable: (table: VoltageSOCEntry[]) => void;
   updateBatteryConfig: (config: Partial<BatteryConfig>) => void;
   updateConsumptionProfile: (profile: ConsumptionProfile[]) => void;
+  setTheme: (theme: 'light' | 'dark') => void;
   resetToDefaults: () => void;
 }
 
@@ -53,8 +55,11 @@ export const useBatteryStore = create<BatteryStore>()(
       currentVoltage: 13.2,
       currentProfileId: 'default',
       profiles: [defaultProfile],
+      theme: 'light', // Siempre inicia en modo claro
       
       setVoltage: (voltage) => set({ currentVoltage: voltage }),
+      
+      setTheme: (theme) => set({ theme }),
       
       getCurrentProfile: () => {
         const state = get();
@@ -152,6 +157,7 @@ export const useBatteryStore = create<BatteryStore>()(
           currentVoltage: 13.2,
           currentProfileId: 'default',
           profiles: [freshDefaultProfile],
+          theme: 'light', // Resetear tema también
         });
       },
     }),

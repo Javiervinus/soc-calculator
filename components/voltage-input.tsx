@@ -132,7 +132,7 @@ export function VoltageInput() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Battery className="h-4 w-4 text-blue-600" />
-          <h2 className="text-sm font-semibold">Voltaje de Entrada</h2>
+          <h2 className="text-sm font-semibold dark:text-white">Voltaje de Entrada</h2>
         </div>
         <div className="text-2xl font-bold text-blue-600">
           {currentVoltage.toFixed(2)} V

@@ -5,12 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Settings, Save, Download, Upload, Plus, Trash2, RefreshCw } from 'lucide-react';
+import { Settings, Save, Download, Upload, Plus, Trash2, RefreshCw, Moon, Sun } from 'lucide-react';
 import { useBatteryStore } from '@/lib/store';
 import { VoltageSOCEntry } from '@/lib/battery-data';
 
@@ -25,6 +26,8 @@ export function SettingsPanel() {
     updateBatteryConfig,
     updateVoltageSOCTable,
     resetToDefaults,
+    theme,
+    setTheme,
   } = useBatteryStore();
 
   const currentProfile = getCurrentProfile();
@@ -109,20 +112,20 @@ export function SettingsPanel() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg">
+        <Button variant="outline" size="icon" className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700">
           <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Configuración</SheetTitle>
-          <SheetDescription>
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-white dark:bg-black">
+        <SheetHeader className="px-6">
+          <SheetTitle className="dark:text-white">Configuración</SheetTitle>
+          <SheetDescription className="dark:text-gray-400">
             Ajusta los parámetros de la batería y gestiona perfiles
           </SheetDescription>
         </SheetHeader>
 
-        <Tabs defaultValue="battery" className="mt-6">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="battery" className="mt-6 px-6">
+          <TabsList className="grid w-full grid-cols-3 dark:bg-gray-900">
             <TabsTrigger value="battery">Batería</TabsTrigger>
             <TabsTrigger value="table">Tabla V→SOC</TabsTrigger>
             <TabsTrigger value="profiles">Perfiles</TabsTrigger>
@@ -177,6 +180,25 @@ export function SettingsPanel() {
                   <span>15%</span>
                   <span>30%</span>
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="font-semibold">Apariencia</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {theme === 'light' ? (
+                    <Sun className="h-4 w-4 text-yellow-500" />
+                  ) : (
+                    <Moon className="h-4 w-4 text-blue-500" />
+                  )}
+                  <Label htmlFor="theme-switch">Modo Oscuro</Label>
+                </div>
+                <Switch
+                  id="theme-switch"
+                  checked={theme === 'dark'}
+                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                />
               </div>
             </div>
 

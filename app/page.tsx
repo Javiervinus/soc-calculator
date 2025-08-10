@@ -14,10 +14,10 @@ import { Battery, Moon, BarChart3 } from 'lucide-react';
 export default function Home() {
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <div className="min-h-screen">
       <ResetData />
       {/* Compact Header for Mobile */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
         <div className="container mx-auto px-3 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -25,11 +25,11 @@ export default function Home() {
                 <Battery className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-slate-900">SOC Calculator</h1>
-                <p className="text-[10px] text-slate-500 -mt-0.5">LiFePO₄ 12.8V</p>
+                <h1 className="text-base font-bold text-slate-900 dark:text-white">SOC Calculator</h1>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 -mt-0.5">LiFePO₄ 12.8V</p>
               </div>
             </div>
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-slate-500 dark:text-slate-400">
               108 Ah | 1380 Wh
             </div>
           </div>
@@ -41,17 +41,17 @@ export default function Home() {
         {/* Critical Info Section - Always Visible */}
         <div className="space-y-3">
           {/* Voltage Input - Compact */}
-          <div className="bg-white rounded-xl shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
             <VoltageInput />
           </div>
 
           {/* SOC Display - Compact with key metrics */}
-          <div className="bg-white rounded-xl shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
             <SOCDisplay />
           </div>
 
           {/* Night Projection - Most Important */}
-          <div className="bg-white rounded-xl shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
             <NightProjection />
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function Home() {
         {/* Tabbed Secondary Content */}
         <div className="mt-4">
           <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-9">
+            <TabsList className="grid w-full grid-cols-2 h-9 dark:bg-zinc-800">
               <TabsTrigger value="summary" className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white">
                 <Moon className="h-3 w-3 mr-1" />
                 Resumen
@@ -71,13 +71,13 @@ export default function Home() {
             </TabsList>
             
             <TabsContent value="summary" className="mt-3">
-              <div className="bg-white rounded-xl shadow-sm">
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
                 <ConsumptionSummary />
               </div>
             </TabsContent>
             
             <TabsContent value="charts" className="mt-3">
-              <div className="bg-white rounded-xl shadow-sm">
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
                 <BatteryChart />
               </div>
             </TabsContent>

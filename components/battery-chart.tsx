@@ -31,10 +31,10 @@ export function BatteryChart() {
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ color: string; name: string; value: number; unit?: string }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border rounded-lg shadow-lg">
-          <p className="font-semibold">{label}</p>
+        <div className="bg-white dark:bg-zinc-800 p-3 border dark:border-zinc-700 rounded-lg shadow-lg">
+          <p className="font-semibold dark:text-white">{label}</p>
           {payload.map((entry, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color as string }}>
+            <p key={index} className="text-sm dark:text-gray-300" style={{ color: entry.color as string }}>
               {entry.name}: {entry.value.toFixed(1)} {entry.unit || ''}
             </p>
           ))}
@@ -45,11 +45,11 @@ export function BatteryChart() {
   };
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 dark:bg-zinc-900 dark:border-zinc-800">
       <Tabs defaultValue="voltage" className="w-full">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Visualización de Datos</h2>
-          <TabsList className="grid w-fit grid-cols-3">
+          <h2 className="text-lg font-semibold dark:text-white">Visualización de Datos</h2>
+          <TabsList className="grid w-fit grid-cols-3 dark:bg-zinc-800">
             <TabsTrigger value="voltage" className="flex items-center gap-1">
               <Activity className="h-4 w-4" />
               <span className="hidden sm:inline">Voltaje</span>
@@ -66,7 +66,7 @@ export function BatteryChart() {
         </div>
 
         <TabsContent value="voltage" className="space-y-4">
-          <div className="text-sm text-muted-foreground mb-2">
+          <div className="text-sm text-muted-foreground dark:text-gray-500 mb-2">
             Curva de voltaje vs estado de carga
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -98,7 +98,7 @@ export function BatteryChart() {
         </TabsContent>
 
         <TabsContent value="consumption" className="space-y-4">
-          <div className="text-sm text-muted-foreground mb-2">
+          <div className="text-sm text-muted-foreground dark:text-gray-500 mb-2">
             Consumo por período nocturno
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -125,7 +125,7 @@ export function BatteryChart() {
         </TabsContent>
 
         <TabsContent value="energy" className="space-y-4">
-          <div className="text-sm text-muted-foreground mb-2">
+          <div className="text-sm text-muted-foreground dark:text-gray-500 mb-2">
             Energía total consumida por período
           </div>
           <ResponsiveContainer width="100%" height={300}>
