@@ -1,13 +1,13 @@
 'use client';
 
-import { VoltageInput } from '@/components/voltage-input';
-import { SOCDisplay } from '@/components/soc-display';
-import { NightProjection } from '@/components/night-projection';
 import { BatteryChart } from '@/components/battery-chart';
 import { ConsumptionSummary } from '@/components/consumption-summary';
-import { SettingsPanel } from '@/components/settings-panel';
+import { NightProjection } from '@/components/night-projection';
 import { ResetData } from '@/components/reset-data';
+import { SettingsPanel } from '@/components/settings-panel';
+import { SOCDisplay } from '@/components/soc-display';
 import { Toaster } from '@/components/ui/sonner';
+import { VoltageInput } from '@/components/voltage-input';
 import { Battery } from 'lucide-react';
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
                 <Battery className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-slate-900 dark:text-white">SOC Calculator</h1>
+                <h1 className="text-base font-bold text-slate-900 dark:text-white">Calculadora SOC</h1>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 -mt-0.5">LiFePO₄ 12.8V</p>
               </div>
             </div>
