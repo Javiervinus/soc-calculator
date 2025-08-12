@@ -29,8 +29,6 @@ Aplicación web móvil-first para monitoreo en tiempo real del estado de la bate
 - Controlador MPPT 30A
 
 ### Consumo Nocturno (17:00 - 08:00)
-⚠️ **CRÍTICO**: Tramo B usa 88W, NO 105W
-
 Valores por defecto:
 - Tramo A: 17:00-19:00 → 7W (14 Wh)
 - Tramo B: 19:00-00:00 → 88W (440 Wh)
@@ -56,6 +54,7 @@ Lógica del ciclo:
 - **Proyección nocturna**: Auto-update cada minuto
 - **Histórico SOC**: Un registro por día, sin voltaje
 - **Backup**: Local (clipboard) y cloud (Vercel Blob)
+- **Sistema de Temas**: 4 temas únicos + modo claro/oscuro
 
 ### Estructura de Estado (Zustand)
 ```typescript
@@ -64,7 +63,8 @@ Lógica del ciclo:
 - currentVoltage // Voltaje actual
 - consumptionTramos[] // Tramos editables
 - socHistory[] // Histórico diario (sin voltaje)
-- theme // 'light' | 'dark'
+- theme // 'light' | 'dark' (modo claro/oscuro)
+- appTheme // 'default' | 'futuristic' | 'minimal' | 'retro'
 ```
 
 ### Archivos Clave
@@ -74,20 +74,49 @@ Lógica del ciclo:
   battery-calculations.ts # Lógica de cálculos
   consumption-constants.ts# Valores por defecto (solo lectura)
   timezone-utils.ts       # Manejo de fechas Ecuador
+  chart-colors.ts         # Colores de gráficos por tema
+  theme-utils.ts          # Utilidades para temas condicionales
 
 /components/
   settings-panel.tsx      # Config con máx 5 tabs (mobile-first)
   consumption-editor.tsx  # CRUD de tramos
   night-projection.tsx    # Proyección con auto-update
+  theme-provider.tsx      # Proveedor de temas
+
+/app/
+  globals.css            # Definición de todos los temas
 ```
 
 ### Decisiones de UX/UI
 
 #### Mobile-First
 - Inputs con `font-size: 16px` (previene zoom iOS)
-- Máximo 5 tabs en Settings
+- Máximo 5 tabs en Settings (con flex-wrap para móviles pequeños)
 - Componentes compactos
 - Viewport con `maximum-scale: 1`
+
+#### Sistema de Temas
+**4 temas disponibles** (cada uno con modo claro/oscuro):
+
+1. **Default**: Diseño profesional con fuente Geist Sans
+   - Colores azules, bordes redondeados suaves
+   - Estilo limpio y moderno
+
+2. **Futurista**: Estilo sci-fi con fuente Orbitron
+   - Colores cyan/neón, gradientes
+   - Bordes afilados, efectos glow
+   - Botones en mayúsculas
+
+3. **Minimalista**: Ultra limpio con fuente Inter
+   - Solo grises/blancos/negros
+   - Sin bordes redondeados ni transiciones
+   - Colores neutralizados en componentes
+
+4. **Retro**: Estilo arcade 8-bit con fuente Press Start 2P
+   - Fuente pixelada (9-11px móvil, 10-12px desktop)
+   - Colores pastel/vintage
+   - Sombras duras, bordes gruesos
+   - Fondo con patrón diagonal
 
 #### Toasts (Sonner)
 - Usa tema del store, NO next-themes
@@ -98,6 +127,7 @@ Lógica del ciclo:
 #### Panel de Configuración
 - Backup como panel colapsable (NO como tab)
 - Orden tabs: Batería, Consumo, Histórico, Tabla, Perfiles
+- Selector de temas en tab Batería > Apariencia
 
 ### Sistema de Backup
 - **Local**: Copiar/Compartir JSON via clipboard/Web Share API
@@ -115,6 +145,7 @@ Lógica del ciclo:
 4. Usar timezone-utils.ts para fechas
 5. Mantener diseño mobile-first
 6. Sincronizar consumptionTramos con consumptionProfile
+7. Los temas usan `!important` en fuentes para sobrescribir Tailwind
 
 ### NUNCA
 1. Duplicar lógica de consumo

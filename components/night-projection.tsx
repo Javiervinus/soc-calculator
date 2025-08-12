@@ -53,9 +53,9 @@ export function NightProjection() {
       </div>
 
       {/* Main Status Card */}
-      <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 dark:from-zinc-800 dark:to-zinc-900">
+      <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-slate-600 dark:text-gray-400">Estado hasta las 08:00</span>
+          <span className="text-sm font-medium text-muted-foreground">Estado hasta las 08:00</span>
           {projection.willLastUntil8AM ? (
             <div className="flex items-center gap-1.5">
               <CheckCircle className="h-5 w-5 text-green-600" />
@@ -72,14 +72,14 @@ export function NightProjection() {
         {/* Energy Summary */}
         <div className="grid grid-cols-2 gap-4 mb-3">
           <div>
-            <p className="text-xs text-muted-foreground dark:text-gray-500">Disponible</p>
+            <p className="text-xs text-muted-foreground">Disponible</p>
             <p className="text-lg font-semibold">{projection.availableWh} Wh</p>
-            <p className="text-xs text-muted-foreground dark:text-gray-500">{(projection.availableWh / 12.8).toFixed(1)} Ah</p>
+            <p className="text-xs text-muted-foreground">{(projection.availableWh / 12.8).toFixed(1)} Ah</p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground dark:text-gray-500">Requerido</p>
+            <p className="text-xs text-muted-foreground">Requerido</p>
             <p className="text-lg font-semibold">{projection.requiredWh} Wh</p>
-            <p className="text-xs text-muted-foreground dark:text-gray-500">{(projection.requiredWh / 12.8).toFixed(1)} Ah</p>
+            <p className="text-xs text-muted-foreground">{(projection.requiredWh / 12.8).toFixed(1)} Ah</p>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ export function NightProjection() {
 
         {/* Margin */}
         <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-600 dark:text-gray-400">Margen</span>
+          <span className="text-sm text-muted-foreground">Margen</span>
           <div className="text-right">
             <span className={`text-base font-bold ${projection.marginWh >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {projection.marginWh >= 0 ? '+' : ''}{projection.marginWh} Wh
@@ -121,7 +121,7 @@ export function NightProjection() {
       <div className="border-t pt-3">
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="w-full flex items-center justify-between text-sm font-medium text-slate-600 dark:text-gray-400 mb-3"
+          className="w-full flex items-center justify-between text-sm font-medium text-muted-foreground mb-3"
         >
           <span>Detalles por Tramo</span>
           {showDetails ? (
@@ -136,10 +136,10 @@ export function NightProjection() {
             {projection.consumptionByPeriod.map((period, index) => (
               <div 
                 key={index} 
-                className={`flex items-center justify-between p-3 rounded-lg transition-all dark:text-white ${
+                className={`flex items-center justify-between p-3 rounded-lg transition-all text-foreground ${
                   'status' in period && period.status === 'current' 
                     ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800' 
-                    : 'bg-slate-50 dark:bg-zinc-800'
+                    : 'bg-muted'
                 }`}
               >
                 <div className="flex items-center gap-2 flex-1">
@@ -214,12 +214,12 @@ export function NightProjection() {
             ))}
             
             {/* Total summary */}
-            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="mt-3 pt-3 border-t border-border">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                <span className="text-sm font-semibold text-muted-foreground">
                   Total consumo restante:
                 </span>
-                <span className="text-base font-bold text-slate-900 dark:text-slate-100">
+                <span className="text-base font-bold text-foreground">
                   {projection.requiredWh} Wh ({(projection.requiredWh / 12.8).toFixed(1)} Ah)
                 </span>
               </div>

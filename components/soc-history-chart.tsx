@@ -3,6 +3,7 @@
 import { useBatteryStore } from '@/lib/store';
 import { Card } from '@/components/ui/card';
 import { TrendingUp, Calendar, Database } from 'lucide-react';
+import { getChartColors } from '@/lib/chart-colors';
 import {
   LineChart,
   Line,
@@ -19,8 +20,9 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export function SOCHistoryChart() {
-  const { getSOCHistory } = useBatteryStore();
+  const { getSOCHistory, theme, appTheme } = useBatteryStore();
   const history = getSOCHistory();
+  const colors = getChartColors(theme, appTheme);
 
   // Si no hay datos, mostrar mensaje
   if (history.length === 0) {
@@ -59,9 +61,9 @@ export function SOCHistoryChart() {
     if (active && payload && payload[0]) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white dark:bg-zinc-900 p-2 rounded-lg shadow-lg border border-gray-200 dark:border-zinc-700">
-          <p className="text-xs font-semibold">{data.fullDate}</p>
-          <p className="text-xs text-blue-600 dark:text-blue-400">
+        <div style={{ backgroundColor: colors.tooltip.bg, border: `1px solid ${colors.tooltip.border}` }} className="p-2 rounded-lg shadow-lg">
+          <p className="text-xs font-semibold" style={{ color: colors.tooltip.text }}>{data.fullDate}</p>
+          <p className="text-xs" style={{ color: colors.chart1 }}>
             SOC: {data.soc}%
           </p>
         </div>
@@ -73,8 +75,8 @@ export function SOCHistoryChart() {
   const CustomDot = (props: any) => {
     const { cx, cy, payload } = props;
     const color = 
-      payload.status === 'good' ? '#10b981' :
-      payload.status === 'medium' ? '#f59e0b' : '#ef4444';
+      payload.status === 'good' ? colors.chart2 :
+      payload.status === 'medium' ? colors.chart3 : '#ef4444';
     
     return (
       <circle 
@@ -82,7 +84,7 @@ export function SOCHistoryChart() {
         cy={cy} 
         r={4} 
         fill={color}
-        stroke="#fff"
+        stroke={theme === 'dark' ? '#000000' : '#ffffff'}
         strokeWidth={2}
       />
     );
@@ -103,15 +105,15 @@ export function SOCHistoryChart() {
 
       {/* Estadísticas */}
       <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="text-center p-2 rounded-md bg-slate-50 dark:bg-zinc-800">
+        <div className="text-center p-2 rounded-md bg-muted">
           <p className="text-xs text-muted-foreground">Promedio</p>
           <p className="text-sm font-bold text-blue-600">{avgSOC}%</p>
         </div>
-        <div className="text-center p-2 rounded-md bg-slate-50 dark:bg-zinc-800">
+        <div className="text-center p-2 rounded-md bg-muted">
           <p className="text-xs text-muted-foreground">Máximo</p>
           <p className="text-sm font-bold text-green-600">{maxSOC}%</p>
         </div>
-        <div className="text-center p-2 rounded-md bg-slate-50 dark:bg-zinc-800">
+        <div className="text-center p-2 rounded-md bg-muted">
           <p className="text-xs text-muted-foreground">Mínimo</p>
           <p className="text-sm font-bold text-orange-600">{minSOC}%</p>
         </div>
@@ -123,21 +125,21 @@ export function SOCHistoryChart() {
           <ComposedChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
             <defs>
               <linearGradient id="colorSOC" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                <stop offset="5%" stopColor={colors.chart1} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={colors.chart1} stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} opacity={0.3} />
             <XAxis 
               dataKey="date" 
-              tick={{ fontSize: 10 }}
-              stroke="#6b7280"
+              tick={{ fontSize: 10, fill: colors.text }}
+              stroke={colors.text}
             />
             <YAxis 
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
-              tick={{ fontSize: 10 }}
-              stroke="#6b7280"
+              tick={{ fontSize: 10, fill: colors.text }}
+              stroke={colors.text}
             />
             <Tooltip content={<CustomTooltip />} />
             
@@ -154,7 +156,7 @@ export function SOCHistoryChart() {
             <Line
               type="monotone"
               dataKey="soc"
-              stroke="#3b82f6"
+              stroke={colors.chart1}
               strokeWidth={2}
               dot={<CustomDot />}
             />
@@ -162,14 +164,14 @@ export function SOCHistoryChart() {
             {/* Líneas de referencia */}
             <Line
               dataKey={() => 70}
-              stroke="#10b981"
+              stroke={colors.chart2}
               strokeDasharray="5 5"
               strokeWidth={1}
               dot={false}
             />
             <Line
               dataKey={() => 40}
-              stroke="#f59e0b"
+              stroke={colors.chart3}
               strokeDasharray="5 5"
               strokeWidth={1}
               dot={false}
@@ -181,15 +183,15 @@ export function SOCHistoryChart() {
       {/* Leyenda */}
       <div className="flex justify-center gap-4 mt-3 text-xs">
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
+          <div className="w-2 h-2 rounded-full" style={{backgroundColor: colors.chart2}} />
           <span className="text-muted-foreground">Óptimo (≥70%)</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-amber-500" />
+          <div className="w-2 h-2 rounded-full" style={{backgroundColor: colors.chart3}} />
           <span className="text-muted-foreground">Medio (40-70%)</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 rounded-full bg-red-500" />
+          <div className="w-2 h-2 rounded-full" style={{backgroundColor: '#ef4444'}} />
           <span className="text-muted-foreground">Bajo (&lt;40%)</span>
         </div>
       </div>

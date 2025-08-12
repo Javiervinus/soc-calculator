@@ -37,7 +37,7 @@ export function ConsumptionSummary() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Moon className="h-4 w-4 text-indigo-600" />
-          <h2 className="text-sm font-semibold dark:text-white">Resumen Nocturno</h2>
+          <h2 className="text-sm font-semibold text-foreground">Resumen Nocturno</h2>
         </div>
         <Badge variant="outline" className="text-[10px] sm:text-sm px-2">
           17:00 → 08:00
@@ -52,24 +52,24 @@ export function ConsumptionSummary() {
           </div>
         ) : (
           tramos.map((tramo) => (
-          <div key={tramo.id} className="p-2 rounded-lg bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700">
+          <div key={tramo.id} className="p-2 rounded-lg bg-muted border border-border">
             <div className="flex items-center gap-1 mb-1">
               <div className={`w-2 h-2 rounded-full ${tramo.color}`} />
-              <span className="text-xs font-semibold dark:text-white">{tramo.name}</span>
+              <span className="text-xs font-semibold text-foreground">{tramo.name}</span>
             </div>
-            <p className="text-[10px] sm:text-sm text-muted-foreground dark:text-gray-500 mb-1">{tramo.period}</p>
+            <p className="text-[10px] sm:text-sm text-muted-foreground mb-1">{tramo.period}</p>
             <div className="space-y-0.5">
               <p className="text-[10px] sm:text-sm">
-                <span className="text-muted-foreground dark:text-gray-500">Potencia:</span>
-                <span className="ml-1 font-medium dark:text-white">{tramo.watts}W</span>
+                <span className="text-muted-foreground">Potencia:</span>
+                <span className="ml-1 font-medium text-foreground">{tramo.watts}W</span>
               </p>
               <p className="text-[10px] sm:text-sm">
-                <span className="text-muted-foreground dark:text-gray-500">Energía:</span>
-                <span className="ml-1 font-medium dark:text-white">{tramo.wh} Wh</span>
+                <span className="text-muted-foreground">Energía:</span>
+                <span className="ml-1 font-medium text-foreground">{tramo.wh} Wh</span>
               </p>
               <p className="text-[10px] sm:text-sm">
-                <span className="text-muted-foreground dark:text-gray-500">Duración:</span>
-                <span className="ml-1 font-medium dark:text-white">{tramo.hours}h</span>
+                <span className="text-muted-foreground">Duración:</span>
+                <span className="ml-1 font-medium text-foreground">{tramo.hours}h</span>
               </p>
             </div>
           </div>
@@ -81,13 +81,13 @@ export function ConsumptionSummary() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Battery className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-semibold dark:text-white">Total Nocturno</span>
+            <span className="text-sm font-semibold text-foreground">Total Nocturno</span>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            <div className="text-lg font-bold text-blue-600">
               {totals.wh.toFixed(0)} Wh
             </div>
-            <div className="text-[10px] sm:text-sm text-blue-600 dark:text-blue-400">
+            <div className="text-[10px] sm:text-sm text-blue-600">
               {totals.ah.toFixed(1)} Ah @ 12.8V
             </div>
           </div>

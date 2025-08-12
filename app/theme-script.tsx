@@ -7,10 +7,16 @@ export function ThemeScript() {
           const data = JSON.parse(stored);
           const state = data?.state || {};
           const theme = state.theme || 'light';
+          const appTheme = state.appTheme || 'default';
           
+          // Aplicar modo oscuro/claro
           if (theme === 'dark') {
             document.documentElement.classList.add('dark');
-            document.documentElement.style.backgroundColor = '#000000';
+          }
+          
+          // Aplicar tema de la aplicación
+          if (appTheme && appTheme !== 'default') {
+            document.documentElement.setAttribute('data-theme', appTheme);
           }
         }
       } catch (e) {}

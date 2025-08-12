@@ -18,7 +18,7 @@ export default function Home() {
     <div className="min-h-screen">
       <ResetData />
       {/* Compact Header for Mobile */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-3 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -26,11 +26,11 @@ export default function Home() {
                 <Battery className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-slate-900 dark:text-white">Calculadora SOC</h1>
-                <p className="text-[10px] sm:text-sm text-slate-500 dark:text-slate-400 -mt-0.5">LiFePO₄ 12.8V</p>
+                <h1 className="text-base font-bold text-foreground">Calculadora SOC</h1>
+                <p className="text-[10px] sm:text-sm text-muted-foreground -mt-0.5">LiFePO₄ 12.8V</p>
               </div>
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="text-xs text-muted-foreground">
               108 Ah | 1380 Wh
             </div>
           </div>
@@ -51,17 +51,17 @@ export default function Home() {
             {/* Primary Section - Always first */}
             <div className="space-y-4">
               {/* Voltage Input */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+              <div className="bg-card rounded-xl shadow-sm border border-border">
                 <VoltageInput />
               </div>
 
               {/* SOC Display */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+              <div className="bg-card rounded-xl shadow-sm border border-border">
                 <SOCDisplay />
               </div>
 
               {/* Night Projection - Main component */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+              <div className="bg-card rounded-xl shadow-sm border border-border">
                 <NightProjection />
               </div>
             </div>
@@ -69,16 +69,16 @@ export default function Home() {
             {/* Secondary Section */}
             <div className="space-y-4">
               {/* Consumption Summary */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+              <div className="bg-card rounded-xl shadow-sm border border-border">
                 <ConsumptionSummary />
               </div>
 
               {/* SOC History Chart */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+              <div className="bg-card rounded-xl shadow-sm border border-border">
                 <SOCHistoryChart />
               </div>
               {/* Battery Chart */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+              <div className="bg-card rounded-xl shadow-sm border border-border">
                 <BatteryChart />
               </div>
 

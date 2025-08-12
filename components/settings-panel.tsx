@@ -32,6 +32,8 @@ export function SettingsPanel() {
     resetToDefaults,
     theme,
     setTheme,
+    appTheme,
+    setAppTheme,
     getSOCHistory,
     clearSOCHistory,
     exportFullState,
@@ -407,14 +409,14 @@ export function SettingsPanel() {
   return (
     <Sheet  open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700">
+        <Button variant="outline" size="icon" className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg bg-card border-border">
           <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-white dark:bg-black">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-background">
         <SheetHeader className="px-6">
-          <SheetTitle className="dark:text-white">Configuración</SheetTitle>
-          <SheetDescription className="dark:text-gray-400">
+          <SheetTitle className="text-foreground">Configuración</SheetTitle>
+          <SheetDescription className="text-muted-foreground">
             Ajusta los parámetros de la batería y gestiona perfiles
           </SheetDescription>
         </SheetHeader>
@@ -437,7 +439,7 @@ export function SettingsPanel() {
               </svg>
             </summary>
             
-            <div className="mt-4 space-y-4 p-4 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700">
+            <div className="mt-4 space-y-4 p-4 bg-card rounded-lg border border-border">
               {/* Backup en la Nube */}
               <div className="space-y-4">
                 <h3 className="font-semibold text-sm flex items-center gap-2">
@@ -541,12 +543,12 @@ export function SettingsPanel() {
         </div>
 
         <Tabs defaultValue="battery" className="mt-4 px-6">
-          <TabsList className="grid w-full grid-cols-5 dark:bg-gray-900 text-xs">
-            <TabsTrigger value="battery">Batería</TabsTrigger>
-            <TabsTrigger value="consumption">Consumo</TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-            <TabsTrigger value="table">Tabla</TabsTrigger>
-            <TabsTrigger value="profiles">Perfiles</TabsTrigger>
+          <TabsList className="grid grid-cols-3 sm:grid-cols-5 w-full bg-muted !text-xs gap-1 p-1 h-auto">
+            <TabsTrigger value="battery" className="data-[state=active]:bg-background">Batería</TabsTrigger>
+            <TabsTrigger value="consumption" className="data-[state=active]:bg-background">Consumo</TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:bg-background">Histórico</TabsTrigger>
+            <TabsTrigger value="table" className="data-[state=active]:bg-background">Tabla</TabsTrigger>
+            <TabsTrigger value="profiles" className="data-[state=active]:bg-background">Perfiles</TabsTrigger>
           </TabsList>
 
           <TabsContent value="battery" className="space-y-6 mb-10">
@@ -603,20 +605,60 @@ export function SettingsPanel() {
 
             <div className="space-y-4">
               <h3 className="font-semibold">Apariencia</h3>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {theme === 'light' ? (
-                    <Sun className="h-4 w-4 text-yellow-500" />
-                  ) : (
-                    <Moon className="h-4 w-4 text-blue-500" />
-                  )}
-                  <Label htmlFor="theme-switch">Modo Oscuro</Label>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {theme === 'light' ? (
+                      <Sun className="h-4 w-4 text-yellow-500" />
+                    ) : (
+                      <Moon className="h-4 w-4 text-blue-500" />
+                    )}
+                    <Label htmlFor="theme-switch">Modo Oscuro</Label>
+                  </div>
+                  <Switch
+                    id="theme-switch"
+                    checked={theme === 'dark'}
+                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                  />
                 </div>
-                <Switch
-                  id="theme-switch"
-                  checked={theme === 'dark'}
-                  onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                />
+                
+                <div className="space-y-2">
+                  <Label htmlFor="app-theme">Tema de la Aplicación</Label>
+                  <Select value={appTheme} onValueChange={setAppTheme}>
+                    <SelectTrigger id="app-theme">
+                      <SelectValue placeholder="Selecciona un tema" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full bg-gradient-to-r from-blue-500 to-blue-600" />
+                          <span>Predeterminado</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="futuristic">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500" />
+                          <span>Futurista</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="minimal">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border-2 border-black dark:border-white" />
+                          <span>Minimalista</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="retro">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 bg-gradient-to-br from-orange-400 to-amber-600 border-2 border-amber-800" />
+                          <span>Retro</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Cambia el estilo visual de la aplicación
+                  </p>
+                </div>
               </div>
             </div>
 

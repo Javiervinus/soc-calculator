@@ -35,6 +35,7 @@ interface BatteryStore {
   currentProfileId: string;
   profiles: Profile[];
   theme: 'light' | 'dark';
+  appTheme: 'default' | 'futuristic' | 'minimal' | 'retro';
   
   setVoltage: (voltage: number) => void;
   getCurrentProfile: () => Profile;
@@ -55,6 +56,7 @@ interface BatteryStore {
   getSOCHistory: () => SOCHistoryEntry[];
   clearSOCHistory: () => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  setAppTheme: (appTheme: 'default' | 'futuristic' | 'minimal' | 'retro') => void;
   resetToDefaults: () => void;
   exportFullState: () => string;
   importFullState: (stateJson: string) => { success: boolean; message: string };
@@ -81,10 +83,13 @@ export const useBatteryStore = create<BatteryStore>()(
       currentProfileId: 'default',
       profiles: [defaultProfile],
       theme: 'light', // Siempre inicia en modo claro
+      appTheme: 'default',
       
       setVoltage: (voltage) => set({ currentVoltage: voltage }),
       
       setTheme: (theme) => set({ theme }),
+      
+      setAppTheme: (appTheme) => set({ appTheme }),
       
       getCurrentProfile: () => {
         const state = get();
@@ -324,6 +329,7 @@ export const useBatteryStore = create<BatteryStore>()(
           currentProfileId: 'default',
           profiles: [freshDefaultProfile],
           theme: 'light', // Resetear tema también
+          appTheme: 'default',
         });
       },
       
@@ -335,6 +341,7 @@ export const useBatteryStore = create<BatteryStore>()(
           currentProfileId: state.currentProfileId,
           profiles: state.profiles,
           theme: state.theme,
+          appTheme: state.appTheme || 'default',
           exportedAt: new Date().toISOString(),
           version: '1.0.0'
         };
@@ -358,7 +365,8 @@ export const useBatteryStore = create<BatteryStore>()(
             currentVoltage: importedState.currentVoltage || 13.2,
             currentProfileId: importedState.currentProfileId || 'default',
             profiles: importedState.profiles,
-            theme: importedState.theme || 'light'
+            theme: importedState.theme || 'light',
+            appTheme: importedState.appTheme || 'default'
           });
           
           return { 
@@ -383,6 +391,7 @@ export const useBatteryStore = create<BatteryStore>()(
             currentProfileId: state.currentProfileId,
             profiles: state.profiles,
             theme: state.theme,
+            appTheme: state.appTheme || 'default',
             exportedAt: new Date().toISOString(),
             version: '1.0.0'
           };
