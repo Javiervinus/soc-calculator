@@ -214,12 +214,12 @@ export function NightProjection() {
             ))}
             
             {/* Total summary */}
-            <div className="mt-3 pt-3 border-t border-slate-200">
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-slate-600">
+                <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
                   Total consumo restante:
                 </span>
-                <span className="text-base font-bold text-slate-900">
+                <span className="text-base font-bold text-slate-900 dark:text-slate-100">
                   {projection.requiredWh} Wh ({(projection.requiredWh / 12.8).toFixed(1)} Ah)
                 </span>
               </div>

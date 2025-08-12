@@ -134,6 +134,21 @@ export interface ConsumptionProfile {
   label: string;
 }
 
-import { getNightConsumptionProfile } from './consumption-constants';
+export interface ConsumptionTramo {
+  id: string;
+  name: string;
+  period: string;
+  startHour: number;
+  endHour: number;
+  watts: number;
+  hours: number;
+  wh: number;
+  ah: number;
+  color: string;
+}
+
+import { getNightConsumptionProfile, NIGHT_CONSUMPTION_TRAMOS } from './consumption-constants';
 
 export const nightConsumptionProfile: ConsumptionProfile[] = getNightConsumptionProfile();
+
+export const defaultConsumptionTramos: ConsumptionTramo[] = NIGHT_CONSUMPTION_TRAMOS;

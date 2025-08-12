@@ -6,6 +6,8 @@ import { NightProjection } from '@/components/night-projection';
 import { ResetData } from '@/components/reset-data';
 import { SettingsPanel } from '@/components/settings-panel';
 import { SOCDisplay } from '@/components/soc-display';
+import { SOCHistoryChart } from '@/components/soc-history-chart';
+import { SOCTimeReminder } from '@/components/soc-time-reminder';
 import { Toaster } from '@/components/ui/sonner';
 import { VoltageInput } from '@/components/voltage-input';
 import { Battery } from 'lucide-react';
@@ -38,6 +40,11 @@ export default function Home() {
       {/* Main Content */}
       <main className="container mx-auto px-3 py-3 pb-20">
         <div className="max-w-7xl mx-auto">
+          {/* Time Reminder Alert */}
+          <div className="mb-4">
+            <SOCTimeReminder />
+          </div>
+
           {/* Single column for mobile and tablet, 2 columns for larger screens */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             
@@ -69,6 +76,11 @@ export default function Home() {
               {/* Battery Chart */}
               <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
                 <BatteryChart />
+              </div>
+
+              {/* SOC History Chart */}
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+                <SOCHistoryChart />
               </div>
             </div>
           </div>

@@ -14,12 +14,21 @@ Aplicación web móvil-first para monitoreo en tiempo real del estado de la bate
 - **Reserva de seguridad configurable**: 0-30% (por defecto 0%)
 
 ### Consumo Nocturno (17:00 - 08:00)
-El sistema debe proyectar el consumo durante el período nocturno:
+El sistema proyecta el consumo durante el período nocturno con tramos **editables** almacenados en el store:
+
+#### Tramos por Defecto
 - **Tramo A**: 17:00-19:00 → 7W (2h = 14 Wh = 1.1 Ah)
 - **Tramo B**: 19:00-00:00 → 88W (5h = 440 Wh = 34.4 Ah) ⚠️ IMPORTANTE: Son 88W, NO 105W
 - **Tramo C**: 00:00-06:00 → 17W (6h = 102 Wh = 8.0 Ah)
 - **Tramo D**: 06:00-08:00 → 7W (2h = 14 Wh = 1.1 Ah)
-- **Total ciclo nocturno**: 570 Wh (44.5 Ah)
+- **Total ciclo nocturno por defecto**: 570 Wh (44.5 Ah)
+
+#### Sistema de Gestión de Tramos
+- **Editable**: Los usuarios pueden modificar consumo (watts) y horarios de cada tramo
+- **CRUD completo**: Agregar, editar y eliminar tramos (mínimo 1 tramo requerido)
+- **Persistencia**: Los tramos modificados se guardan en el perfil actual (localStorage)
+- **Cálculo automático**: Wh y Ah se recalculan al modificar watts o duración
+- **Sincronización**: Los cambios en tramos actualizan automáticamente las proyecciones
 
 ### Zona Horaria
 - **Ubicación**: Guayaquil, Ecuador
@@ -46,7 +55,16 @@ El sistema debe proyectar el consumo durante el período nocturno:
   - Media: Valor en los límites
   - Baja: Valor fuera de rango (extrapolación)
 
-### 3. Proyección Nocturna
+### 3. Gestión de Consumo
+- **Editor de tramos**: Interfaz CRUD en el panel de configuración (pestaña "Consumo")
+- **Validaciones**:
+  - Mínimo 1 tramo activo
+  - Horas válidas (0-24)
+  - Hora fin diferente a hora inicio
+- **Migración automática**: Perfiles antiguos reciben tramos por defecto automáticamente
+- **Totales dinámicos**: Suma automática de Wh y Ah de todos los tramos activos
+
+### 4. Proyección Nocturna
 - **Cálculo dinámico** de energía requerida hasta las 08:00
 - **Ponderación del tramo actual**: 
   - Calcula solo el consumo restante del período activo
@@ -60,7 +78,7 @@ El sistema debe proyectar el consumo durante el período nocturno:
   - Pendiente (○): Futuro, cuenta completo
 - **Actualización automática**: Recalcula cada minuto
 
-### 4. Visualización
+### 5. Visualización
 - **Display principal**: 
   - SOC% grande y visible
   - Energía disponible en Wh y Ah
@@ -94,9 +112,9 @@ El sistema debe proyectar el consumo durante el período nocturno:
 ```
 /lib/
   battery-calculations.ts  # Lógica principal de cálculos (refactorizada)
-  consumption-constants.ts # Fuente única de datos de consumo
-  battery-data.ts         # Tipos y datos de la batería
-  store.ts               # Estado global con Zustand
+  consumption-constants.ts # Datos de consumo por defecto (solo lectura)
+  battery-data.ts         # Tipos y datos de la batería (incluye ConsumptionTramo)
+  store.ts               # Estado global con Zustand (incluye gestión de tramos)
   timezone-utils.ts      # Utilidades de zona horaria
 
 /components/
@@ -105,7 +123,8 @@ El sistema debe proyectar el consumo durante el período nocturno:
   night-projection.tsx   # Proyección nocturna con auto-update
   battery-chart.tsx      # Gráficos interactivos
   consumption-summary.tsx # Resumen de consumo
-  settings-panel.tsx     # Configuración y perfiles
+  consumption-editor.tsx  # Editor CRUD de tramos de consumo
+  settings-panel.tsx     # Configuración y perfiles (incluye pestaña Consumo)
 ```
 
 ## Lógica de Cálculos (Refactorizada)
@@ -214,6 +233,8 @@ useBatteryStore.getState().resetToDefaults()
 2. **Tramo actual**: Se incluye ponderado, no se excluye
 3. **Períodos cruzando medianoche**: Lógica robusta de fechas
 4. **localStorage cache**: Reset automático si hay datos antiguos
+5. **Migración de perfiles**: Tramos se agregan automáticamente a perfiles antiguos
+6. **Tramos undefined**: Validación y carga automática de valores por defecto
 
 ## Próximas Mejoras Potenciales
 - [ ] Historial de mediciones
@@ -230,7 +251,10 @@ Cuando trabajes en este proyecto:
 3. **INCLUYE** el tramo actual ponderado en los cálculos
 4. **USA** America/Guayaquil para todas las fechas/horas
 5. **MANTÉN** el diseño mobile-first con componentes compactos
-6. **CENTRALIZA** los datos de consumo en consumption-constants.ts
-7. **NO DUPLIQUES** lógica de consumo en múltiples lugares
-8. **PRUEBA** los cálculos en diferentes horas del día
-9. **ACTUALIZA** este archivo con cambios importantes
+6. **USA** el store para tramos de consumo editables (consumptionTramos)
+7. **MANTÉN** consumption-constants.ts solo para valores por defecto
+8. **NO DUPLIQUES** lógica de consumo en múltiples lugares
+9. **SINCRONIZA** consumptionTramos con consumptionProfile en el store
+10. **PRUEBA** los cálculos en diferentes horas del día
+11. **VALIDA** que los tramos editados mantengan coherencia horaria
+12. **ACTUALIZA** este archivo con cambios importantes

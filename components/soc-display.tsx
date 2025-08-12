@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { calculateAvailableEnergy, calculateUsableEnergy, interpolateSOC } from '@/lib/battery-calculations';
 import { useBatteryStore } from '@/lib/store';
 import { AlertTriangle, Battery } from 'lucide-react';
+import { SOCSaveButton } from './soc-save-button';
 
 export function SOCDisplay() {
   const { currentVoltage, getCurrentProfile } = useBatteryStore();
@@ -55,11 +56,15 @@ export function SOCDisplay() {
       <div className="space-y-3">
         {/* SOC Percentage - Large and Prominent */}
         <div className="flex items-center justify-between">
-          <div>
-            <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`}>
-              {socResult.soc.toFixed(1)}%
+          <div className="flex items-center gap-3">
+            <div>
+              <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`}>
+                {socResult.soc.toFixed(1)}%
+              </div>
+              <p className="text-xs lg:text-sm text-muted-foreground dark:text-gray-500">SOC Actual</p>
             </div>
-            <p className="text-xs lg:text-sm text-muted-foreground dark:text-gray-500">SOC Actual</p>
+            {/* Botón de guardar SOC */}
+            <SOCSaveButton />
           </div>
           
           <div className="text-right">

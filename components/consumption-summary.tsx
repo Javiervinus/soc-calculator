@@ -1,10 +1,37 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { NIGHT_CONSUMPTION_TOTAL, NIGHT_CONSUMPTION_TRAMOS } from '@/lib/consumption-constants';
+import { useBatteryStore } from '@/lib/store';
 import { Battery, Moon } from 'lucide-react';
+import React from 'react';
 
 export function ConsumptionSummary() {
+  const { getCurrentProfile } = useBatteryStore();
+  const currentProfile = getCurrentProfile();
+  
+  // Usar tramos del store, con fallback a array vacío
+  const tramos = currentProfile.consumptionTramos || [];
+  
+  // Si no hay tramos, cargarlos
+  React.useEffect(() => {
+    if (!currentProfile.consumptionTramos || currentProfile.consumptionTramos.length === 0) {
+      import('@/lib/battery-data').then(({ defaultConsumptionTramos }) => {
+        const { updateConsumptionTramos } = useBatteryStore.getState();
+        updateConsumptionTramos(defaultConsumptionTramos);
+      });
+    }
+  }, [currentProfile.consumptionTramos]);
+  
+  // Calcular totales dinámicamente
+  const totals = tramos.length > 0 
+    ? tramos.reduce((acc, t) => ({
+        wh: acc.wh + t.wh,
+        ah: acc.ah + t.ah
+      }), { wh: 0, ah: 0 })
+    : { wh: 0, ah: 0 };
+  
+  const minSOCRequired = totals.wh > 0 ? Number((totals.wh / currentProfile.batteryConfig.capacityWh * 100).toFixed(1)) : 0;
+  const minAhRequired = totals.ah;
   return (
     <div className="p-3 sm:p-4">
       <div className="flex items-center justify-between mb-3">
@@ -19,7 +46,12 @@ export function ConsumptionSummary() {
 
       {/* Compact Grid View for Mobile */}
       <div className="grid grid-cols-2 gap-2 mb-3">
-        {NIGHT_CONSUMPTION_TRAMOS.map((tramo) => (
+        {tramos.length === 0 ? (
+          <div className="col-span-2 p-4 text-center text-sm text-muted-foreground">
+            Cargando tramos de consumo...
+          </div>
+        ) : (
+          tramos.map((tramo) => (
           <div key={tramo.id} className="p-2 rounded-lg bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700">
             <div className="flex items-center gap-1 mb-1">
               <div className={`w-2 h-2 rounded-full ${tramo.color}`} />
@@ -41,7 +73,7 @@ export function ConsumptionSummary() {
               </p>
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {/* Total Summary */}
@@ -53,18 +85,18 @@ export function ConsumptionSummary() {
           </div>
           <div className="text-right">
             <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-              {NIGHT_CONSUMPTION_TOTAL.wh} Wh
+              {totals.wh.toFixed(0)} Wh
             </div>
             <div className="text-[10px] sm:text-sm text-blue-600 dark:text-blue-400">
-              {NIGHT_CONSUMPTION_TOTAL.ah} Ah @ 12.8V
+              {totals.ah.toFixed(1)} Ah @ 12.8V
             </div>
           </div>
         </div>
         
         <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
           <p className="text-[10px] sm:text-sm text-blue-900 dark:text-blue-300">
-            Requiere mínimo <span className="font-semibold">{NIGHT_CONSUMPTION_TOTAL.minSOCRequired}% SOC</span> 
-            ({NIGHT_CONSUMPTION_TOTAL.minAhRequired} Ah de 108 Ah)
+            Requiere mínimo <span className="font-semibold">{minSOCRequired}% SOC</span> 
+            ({minAhRequired.toFixed(1)} Ah de {currentProfile.batteryConfig.capacityAh} Ah)
           </p>
         </div>
       </div>
