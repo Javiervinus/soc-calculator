@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { VoltageSOCEntry } from '@/lib/battery-data';
 import { useBatteryStore } from '@/lib/store';
-import { Download, Moon, Plus, RefreshCw, Save, Settings, Sun, Trash2, Upload } from 'lucide-react';
+import { createEcuadorDate, formatEcuadorDateString, getTodayEcuadorDateString } from '@/lib/timezone-utils';
+import { Copy, Download, Moon, Plus, RefreshCw, Save, Settings, Share2, Sun, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConsumptionEditor } from './consumption-editor';
@@ -33,6 +34,8 @@ export function SettingsPanel() {
     setTheme,
     getSOCHistory,
     clearSOCHistory,
+    exportFullState,
+    importFullState,
   } = useBatteryStore();
 
   const currentProfile = getCurrentProfile();
@@ -40,6 +43,7 @@ export function SettingsPanel() {
   const [tableText, setTableText] = useState('');
   const [newProfileName, setNewProfileName] = useState('');
   const [importSOCText, setImportSOCText] = useState('');
+  const [importFullStateText, setImportFullStateText] = useState('');
 
   const handleSaveReserve = (value: number[]) => {
     updateBatteryConfig({ safetyReserve: value[0] });
@@ -123,14 +127,21 @@ export function SettingsPanel() {
       return;
     }
     
-    // Crear CSV con el histórico
+    // Crear CSV con el histórico en formato ISO para evitar problemas
     const csvContent = [
       ['Fecha', 'Hora', 'SOC (%)'].join(','),
       ...history.map(entry => {
         const date = new Date(entry.timestamp);
+        // Formato YYYY-MM-DD y HH:MM (24 horas) para evitar ambigüedades
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        
         return [
-          date.toLocaleDateString('es-EC'),
-          date.toLocaleTimeString('es-EC'),
+          `${year}-${month}-${day}`,
+          `${hours}:${minutes}`,
           entry.soc
         ].join(',');
       })
@@ -178,45 +189,69 @@ export function SettingsPanel() {
           const soc = parseFloat(socStr.replace('%', ''));
           
           if (!isNaN(soc)) {
-            // Parsear fecha (formato M/D/YYYY o MM/DD/YYYY)
-            const dateParts = dateStr.split('/');
-            if (dateParts.length === 3) {
-              const month = parseInt(dateParts[0]) - 1; // Meses en JS son 0-indexed
-              const day = parseInt(dateParts[1]);
-              const year = parseInt(dateParts[2]);
-              
-              // Parsear hora (formato "5:00:00 p. m." o "17:00:00")
-              let hour = 17; // Por defecto 5 PM
-              let minute = 0;
-              
-              if (timeStr) {
-                // Remover espacios extras y normalizar
-                const timeCleaned = timeStr.replace(/\s+/g, ' ').trim();
-                const isPM = timeCleaned.toLowerCase().includes('p.m.') || timeCleaned.toLowerCase().includes('pm');
-                const isAM = timeCleaned.toLowerCase().includes('a.m.') || timeCleaned.toLowerCase().includes('am');
+            let year, month, day;
+            
+            // Intentar diferentes formatos de fecha
+            if (dateStr.includes('-')) {
+              // Formato YYYY-MM-DD
+              const parts = dateStr.split('-');
+              year = parseInt(parts[0]);
+              month = parseInt(parts[1]) - 1; // Meses en JS son 0-indexed
+              day = parseInt(parts[2]);
+            } else if (dateStr.includes('/')) {
+              // Formato M/D/YYYY (americano) o DD/MM/YYYY
+              const parts = dateStr.split('/');
+              if (parts.length === 3) {
+                // Asumimos formato M/D/YYYY para ser consistentes con tu CSV
+                month = parseInt(parts[0]) - 1;
+                day = parseInt(parts[1]);
+                year = parseInt(parts[2]);
                 
-                // Extraer horas y minutos
-                const timeMatch = timeCleaned.match(/(\d{1,2}):(\d{2})/);
-                if (timeMatch) {
-                  hour = parseInt(timeMatch[1]);
-                  minute = parseInt(timeMatch[2]);
-                  
-                  // Convertir a formato 24 horas
-                  if (isPM && hour !== 12) {
-                    hour += 12;
-                  } else if (isAM && hour === 12) {
-                    hour = 0;
-                  }
+                // Si el año tiene 2 dígitos, convertir a 4
+                if (year < 100) {
+                  year += 2000;
                 }
               }
+            }
+            
+            // Parsear hora
+            let hour = 17; // Por defecto 5 PM
+            let minute = 0;
+            
+            if (timeStr) {
+              // Limpiar la cadena de tiempo
+              const timeCleaned = timeStr.trim().toLowerCase();
               
-              const date = new Date(year, month, day, hour, minute);
+              // Detectar AM/PM
+              const isPM = timeCleaned.includes('p') && timeCleaned.includes('m');
+              const isAM = timeCleaned.includes('a') && timeCleaned.includes('m');
+              
+              // Extraer números de hora
+              const timeMatch = timeCleaned.match(/(\d{1,2}):(\d{2})/);
+              if (timeMatch) {
+                hour = parseInt(timeMatch[1]);
+                minute = parseInt(timeMatch[2]);
+                
+                // Convertir a formato 24 horas si hay indicador AM/PM
+                if (isPM && hour < 12) {
+                  hour += 12;
+                } else if (isAM && hour === 12) {
+                  hour = 0;
+                }
+                // Si no hay AM/PM y la hora es menor a 12, asumimos que es formato 24h
+              }
+            }
+            
+            // Verificar que tenemos valores válidos antes de crear la fecha
+            if (year !== undefined && month !== undefined && day !== undefined) {
+              // Usar la utilidad para crear fecha en Ecuador
+              const date = createEcuadorDate(year, month, day, hour, minute);
               
               if (!isNaN(date.getTime())) {
-                // Verificar si ya existe una entrada para esa fecha
-                const dateKey = date.toISOString().split('T')[0];
+                // Generar la clave de fecha usando la utilidad
+                const dateKey = formatEcuadorDateString(date);
                 const existing = getSOCHistory().find(e => e.date === dateKey);
-                
+              
                 if (!existing) {
                   newEntries.push({
                     date: dateKey,
@@ -239,8 +274,9 @@ export function SettingsPanel() {
           .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
         updateProfile(currentProfileId, { socHistory: newHistory });
         
-        // Verificar si alguna entrada es del día de hoy
-        const today = new Date().toISOString().split('T')[0];
+        // Verificar si alguna entrada es del día de hoy (usando fecha de Ecuador)
+        const today = getTodayEcuadorDateString();
+        
         const hasToday = newEntries.some(entry => entry.date === today);
         
         if (hasToday) {
@@ -268,6 +304,59 @@ export function SettingsPanel() {
     }
   };
 
+  const handleCopyFullState = async () => {
+    const stateJson = exportFullState();
+    try {
+      await navigator.clipboard.writeText(stateJson);
+      toast.success('Configuración copiada', {
+        description: 'La configuración completa ha sido copiada al portapapeles'
+      });
+    } catch (error) {
+      toast.error('Error al copiar', {
+        description: 'No se pudo copiar al portapapeles'
+      });
+    }
+  };
+
+  const handleShareFullState = async () => {
+    const stateJson = exportFullState();
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Configuración SOC Calculator',
+          text: stateJson
+        });
+      } catch (error) {
+        // Si el usuario cancela, no mostramos error
+        if ((error as Error).name !== 'AbortError') {
+          toast.error('Error al compartir');
+        }
+      }
+    } else {
+      // Fallback: copiar al portapapeles si no hay API de compartir
+      handleCopyFullState();
+    }
+  };
+
+  const handleImportFullState = () => {
+    if (!importFullStateText.trim()) {
+      toast.error('Por favor pega la configuración');
+      return;
+    }
+
+    const result = importFullState(importFullStateText);
+    
+    if (result.success) {
+      toast.success(result.message);
+      setImportFullStateText('');
+      // Recargar para aplicar todos los cambios
+      setTimeout(() => window.location.reload(), 500);
+    } else {
+      toast.error(result.message);
+    }
+  };
+
   return (
     <Sheet  open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -283,7 +372,77 @@ export function SettingsPanel() {
           </SheetDescription>
         </SheetHeader>
 
-        <Tabs defaultValue="battery" className="mt-6 px-6">
+        {/* Botón de Backup arriba de los tabs */}
+        <div className="px-6 mt-4">
+          <details className="group">
+            <summary className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 cursor-pointer hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-colors">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900">
+                  <Save className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-blue-900 dark:text-blue-300">Backup Completo</p>
+                  <p className="text-xs text-blue-700 dark:text-blue-400">Exportar o importar toda tu configuración</p>
+                </div>
+              </div>
+              <svg className="h-5 w-5 text-blue-600 dark:text-blue-400 group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            
+            <div className="mt-4 space-y-4 p-4 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-sm">Exportar Configuración</h3>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handleCopyFullState} 
+                    variant="outline" 
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <Copy className="h-3.5 w-3.5 mr-1.5" />
+                    Copiar
+                  </Button>
+                  {typeof navigator !== 'undefined' && 'share' in navigator && (
+                    <Button 
+                      onClick={handleShareFullState} 
+                      variant="outline" 
+                      size="sm"
+                      className="flex-1"
+                    >
+                      <Share2 className="h-3.5 w-3.5 mr-1.5" />
+                      Compartir
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="font-semibold text-sm">Importar Configuración</h3>
+                <Textarea
+                  placeholder="Pega aquí la configuración JSON..."
+                  value={importFullStateText}
+                  onChange={(e) => setImportFullStateText(e.target.value)}
+                  className="h-24 font-mono text-xs"
+                />
+                <Button 
+                  onClick={handleImportFullState}
+                  size="sm"
+                  className="w-full"
+                  disabled={!importFullStateText.trim()}
+                >
+                  <Upload className="h-3.5 w-3.5 mr-1.5" />
+                  Importar
+                </Button>
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  ⚠️ Importar reemplazará todos tus datos actuales
+                </p>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <Tabs defaultValue="battery" className="mt-4 px-6">
           <TabsList className="grid w-full grid-cols-5 dark:bg-gray-900 text-xs">
             <TabsTrigger value="battery">Batería</TabsTrigger>
             <TabsTrigger value="consumption">Consumo</TabsTrigger>
@@ -292,7 +451,7 @@ export function SettingsPanel() {
             <TabsTrigger value="profiles">Perfiles</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="battery" className="space-y-6">
+          <TabsContent value="battery" className="space-y-6 mb-10">
             <div className="space-y-4">
               <h3 className="font-semibold">Capacidad de la Batería</h3>
               <div className="grid grid-cols-2 gap-4">
@@ -364,19 +523,68 @@ export function SettingsPanel() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="font-semibold">Información del Sistema</h3>
+              <h3 className="font-semibold">Información del Sistema de Batería</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Química</span>
-                  <span>{currentProfile.batteryConfig.chemistry}</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.chemistry}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Capacidad Total</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.capacityAh} Ah / {currentProfile.batteryConfig.capacityKwh} kWh</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Voltaje Nominal</span>
-                  <span>{currentProfile.batteryConfig.nominalVoltage} V</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.nominalVoltage} V</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Zona Horaria</span>
-                  <span>{currentProfile.batteryConfig.timezone}</span>
+                  <span className="text-muted-foreground">Configuración</span>
+                  <span className="font-medium text-right text-xs">{currentProfile.batteryConfig.batteryConfiguration}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Baterías</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.numberOfBatteries} × {currentProfile.batteryConfig.batteryCapacityEach} Ah</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="font-semibold">Sistema Solar</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Potencia Total</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.solarPowerTotal} W</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Paneles</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.numberOfPanels} × {currentProfile.batteryConfig.panelPowerEach} W</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tipo de Panel</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.panelType}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Configuración</span>
+                  <span className="font-medium text-right text-xs">{currentProfile.batteryConfig.panelConfiguration}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">V/I por Panel</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.panelVoltage} V / {currentProfile.batteryConfig.panelCurrent} A</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="font-semibold">Controlador de Carga</h3>
+              <div className="space-y-2 text-sm">
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tipo</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.controllerType}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Capacidad</span>
+                  <span className="font-medium">{currentProfile.batteryConfig.controllerCapacity} A</span>
                 </div>
               </div>
             </div>
@@ -453,7 +661,7 @@ export function SettingsPanel() {
               <div className="space-y-4">
                 <h3 className="font-semibold">Importar Histórico</h3>
                 <Textarea
-                  placeholder="Pega aquí datos CSV:☯☸Fecha,Hora,SOC(%)☯☸6/29/2025,5:00:00 p. m.,90☯☸7/15/2025,17:00,100☯☸01/01/2024,16:30,85"
+                  placeholder="Pega aquí datos CSV:☯☸Fecha,Hora,SOC(%)☯☸2025-08-11,17:00,100☯☸8/11/2025,5:00:00 p.m.,100☯☸8/11/2025,17:00,100"
                   value={importSOCText}
                   onChange={(e) => setImportSOCText(e.target.value)}
                   className="h-32 font-mono text-sm"

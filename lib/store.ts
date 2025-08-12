@@ -10,6 +10,7 @@ import {
   nightConsumptionProfile,
   defaultConsumptionTramos
 } from './battery-data';
+import { getTodayEcuadorDateString } from './timezone-utils';
 
 export interface SOCHistoryEntry {
   date: string; // formato YYYY-MM-DD
@@ -55,6 +56,8 @@ interface BatteryStore {
   clearSOCHistory: () => void;
   setTheme: (theme: 'light' | 'dark') => void;
   resetToDefaults: () => void;
+  exportFullState: () => string;
+  importFullState: (stateJson: string) => { success: boolean; message: string };
 }
 
 const defaultProfile: Profile = {
@@ -92,6 +95,13 @@ export const useBatteryStore = create<BatteryStore>()(
         // Migración automática: agregar socHistory si no existe
         if (!profile.socHistory) {
           profile.socHistory = [];
+        }
+        // Migración automática: agregar nuevos campos de batteryConfig si no existen
+        if (profile.batteryConfig) {
+          profile.batteryConfig = {
+            ...defaultBatteryConfig,
+            ...profile.batteryConfig
+          };
         }
         
         return profile;
@@ -241,7 +251,9 @@ export const useBatteryStore = create<BatteryStore>()(
         const state = get();
         const currentProfile = state.getCurrentProfile();
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+        
+        // Usar la utilidad para obtener la fecha de Ecuador
+        const todayStr = getTodayEcuadorDateString();
         
         // Verificar si ya hay una entrada para hoy
         const todayEntry = currentProfile.socHistory?.find(entry => entry.date === todayStr);
@@ -275,7 +287,9 @@ export const useBatteryStore = create<BatteryStore>()(
       getTodaySOCEntry: () => {
         const state = get();
         const currentProfile = state.getCurrentProfile();
-        const todayStr = new Date().toISOString().split('T')[0];
+        
+        // Usar la utilidad para obtener la fecha de Ecuador
+        const todayStr = getTodayEcuadorDateString();
         
         return currentProfile.socHistory?.find(entry => entry.date === todayStr) || null;
       },
@@ -309,6 +323,52 @@ export const useBatteryStore = create<BatteryStore>()(
           profiles: [freshDefaultProfile],
           theme: 'light', // Resetear tema también
         });
+      },
+      
+      exportFullState: () => {
+        const state = get();
+        // Obtener el estado completo del localStorage
+        const fullState = {
+          currentVoltage: state.currentVoltage,
+          currentProfileId: state.currentProfileId,
+          profiles: state.profiles,
+          theme: state.theme,
+          exportedAt: new Date().toISOString(),
+          version: '1.0.0'
+        };
+        return JSON.stringify(fullState, null, 2);
+      },
+      
+      importFullState: (stateJson: string) => {
+        try {
+          const importedState = JSON.parse(stateJson);
+          
+          // Validación básica
+          if (!importedState.profiles || !Array.isArray(importedState.profiles)) {
+            return { 
+              success: false, 
+              message: 'Formato inválido: falta información de perfiles' 
+            };
+          }
+          
+          // Aplicar el estado importado
+          set({
+            currentVoltage: importedState.currentVoltage || 13.2,
+            currentProfileId: importedState.currentProfileId || 'default',
+            profiles: importedState.profiles,
+            theme: importedState.theme || 'light'
+          });
+          
+          return { 
+            success: true, 
+            message: `Configuración importada exitosamente (${importedState.profiles.length} perfil${importedState.profiles.length > 1 ? 'es' : ''})` 
+          };
+        } catch (error) {
+          return { 
+            success: false, 
+            message: 'Error al importar: formato JSON inválido' 
+          };
+        }
       },
     }),
     {

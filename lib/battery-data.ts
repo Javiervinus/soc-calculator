@@ -108,20 +108,60 @@ export const defaultVoltageSOCTable: VoltageSOCEntry[] = [
 ];
 
 export interface BatteryConfig {
+  // Configuración de la batería
   chemistry: string;
   nominalVoltage: number;
   capacityAh: number;
   capacityWh: number;
+  capacityKwh: number;
+  batteryConfiguration: string;
+  numberOfBatteries: number;
+  batteryCapacityEach: number; // Ah
+  
+  // Configuración solar
+  solarPowerTotal: number; // W
+  numberOfPanels: number;
+  panelPowerEach: number; // W
+  panelType: string;
+  panelConfiguration: string;
+  panelVoltage: number; // V
+  panelCurrent: number; // A
+  
+  // Controlador de carga
+  controllerType: 'MPPT' | 'PWM';
+  controllerCapacity: number; // A
+  
+  // Configuración general
   dailyConsumptionAh: number;
   safetyReserve: number;
   timezone: string;
 }
 
 export const defaultBatteryConfig: BatteryConfig = {
+  // Configuración de la batería
   chemistry: 'LiFePO₄',
   nominalVoltage: 12.8,
   capacityAh: 108,
   capacityWh: 1380,
+  capacityKwh: 1.38,
+  batteryConfiguration: '6 baterías de 12.8V/18Ah en paralelo',
+  numberOfBatteries: 6,
+  batteryCapacityEach: 18,
+  
+  // Configuración solar
+  solarPowerTotal: 720,
+  numberOfPanels: 12,
+  panelPowerEach: 60,
+  panelType: 'Monocristalino',
+  panelConfiguration: '12 paneles en paralelo',
+  panelVoltage: 18,
+  panelCurrent: 3.2,
+  
+  // Controlador de carga
+  controllerType: 'MPPT',
+  controllerCapacity: 30,
+  
+  // Configuración general
   dailyConsumptionAh: 45,
   safetyReserve: 0,
   timezone: 'America/Guayaquil',

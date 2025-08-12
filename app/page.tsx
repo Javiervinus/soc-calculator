@@ -73,15 +73,15 @@ export default function Home() {
                 <ConsumptionSummary />
               </div>
 
+              {/* SOC History Chart */}
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+                <SOCHistoryChart />
+              </div>
               {/* Battery Chart */}
               <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
                 <BatteryChart />
               </div>
 
-              {/* SOC History Chart */}
-              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
-                <SOCHistoryChart />
-              </div>
             </div>
           </div>
         </div>

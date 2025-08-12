@@ -5,7 +5,6 @@ import { useBatteryStore } from '@/lib/store';
 import { interpolateSOC } from '@/lib/battery-calculations';
 import { Save, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -18,39 +17,20 @@ interface SOCSaveButtonProps {
 }
 
 export function SOCSaveButton({ compact = true }: SOCSaveButtonProps) {
-  const { currentVoltage, getCurrentProfile, saveDailySOC, getTodaySOCEntry } = useBatteryStore();
+  const { currentVoltage, getCurrentProfile, saveDailySOC, getTodaySOCEntry, getSOCHistory } = useBatteryStore();
   const profile = getCurrentProfile();
-  const [isSaved, setIsSaved] = useState(false);
-  const [todaySOC, setTodaySOC] = useState<number | null>(null);
-  const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
-
-  // Verificar si ya se guardó hoy
-  useEffect(() => {
-    const checkTodayEntry = () => {
-      const todayEntry = getTodaySOCEntry();
-      if (todayEntry) {
-        setIsSaved(true);
-        setTodaySOC(todayEntry.soc);
-        const time = new Date(todayEntry.timestamp);
-        setLastSavedTime(time.toLocaleTimeString('es-EC', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          timeZone: 'America/Guayaquil'
-        }));
-      } else {
-        setIsSaved(false);
-        setTodaySOC(null);
-        setLastSavedTime(null);
-      }
-    };
-
-    checkTodayEntry();
-    
-    // Re-verificar cada segundo para detectar cambios externos (como importación)
-    const interval = setInterval(checkTodayEntry, 1000);
-    
-    return () => clearInterval(interval);
-  }, [getTodaySOCEntry]);
+  
+  // Obtener directamente del store - esto se actualizará automáticamente
+  const todayEntry = getTodaySOCEntry();
+  const historyLength = getSOCHistory().length; // Usar como dependencia para forzar re-render
+  
+  const isSaved = !!todayEntry;
+  const todaySOC = todayEntry?.soc || null;
+  const lastSavedTime = todayEntry ? new Date(todayEntry.timestamp).toLocaleTimeString('es-EC', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    timeZone: 'America/Guayaquil'
+  }) : null;
 
   const handleSave = () => {
     const socResult = interpolateSOC(currentVoltage, profile.voltageSOCTable);
@@ -60,14 +40,6 @@ export function SOCSaveButton({ compact = true }: SOCSaveButtonProps) {
       toast.success(result.message, {
         description: `SOC: ${socResult.soc}%`
       });
-      setIsSaved(true);
-      setTodaySOC(socResult.soc);
-      const now = new Date();
-      setLastSavedTime(now.toLocaleTimeString('es-EC', { 
-        hour: '2-digit', 
-        minute: '2-digit',
-        timeZone: 'America/Guayaquil'
-      }));
     } else {
       toast.error(result.message);
     }

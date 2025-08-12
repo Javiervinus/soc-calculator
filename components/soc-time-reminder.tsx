@@ -7,16 +7,19 @@ import { Clock, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export function SOCTimeReminder() {
-  const { getTodaySOCEntry } = useBatteryStore();
+  const { getTodaySOCEntry, getSOCHistory } = useBatteryStore();
   const [showReminder, setShowReminder] = useState(false);
   const [timeUntilWindow, setTimeUntilWindow] = useState<string | null>(null);
+  
+  // Obtener directamente del store
+  const todayEntry = getTodaySOCEntry();
+  const historyLength = getSOCHistory().length; // Para forzar re-render cuando cambie
 
   useEffect(() => {
     const checkTimeRange = () => {
       const now = getGuayaquilTime();
       const hour = now.getHours();
       const minutes = now.getMinutes();
-      const todayEntry = getTodaySOCEntry();
       
       // Solo mostrar si no se ha guardado hoy
       if (!todayEntry) {
@@ -51,11 +54,11 @@ export function SOCTimeReminder() {
     };
 
     checkTimeRange();
-    // Verificar más frecuentemente para detectar cambios
-    const interval = setInterval(checkTimeRange, 5000); // Verificar cada 5 segundos
+    // Solo verificar cada minuto para actualizar el tiempo restante
+    const interval = setInterval(checkTimeRange, 60000); // Verificar cada minuto
     
     return () => clearInterval(interval);
-  }, [getTodaySOCEntry]);
+  }, [todayEntry, historyLength]);
 
   // Si no hay nada que mostrar, no renderizar
   if (!showReminder && !timeUntilWindow) {

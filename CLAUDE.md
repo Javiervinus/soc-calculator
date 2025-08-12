@@ -9,9 +9,22 @@ Aplicación web móvil-first para monitoreo en tiempo real del estado de la bate
 ### Sistema de Batería
 - **Química**: LiFePO₄ (Litio Ferrofosfato)
 - **Voltaje nominal**: 12.8V
-- **Capacidad**: 108 Ah / 1380 Wh
+- **Capacidad total**: 108 Ah / 1380 Wh / 1.38 kWh
+- **Configuración**: 6 baterías de 12.8V / 18 Ah en paralelo
 - **Rango de voltaje operativo**: 10.0V - 14.6V
 - **Reserva de seguridad configurable**: 0-30% (por defecto 0%)
+
+### Sistema Solar
+- **Potencia total instalada**: 720 W
+- **Configuración**: 12 paneles × 60 W en paralelo
+- **Tipo de panel**: Monocristalino
+- **Voltaje nominal por panel**: 18 V
+- **Corriente nominal por panel**: 3.2 A
+
+### Controlador de Carga
+- **Tipo**: MPPT (Maximum Power Point Tracking)
+- **Capacidad**: 30 A
+- **Modelo**: Por definir (configurable en el sistema)
 
 ### Consumo Nocturno (17:00 - 08:00)
 El sistema proyecta el consumo durante el período nocturno con tramos **editables** almacenados en el store:
@@ -236,20 +249,49 @@ useBatteryStore.getState().resetToDefaults()
 5. **Migración de perfiles**: Tramos se agregan automáticamente a perfiles antiguos
 6. **Tramos undefined**: Validación y carga automática de valores por defecto
 
-## Próximas Mejoras Potenciales
-- [ ] Historial de mediciones
-- [ ] Exportar datos a CSV
-- [ ] Modo oscuro
-- [ ] PWA para instalación móvil
-- [ ] Notificaciones push cuando batería baja
-- [ ] Integración con sistemas de monitoreo
+## Funcionalidades Implementadas Recientemente
+
+### Sistema de Histórico SOC
+- **Guardado diario**: Un registro por día con SOC (sin voltaje)
+- **Botón guardar**: Ubicado junto al display de SOC principal
+- **Visualización**: Gráfico de línea con estadísticas (promedio, máximo, mínimo)
+- **Recordatorio automático**: Alerta entre 4-5 PM Ecuador para guardar SOC
+- **Importación/Exportación CSV**: Formatos M/D/YYYY y YYYY-MM-DD soportados
+- **Migración automática**: Histórico sin voltaje para ahorrar espacio
+
+### Sistema de Backup Completo
+- **Exportar configuración**: Copia todo el estado del localStorage
+- **Compartir nativo**: Usa Web Share API para WhatsApp, email, etc.
+- **Importar configuración**: Restaura configuración completa desde JSON
+- **Ubicación UI**: Panel colapsable arriba de los tabs en Settings
+- **Validación**: Verifica estructura JSON antes de importar
+
+### Manejo de Fechas y Timezone
+- **Librería**: date-fns y date-fns-tz para manejo profesional
+- **Zona horaria**: America/Guayaquil (UTC-5) configurada globalmente
+- **Funciones helper**: timezone-utils.ts con utilidades específicas
+- **Sin cálculos manuales**: No hacer restas de horas manualmente
+
+### Decisiones de Diseño UI/UX
+
+#### Panel de Settings
+- **Máximo 5 tabs**: Para visualización móvil adecuada
+- **Backup separado**: Como panel colapsable, no como tab
+- **Orden de tabs**: Batería, Consumo, Histórico, Tabla, Perfiles
+
+#### Toasts (Sonner)
+- **Tema automático**: Usa el tema del store de Zustand
+- **Colores elegantes**: Fondo blanco (claro) / negro (oscuro)
+- **Descripción legible**: text-gray-600 (claro) / text-gray-400 (oscuro)
+- **Posición**: top-center para mejor visibilidad
+- **NO usar colores de fondo**: Mantener diseño minimalista blanco/negro
 
 ## Para Claude Code
 Cuando trabajes en este proyecto:
 1. **USA pnpm** como gestor de paquetes, no npm
 2. **SIEMPRE** verifica que el Tramo B use 88W, no 105W
 3. **INCLUYE** el tramo actual ponderado en los cálculos
-4. **USA** America/Guayaquil para todas las fechas/horas
+4. **USA** America/Guayaquil para todas las fechas/horas con date-fns-tz
 5. **MANTÉN** el diseño mobile-first con componentes compactos
 6. **USA** el store para tramos de consumo editables (consumptionTramos)
 7. **MANTÉN** consumption-constants.ts solo para valores por defecto
@@ -257,4 +299,8 @@ Cuando trabajes en este proyecto:
 9. **SINCRONIZA** consumptionTramos con consumptionProfile en el store
 10. **PRUEBA** los cálculos en diferentes horas del día
 11. **VALIDA** que los tramos editados mantengan coherencia horaria
-12. **ACTUALIZA** este archivo con cambios importantes
+12. **RESPETA** las decisiones de diseño UI/UX establecidas
+13. **USA** el tema del store para Sonner, no next-themes
+14. **MANTÉN** máximo 5 tabs en Settings para móvil
+15. **NO USES** colores de fondo en toasts, solo blanco/negro elegante
+16. **ACTUALIZA** este archivo con cambios importantes
