@@ -30,7 +30,7 @@ export function SOCHistoryChart() {
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="h-4 w-4 text-blue-600" />
-          <h3 className="text-sm font-semibold">Histórico de SOC</h3>
+          <h3 className="text-lg font-semibold">Histórico de SOC</h3>
         </div>
         <div className="h-48 flex items-center justify-center text-muted-foreground">
           <div className="text-center">
@@ -95,7 +95,7 @@ export function SOCHistoryChart() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-blue-600" />
-          <h3 className="text-sm font-semibold">Histórico de SOC</h3>
+          <h3 className="text-lg font-semibold">Histórico de SOC</h3>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Calendar className="h-3 w-3" />

@@ -136,6 +136,40 @@ export const getChartColors = (theme: 'light' | 'dark', appTheme: string): Chart
       }
     };
   }
+
+  // Tema Hippie - Colores cálidos y orgánicos
+  if (appTheme === 'hippie') {
+    if (theme === 'dark') {
+      return {
+        chart1: '#ff8a65', // Naranja suave
+        chart2: '#81c784', // Verde suave
+        chart3: '#ffb74d', // Naranja claro
+        chart4: '#4dd0e1', // Cyan suave
+        chart5: '#ba68c8', // Púrpura suave
+        grid: '#6d4c41',
+        text: '#ffab91',
+        tooltip: {
+          bg: '#4e342e',
+          border: '#6d4c41',
+          text: '#ffcc80'
+        }
+      };
+    }
+    return {
+      chart1: '#ff6f00', // Naranja intenso
+      chart2: '#4caf50', // Verde
+      chart3: '#ffa726', // Naranja
+      chart4: '#00acc1', // Cyan
+      chart5: '#ab47bc', // Púrpura
+      grid: '#ff8a65',
+      text: '#6d4c41',
+      tooltip: {
+        bg: '#ffe0b2',
+        border: '#ff8a65',
+        text: '#3e2723'
+      }
+    };
+  }
   
   // Fallback
   return getChartColors(theme, 'default');

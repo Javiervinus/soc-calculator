@@ -38,7 +38,7 @@ export function ConsumptionSummary() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Moon className="h-4 w-4 text-indigo-600" />
-          <h2 className="text-sm font-semibold text-foreground">Resumen Nocturno</h2>
+          <h2 className="text-lg font-semibold text-foreground">Resumen Nocturno</h2>
         </div>
         <Badge variant="outline" className="text-[10px] sm:text-sm px-2">
           {TIME_CONFIG.nightCycle.startTime} → {TIME_CONFIG.nightCycle.endTime}
@@ -78,24 +78,24 @@ export function ConsumptionSummary() {
       </div>
 
       {/* Total Summary */}
-      <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800">
+      <div className="p-3 rounded-lg alert-summary">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Battery className="h-4 w-4 text-blue-600" />
+            <Battery className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold text-foreground">Total Nocturno</span>
           </div>
           <div className="text-right">
-            <div className="text-lg font-bold text-blue-600">
+            <div className="text-lg font-bold text-primary">
               {totals.wh.toFixed(0)} Wh
             </div>
-            <div className="text-[10px] sm:text-sm text-blue-600">
+            <div className="text-[10px] sm:text-sm text-primary">
               {totals.ah.toFixed(1)} Ah @ 12.8V
             </div>
           </div>
         </div>
         
-        <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
-          <p className="text-[10px] sm:text-sm text-blue-900 dark:text-blue-300">
+        <div className="mt-2 pt-2 border-t border-accent/30">
+          <p className="text-[10px] sm:text-sm text-foreground/80">
             Requiere mínimo <span className="font-semibold">{minSOCRequired}% SOC</span> 
             ({minAhRequired.toFixed(1)} Ah de {currentProfile.batteryConfig.capacityAh} Ah)
           </p>

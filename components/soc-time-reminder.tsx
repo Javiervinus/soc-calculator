@@ -76,7 +76,7 @@ export function SOCTimeReminder() {
   // Mostrar recordatorio durante el horario recomendado
   if (showReminder) {
     return (
-      <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 animate-pulse">
+      <Alert className="alert-warning animate-pulse">
         <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         <AlertDescription className="text-sm flex items-center justify-between">
           <span className="text-amber-900 dark:text-amber-300 font-medium">
@@ -97,7 +97,7 @@ export function SOCTimeReminder() {
     const endFormatted = formatHour12(TIME_CONFIG.socReminder.endHour - 1).replace(':00', '');
     
     return (
-      <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
+      <Alert className="alert-info">
         <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="text-sm text-blue-900 dark:text-blue-300">
           <span className="inline-block">

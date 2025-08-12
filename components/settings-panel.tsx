@@ -653,6 +653,12 @@ export function SettingsPanel() {
                           <span>Retro</span>
                         </div>
                       </SelectItem>
+                      <SelectItem value="hippie">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500" />
+                          <span>Hippie ✿</span>
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">

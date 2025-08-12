@@ -45,7 +45,7 @@ export function NightProjection() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Moon className="h-5 w-5 text-indigo-600" />
-          <h2 className="text-base lg:text-lg font-semibold">Proyección Nocturna</h2>
+          <h2 className="text-lg font-semibold">Proyección Nocturna</h2>
         </div>
         <Badge variant="outline" className="h-6 text-xs px-2 flex items-center gap-1">
           <Clock className="h-4 w-4" />

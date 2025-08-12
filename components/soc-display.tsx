@@ -37,7 +37,7 @@ export function SOCDisplay() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Battery className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
-          <h2 className="text-sm lg:text-base font-semibold text-foreground">Estado de Carga</h2>
+          <h2 className="text-lg font-semibold text-foreground">Estado de Carga</h2>
         </div>
         <Badge variant={socResult.confidence === 'high' ? 'default' : 'secondary'} className="h-5 text-[10px] sm:text-sm px-2">
           {socResult.confidence === 'high' ? 'Preciso' : 'Estimado'}
@@ -58,7 +58,7 @@ export function SOCDisplay() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div>
-              <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`}>
+              <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`} data-numeric="true">
                 {socResult.soc.toFixed(1)}%
               </div>
               <p className="text-xs lg:text-sm text-muted-foreground">SOC Actual</p>

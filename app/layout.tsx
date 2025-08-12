@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Orbitron, Space_Mono, Inter, JetBrains_Mono, Press_Start_2P, VT323 } from "next/font/google";
+import { Geist, Geist_Mono, Orbitron, Space_Mono, Inter, JetBrains_Mono, Press_Start_2P, VT323, Fredoka, Lilita_One } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeScript } from "./theme-script";
@@ -51,6 +51,19 @@ const vt323 = VT323({
   weight: "400",
 });
 
+// Fuentes hippie
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const lilitaOne = Lilita_One({
+  variable: "--font-lilita-one",
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export const metadata: Metadata = {
   title: "SOC Calculator - Calculadora de Estado de Carga LiFePO₄",
   description: "Calculadora de estado de carga para baterías LiFePO₄ con proyección de consumo nocturno",
@@ -73,7 +86,7 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} ${spaceMono.variable} ${inter.variable} ${jetbrainsMono.variable} ${pressStart.variable} ${vt323.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} ${spaceMono.variable} ${inter.variable} ${jetbrainsMono.variable} ${pressStart.variable} ${vt323.variable} ${fredoka.variable} ${lilitaOne.variable} antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider>

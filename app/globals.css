@@ -268,6 +268,81 @@
   --sidebar-ring: #ffffff;
 }
 
+/* Hippie Theme - Light Mode */
+[data-theme="hippie"] {
+  --font-primary: var(--font-fredoka);
+  --font-secondary: var(--font-lilita-one);
+  --radius: 2rem;
+  --background: #ff9800;
+  --foreground: #4a148c;
+  --card: #ffb74d;
+  --card-foreground: #311b92;
+  --popover: #ffcc80;
+  --popover-foreground: #4a148c;
+  --primary: #9c27b0;
+  --primary-foreground: #ffffff;
+  --secondary: #ff6f00;
+  --secondary-foreground: #ffffff;
+  --muted: #ffe0b2;
+  --muted-foreground: #6a1b9a;
+  --accent: #e91e63;
+  --accent-foreground: #ffffff;
+  --destructive: #c62828;
+  --border: #f4511e;
+  --input: #ffd54f;
+  --ring: #ab47bc;
+  --chart-1: #9c27b0;
+  --chart-2: #4caf50;
+  --chart-3: #ff6f00;
+  --chart-4: #00bcd4;
+  --chart-5: #e91e63;
+  --sidebar: #ffa726;
+  --sidebar-foreground: #4a148c;
+  --sidebar-primary: #9c27b0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffb74d;
+  --sidebar-accent-foreground: #4a148c;
+  --sidebar-border: #ff6f00;
+  --sidebar-ring: #ab47bc;
+}
+
+/* Hippie Theme - Dark Mode */
+[data-theme="hippie"].dark {
+  --font-primary: var(--font-fredoka);
+  --font-secondary: var(--font-lilita-one);
+  --background: #3e2723;
+  --foreground: #ffcc80;
+  --card: #5d4037;
+  --card-foreground: #ffb74d;
+  --popover: #4e342e;
+  --popover-foreground: #ffb74d;
+  --primary: #ff8a65;
+  --primary-foreground: #3e2723;
+  --secondary: #6d4c41;
+  --secondary-foreground: #ffcc80;
+  --muted: #4e342e;
+  --muted-foreground: #ffab91;
+  --accent: #ff7043;
+  --accent-foreground: #3e2723;
+  --destructive: #ff5722;
+  --border: #8d6e63;
+  --input: #5d4037;
+  --ring: #ff8a65;
+  --chart-1: #ff8a65;
+  --chart-2: #81c784;
+  --chart-3: #ffb74d;
+  --chart-4: #4dd0e1;
+  --chart-5: #ba68c8;
+  --sidebar: #4e342e;
+  --sidebar-foreground: #ffcc80;
+  --sidebar-primary: #ff8a65;
+  --sidebar-primary-foreground: #3e2723;
+  --sidebar-accent: #5d4037;
+  --sidebar-accent-foreground: #ffb74d;
+  --sidebar-border: #6d4c41;
+  --sidebar-ring: #ff8a65;
+}
+
 /* Retro Theme - Light Mode */
 [data-theme="retro"] {
   --font-primary: var(--font-press-start);
@@ -389,6 +464,28 @@
     background: #0a0a0a !important;
   }
 
+  /* Tema Hippie */
+  [data-theme="hippie"] body {
+    background: linear-gradient(135deg, #ff9800 0%, #ffa726 50%, #ffb74d 100%);
+    font-family: var(--font-fredoka);
+    font-weight: 500;
+  }
+
+
+  [data-theme="hippie"].dark body {
+    background: #3e2723 !important;
+  }
+
+
+
+
+  /* Anillos org\u00e1nicos en patrones de tarjetas */
+  [data-theme="hippie"] .floating-flowers {
+    background-image:
+      radial-gradient(circle at 75% 25%, transparent 8px, rgba(156, 39, 176, 0.02) 9px, rgba(156, 39, 176, 0.02) 15px, transparent 16px),
+      radial-gradient(circle at 25% 75%, transparent 6px, rgba(233, 30, 99, 0.02) 7px, rgba(233, 30, 99, 0.02) 12px, transparent 13px);
+  }
+
   /* Tema Retro */
   [data-theme="retro"] body {
     background: linear-gradient(45deg, #fff9f0 25%, #fff4e6 25%, #fff4e6 50%, #fff9f0 50%, #fff9f0 75%, #fff4e6 75%, #fff4e6);
@@ -480,6 +577,178 @@
     font-size: 20px;
   }
 
+  /* Efectos hippie - Limpio y elegante */
+  [data-theme="hippie"] .card,
+  [data-theme="hippie"] .bg-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
+  }
+
+
+  [data-theme="hippie"] button {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: 2px solid var(--border);
+    border-radius: 1.5rem;
+    font-family: var(--font-fredoka);
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  [data-theme="hippie"] button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+  }
+
+  /* Inputs - Estilo limpio */
+  [data-theme="hippie"] input,
+  [data-theme="hippie"] select {
+    border: 2px solid var(--border);
+    border-radius: 1rem;
+    background: var(--input);
+    font-family: var(--font-fredoka);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 8px 16px;
+  }
+
+  /* Input de números con espacio extra */
+  [data-theme="hippie"] input[type="number"] {
+    letter-spacing: 0.03em;
+  }
+
+  [data-theme="hippie"].dark input,
+  [data-theme="hippie"].dark select {
+    background: var(--input);
+    color: var(--foreground);
+  }
+
+  /* Títulos - Tipografía limpia */
+  [data-theme="hippie"] h1 {
+    font-family: var(--font-lilita-one);
+    font-weight: 400;
+    font-size: 1.8rem;
+    letter-spacing: 0.02em;
+  }
+
+  [data-theme="hippie"] h2,
+  [data-theme="hippie"] h3,
+  [data-theme="hippie"] h4,
+  [data-theme="hippie"] h5,
+  [data-theme="hippie"] h6 {
+    font-family: var(--font-fredoka);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  [data-theme="hippie"] h1 {
+    font-size: 1.6em;
+  }
+
+  [data-theme="hippie"] h2 {
+    font-size: 1.3em;
+  }
+
+  [data-theme="hippie"] h3 {
+    font-size: 1.1em;
+  }
+
+  [data-theme="hippie"] h4 {
+    font-size: 1em;
+  }
+
+  [data-theme="hippie"] h5,
+  [data-theme="hippie"] h6 {
+    font-size: 0.95em;
+  }
+
+  /* Base - Fuente Fredoka para todo */
+  [data-theme="hippie"] * {
+    font-family: var(--font-fredoka);
+    font-weight: 500;
+  }
+
+  /* Textos muy pequeños - Fredoka con borde sutil */
+  [data-theme="hippie"] .text-\[10px\],
+  [data-theme="hippie"] .text-\[11px\],
+  [data-theme="hippie"] .text-xs {
+    font-family: var(--font-fredoka) !important;
+    font-weight: 600;
+    letter-spacing: 0.02em !important;
+    -webkit-text-stroke: 0.4px var(--foreground);
+    text-stroke: 0.4px var(--foreground);
+    paint-order: stroke fill;
+  }
+
+  /* Textos pequeños - Fredoka con borde */
+  [data-theme="hippie"] .text-sm,
+  [data-theme="hippie"] .text-base {
+    font-family: var(--font-fredoka) !important;
+    font-weight: 600;
+    letter-spacing: 0.01em !important;
+    -webkit-text-stroke: 0.5px var(--foreground);
+    text-stroke: 0.5px var(--foreground);
+    paint-order: stroke fill;
+  }
+
+  /* Textos medianos - Fredoka */
+  [data-theme="hippie"] .text-lg,
+  [data-theme="hippie"] .text-xl {
+    font-family: var(--font-fredoka) !important;
+    font-weight: 600;
+    letter-spacing: 0.01em !important;
+    -webkit-text-stroke: 0.7px var(--border);
+    text-stroke: 0.7px var(--border);
+    paint-order: stroke fill;
+  }
+
+  /* Textos grandes - Fredoka con más peso */
+  [data-theme="hippie"] .text-2xl,
+  [data-theme="hippie"] .text-3xl {
+    font-family: var(--font-fredoka) !important;
+    font-weight: 700;
+    letter-spacing: 0.02em !important;
+    -webkit-text-stroke: 0.8px var(--border);
+    text-stroke: 0.8px var(--border);
+    paint-order: stroke fill;
+  }
+
+  /* Textos muy grandes - Lilita One para impacto */
+  [data-theme="hippie"] .text-4xl,
+  [data-theme="hippie"] .text-5xl,
+  [data-theme="hippie"] .text-6xl {
+    font-family: var(--font-lilita-one) !important;
+    font-weight: 400;
+    letter-spacing: 0.03em !important;
+    -webkit-text-stroke: 1px var(--border);
+    text-stroke: 1px var(--border);
+    paint-order: stroke fill;
+  }
+
+  /* Números grandes del SOC - Lilita One */
+  [data-theme="hippie"] [data-numeric="true"].text-4xl,
+  [data-theme="hippie"] [data-numeric="true"].text-5xl {
+    font-family: var(--font-lilita-one) !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  /* Texto por defecto - Fredoka */
+  [data-theme="hippie"] p,
+  [data-theme="hippie"] span,
+  [data-theme="hippie"] div {
+    font-family: var(--font-fredoka);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    -webkit-text-stroke: 0.5px var(--foreground);
+    text-stroke: 0.5px var(--foreground);
+    paint-order: stroke fill;
+  }
+
   /* Ajustar tamaño de fuente para clases de Tailwind en retro - Móvil */
   [data-theme="retro"] .text-xs {
     font-size: 9px !important;
@@ -560,5 +829,69 @@
 
   .mobile-card {
     @apply rounded-xl sm:rounded-2xl;
+  }
+
+  /* Alert styles adaptados por tema */
+  .alert-warning {
+    @apply border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800;
+  }
+
+  .alert-info {
+    @apply border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800;
+  }
+
+  .alert-summary {
+    @apply bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800;
+  }
+
+  /* Tema Hippie - Alerts */
+  [data-theme="hippie"] .alert-warning {
+    @apply border-2 bg-orange-100 dark:bg-orange-900/30;
+    border-color: var(--accent) !important;
+  }
+
+  [data-theme="hippie"] .alert-info {
+    @apply border-2 bg-amber-50 dark:bg-amber-900/20;
+    border-color: var(--secondary) !important;
+  }
+
+  [data-theme="hippie"] .alert-summary {
+    @apply bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-2;
+    border-color: var(--primary) !important;
+  }
+
+  /* Tema Futuristic - Alerts */
+  [data-theme="futuristic"] .alert-warning {
+    @apply bg-cyan-900/20 dark:bg-cyan-400/10 border;
+    border-color: #00d9ff !important;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+  }
+
+  [data-theme="futuristic"] .alert-info {
+    @apply bg-blue-900/20 dark:bg-blue-400/10 border;
+    border-color: #0891b2 !important;
+    box-shadow: 0 0 10px rgba(8, 145, 178, 0.3);
+  }
+
+  [data-theme="futuristic"] .alert-summary {
+    @apply bg-gradient-to-r from-cyan-900/20 to-blue-900/20 dark:from-cyan-400/10 dark:to-blue-400/10 border;
+    border-color: #06b6d4 !important;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+  }
+
+  /* Tema Minimal - Alerts */
+  [data-theme="minimal"] .alert-warning,
+  [data-theme="minimal"] .alert-info,
+  [data-theme="minimal"] .alert-summary {
+    @apply bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700;
+    box-shadow: none !important;
+  }
+
+  /* Tema Retro - Alerts */
+  [data-theme="retro"] .alert-warning,
+  [data-theme="retro"] .alert-info,
+  [data-theme="retro"] .alert-summary {
+    border-width: 2px !important;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2) !important;
   }
 }

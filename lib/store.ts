@@ -35,7 +35,7 @@ interface BatteryStore {
   currentProfileId: string;
   profiles: Profile[];
   theme: 'light' | 'dark';
-  appTheme: 'default' | 'futuristic' | 'minimal' | 'retro';
+  appTheme: 'default' | 'futuristic' | 'minimal' | 'retro' | 'hippie';
   
   setVoltage: (voltage: number) => void;
   getCurrentProfile: () => Profile;
