@@ -8,8 +8,7 @@ import { ConsumptionSummary } from '@/components/consumption-summary';
 import { SettingsPanel } from '@/components/settings-panel';
 import { ResetData } from '@/components/reset-data';
 import { Toaster } from '@/components/ui/sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Battery, Moon, BarChart3 } from 'lucide-react';
+import { Battery } from 'lucide-react';
 
 export default function Home() {
 
@@ -37,51 +36,42 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-3 py-3 max-w-md mx-auto pb-20">
-        {/* Critical Info Section - Always Visible */}
-        <div className="space-y-3">
-          {/* Voltage Input - Compact */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
-            <VoltageInput />
-          </div>
-
-          {/* SOC Display - Compact with key metrics */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
-            <SOCDisplay />
-          </div>
-
-          {/* Night Projection - Most Important */}
-          <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
-            <NightProjection />
-          </div>
-        </div>
-
-        {/* Tabbed Secondary Content */}
-        <div className="mt-4">
-          <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-9 dark:bg-zinc-800">
-              <TabsTrigger value="summary" className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-                <Moon className="h-3 w-3 mr-1" />
-                Resumen
-              </TabsTrigger>
-              <TabsTrigger value="charts" className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white">
-                <BarChart3 className="h-3 w-3 mr-1" />
-                Gráficos
-              </TabsTrigger>
-            </TabsList>
+      <main className="container mx-auto px-3 py-3 pb-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Single column for mobile and tablet, 2 columns for larger screens */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             
-            <TabsContent value="summary" className="mt-3">
+            {/* Primary Section - Always first */}
+            <div className="space-y-4">
+              {/* Voltage Input */}
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+                <VoltageInput />
+              </div>
+
+              {/* SOC Display */}
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+                <SOCDisplay />
+              </div>
+
+              {/* Night Projection - Main component */}
+              <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
+                <NightProjection />
+              </div>
+            </div>
+
+            {/* Secondary Section */}
+            <div className="space-y-4">
+              {/* Consumption Summary */}
               <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
                 <ConsumptionSummary />
               </div>
-            </TabsContent>
-            
-            <TabsContent value="charts" className="mt-3">
+
+              {/* Battery Chart */}
               <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm dark:border dark:border-zinc-800">
                 <BatteryChart />
               </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
         </div>
       </main>
 

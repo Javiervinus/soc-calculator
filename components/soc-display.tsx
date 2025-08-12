@@ -32,13 +32,13 @@ export function SOCDisplay() {
   };
 
   return (
-    <div className="p-3 sm:p-4">
+    <div className="p-3 sm:p-4 lg:p-5">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Battery className="h-4 w-4 text-blue-600" />
-          <h2 className="text-sm font-semibold dark:text-white">Estado de Carga</h2>
+          <Battery className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
+          <h2 className="text-sm lg:text-base font-semibold dark:text-white">Estado de Carga</h2>
         </div>
-        <Badge variant={socResult.confidence === 'high' ? 'default' : 'secondary'} className="h-5 text-[10px] px-2">
+        <Badge variant={socResult.confidence === 'high' ? 'default' : 'secondary'} className="h-5 text-[10px] lg:text-xs px-2">
           {socResult.confidence === 'high' ? 'Preciso' : 'Estimado'}
         </Badge>
       </div>
@@ -56,17 +56,17 @@ export function SOCDisplay() {
         {/* SOC Percentage - Large and Prominent */}
         <div className="flex items-center justify-between">
           <div>
-            <div className={`text-4xl font-bold ${getSOCColor()}`}>
+            <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`}>
               {socResult.soc.toFixed(1)}%
             </div>
-            <p className="text-xs text-muted-foreground dark:text-gray-500">SOC Actual</p>
+            <p className="text-xs lg:text-sm text-muted-foreground dark:text-gray-500">SOC Actual</p>
           </div>
           
           <div className="text-right">
-            <div className="text-sm font-semibold dark:text-white">{availableEnergy.whAvailable} Wh</div>
-            <div className="text-xs text-muted-foreground dark:text-gray-500">{availableEnergy.ahAvailable} Ah</div>
+            <div className="text-sm lg:text-base font-semibold dark:text-white">{availableEnergy.whAvailable} Wh</div>
+            <div className="text-xs lg:text-sm text-muted-foreground dark:text-gray-500">{availableEnergy.ahAvailable} Ah</div>
             {profile.batteryConfig.safetyReserve > 0 && (
-              <div className="text-[10px] text-blue-600 mt-1">
+              <div className="text-[10px] lg:text-xs text-blue-600 mt-1">
                 Útil: {usableEnergy.whAvailable} Wh
               </div>
             )}
@@ -92,16 +92,16 @@ export function SOCDisplay() {
         {/* Quick Stats Grid - Compact */}
         <div className="grid grid-cols-3 gap-2 pt-2 border-t">
           <div className="text-center">
-            <p className="text-[10px] text-muted-foreground dark:text-gray-500">Capacidad</p>
-            <p className="text-xs font-semibold dark:text-white">{profile.batteryConfig.capacityAh} Ah</p>
+            <p className="text-[10px] lg:text-xs text-muted-foreground dark:text-gray-500">Capacidad</p>
+            <p className="text-xs lg:text-sm font-semibold dark:text-white">{profile.batteryConfig.capacityAh} Ah</p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-muted-foreground dark:text-gray-500">Energía</p>
-            <p className="text-xs font-semibold dark:text-white">{profile.batteryConfig.capacityWh} Wh</p>
+            <p className="text-[10px] lg:text-xs text-muted-foreground dark:text-gray-500">Energía</p>
+            <p className="text-xs lg:text-sm font-semibold dark:text-white">{profile.batteryConfig.capacityWh} Wh</p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-muted-foreground dark:text-gray-500">Reserva</p>
-            <p className="text-xs font-semibold dark:text-white">{profile.batteryConfig.safetyReserve}%</p>
+            <p className="text-[10px] lg:text-xs text-muted-foreground dark:text-gray-500">Reserva</p>
+            <p className="text-xs lg:text-sm font-semibold dark:text-white">{profile.batteryConfig.safetyReserve}%</p>
           </div>
         </div>
       </div>

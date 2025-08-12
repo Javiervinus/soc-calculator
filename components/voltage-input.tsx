@@ -128,13 +128,13 @@ export function VoltageInput() {
   };
 
   return (
-    <div className="p-3 sm:p-4">
+    <div className="p-3 sm:p-4 lg:p-5">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Battery className="h-4 w-4 text-blue-600" />
-          <h2 className="text-sm font-semibold dark:text-white">Voltaje de Entrada</h2>
+          <Battery className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
+          <h2 className="text-sm lg:text-base font-semibold dark:text-white">Voltaje de Entrada</h2>
         </div>
-        <div className="text-2xl font-bold text-blue-600">
+        <div className="text-2xl lg:text-3xl font-bold text-blue-600">
           {currentVoltage.toFixed(2)} V
         </div>
       </div>
