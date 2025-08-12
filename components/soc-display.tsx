@@ -2,11 +2,15 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { calculateAvailableEnergy, calculateUsableEnergy, interpolateSOC } from '@/lib/battery-calculations';
 import { useBatteryStore } from '@/lib/store';
 import { AlertTriangle, Battery } from 'lucide-react';
 import { SOCSaveButton } from './soc-save-button';
+import { HippieCardWrapper } from './hippie-card-wrapper';
+import { HippieProgress } from './hippie-progress';
+import { HippieIcon } from './hippie-icon';
+import { HippieText } from './hippie-text';
+import { HippieCornerFlorals } from './hippie-corner-florals';
 
 export function SOCDisplay() {
   const { currentVoltage, getCurrentProfile } = useBatteryStore();
@@ -25,19 +29,19 @@ export function SOCDisplay() {
     return 'text-red-600';
   };
 
-  const getProgressColor = () => {
-    if (socResult.soc >= 80) return 'bg-green-600';
-    if (socResult.soc >= 50) return 'bg-yellow-600';
-    if (socResult.soc >= 20) return 'bg-orange-600';
-    return 'bg-red-600';
-  };
 
   return (
-    <div className="p-3 sm:p-4 lg:p-5">
+    <HippieCardWrapper className="p-3 sm:p-4 lg:p-5">
+      <HippieCornerFlorals position="top-right" />
+      <HippieCornerFlorals position="bottom-left" />
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Battery className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-foreground">Estado de Carga</h2>
+          <HippieIcon variant="pulse">
+            <Battery className="h-4 w-4 lg:h-5 lg:w-5 text-blue-600" />
+          </HippieIcon>
+          <HippieText variant="rainbow">
+            <h2 className="text-lg font-semibold text-foreground">Estado de Carga</h2>
+          </HippieText>
         </div>
         <Badge variant={socResult.confidence === 'high' ? 'default' : 'secondary'} className="h-5 text-[10px] sm:text-sm px-2">
           {socResult.confidence === 'high' ? 'Preciso' : 'Estimado'}
@@ -58,9 +62,11 @@ export function SOCDisplay() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div>
-              <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`} data-numeric="true">
-                {socResult.soc.toFixed(1)}%
-              </div>
+              <HippieText variant="glow">
+                <div className={`text-4xl lg:text-5xl font-bold ${getSOCColor()}`} data-numeric="true">
+                  {socResult.soc.toFixed(1)}%
+                </div>
+              </HippieText>
               <p className="text-xs lg:text-sm text-muted-foreground">SOC Actual</p>
             </div>
             {/* Botón de guardar SOC  prueba*/}
@@ -81,12 +87,9 @@ export function SOCDisplay() {
 
         {/* Progress Bar */}
         <div>
-          <Progress 
+          <HippieProgress 
             value={socResult.soc} 
             className="h-2"
-            style={{
-              '--progress-background': getProgressColor(),
-            } as React.CSSProperties}
           />
           <div className="flex justify-between text-[10px] sm:text-sm text-muted-foreground mt-1">
             <span>0%</span>
@@ -111,6 +114,6 @@ export function SOCDisplay() {
           </div>
         </div>
       </div>
-    </div>
+    </HippieCardWrapper>
   );
 }

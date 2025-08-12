@@ -11,11 +11,13 @@ import { SOCTimeReminder } from '@/components/soc-time-reminder';
 import { Toaster } from '@/components/ui/sonner';
 import { VoltageInput } from '@/components/voltage-input';
 import { Battery } from 'lucide-react';
+import { HippieOptimized } from '@/components/hippie-optimized';
 
 export default function Home() {
 
   return (
     <div className="min-h-screen">
+      <HippieOptimized />
       <ResetData />
       {/* Compact Header for Mobile */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">

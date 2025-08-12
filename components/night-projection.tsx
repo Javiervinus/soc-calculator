@@ -2,13 +2,17 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { calculateNightProjection, interpolateSOC } from '@/lib/battery-calculations';
 import { useBatteryStore } from '@/lib/store';
 import { TIME_CONFIG } from '@/lib/time-config';
 import { formatGuayaquilTime, getGuayaquilTime } from '@/lib/timezone-utils';
 import { Activity, CheckCircle, ChevronDown, ChevronUp, Clock, Moon, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { HippieCardWrapper } from './hippie-card-wrapper';
+import { HippieProgress } from './hippie-progress';
+import { HippieIcon } from './hippie-icon';
+import { HippieText } from './hippie-text';
+import { HippieCornerFlorals } from './hippie-corner-florals';
 
 export function NightProjection() {
   const { currentVoltage, getCurrentProfile } = useBatteryStore();
@@ -41,11 +45,17 @@ export function NightProjection() {
     : 0;
 
   return (
-    <div className="p-4 lg:p-5">
+    <HippieCardWrapper className="p-4 lg:p-5">
+      <HippieCornerFlorals position="top-left" />
+      <HippieCornerFlorals position="bottom-right" />
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Moon className="h-5 w-5 text-indigo-600" />
-          <h2 className="text-lg font-semibold">Proyección Nocturna</h2>
+          <HippieIcon variant="float">
+            <Moon className="h-5 w-5 text-indigo-600" />
+          </HippieIcon>
+          <HippieText variant="wave">
+            <h2 className="text-lg font-semibold">Proyección Nocturna</h2>
+          </HippieText>
         </div>
         <Badge variant="outline" className="h-6 text-xs px-2 flex items-center gap-1">
           <Clock className="h-4 w-4" />
@@ -105,9 +115,11 @@ export function NightProjection() {
                     SOC Real
                   </div>
                   <div className="text-center">
-                    <span className={`text-2xl font-bold ${getSOCColor(socWithoutReserve, projection.willLastUntil8AM)}`}>
-                      {socWithoutReserve}%
-                    </span>
+                    <HippieText variant="glow">
+                      <span className={`text-2xl font-bold ${getSOCColor(socWithoutReserve, projection.willLastUntil8AM)}`}>
+                        {socWithoutReserve}%
+                      </span>
+                    </HippieText>
                     <div className="text-xs text-muted-foreground mt-1">
                       {(realRemainingWh / 12.8).toFixed(1)} Ah
                     </div>
@@ -122,9 +134,11 @@ export function NightProjection() {
                       <span className="text-[9px] ml-1">(-{profile.batteryConfig.safetyReserve}%)</span>
                     </div>
                     <div className="text-center">
-                      <span className={`text-2xl font-bold ${getSOCColor(socWithReserve, projection.willLastUntil8AM)}`}>
-                        {socWithReserve}%
-                      </span>
+                      <HippieText variant="glow">
+                        <span className={`text-2xl font-bold ${getSOCColor(socWithReserve, projection.willLastUntil8AM)}`}>
+                          {socWithReserve}%
+                        </span>
+                      </HippieText>
                       <div className="text-xs text-muted-foreground mt-1">
                         {(utilRemainingWh / 12.8).toFixed(1)} Ah
                       </div>
@@ -166,7 +180,7 @@ export function NightProjection() {
           </div>
 
           {/* Progress Bar */}
-          <Progress value={progressPercentage} className="h-2" />
+          <HippieProgress value={progressPercentage} className="h-2" />
         </div>
 
         {/* Margin - Mostrar con y sin reserva - OCULTO */}
@@ -323,7 +337,7 @@ export function NightProjection() {
                     {/* Progress bar for current period */}
                     {'progress' in period && period.status === 'current' && period.progress !== undefined && (
                       <div className="mt-1">
-                        <Progress value={period.progress} className="h-1" />
+                        <HippieProgress value={period.progress} className="h-1" />
                         <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">
                           {period.progress.toFixed(1)}% completado
                         </p>
@@ -385,6 +399,6 @@ export function NightProjection() {
           </div>
         )}
       </div>
-    </div>
+    </HippieCardWrapper>
   );
 }
