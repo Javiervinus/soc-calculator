@@ -152,7 +152,7 @@ export function NightProjection() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium">{period.period}</p>
                       {'status' in period && period.status === 'current' && (
-                        <Badge variant="secondary" className="h-5 px-2 text-[10px]">
+                        <Badge variant="secondary" className="h-5 px-2 text-[10px] sm:text-sm">
                           <Activity className="h-3 w-3 mr-1" />
                           En curso
                         </Badge>
@@ -166,7 +166,7 @@ export function NightProjection() {
                     {'progress' in period && period.status === 'current' && period.progress !== undefined && (
                       <div className="mt-1">
                         <Progress value={period.progress} className="h-1" />
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                        <p className="text-[10px] sm:text-sm text-muted-foreground mt-0.5">
                           {period.progress.toFixed(1)}% completado
                         </p>
                       </div>
@@ -183,7 +183,7 @@ export function NightProjection() {
                       <p className="text-sm font-semibold text-blue-600">
                         Restante: {period.remainingWh} Wh
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] sm:text-sm text-muted-foreground">
                         {period.watts}W × {period.hours.toFixed(1)}h
                       </p>
                     </div>
@@ -194,7 +194,7 @@ export function NightProjection() {
                         <p className="text-sm text-gray-500">
                           {period.consumedWh} Wh
                         </p>
-                        <p className="text-[10px] text-gray-400">
+                        <p className="text-[10px] sm:text-sm text-gray-400">
                           Completado
                         </p>
                       </div>

@@ -25,7 +25,7 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-base font-bold text-slate-900 dark:text-white">Calculadora SOC</h1>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 -mt-0.5">LiFePO₄ 12.8V</p>
+                <p className="text-[10px] sm:text-sm text-slate-500 dark:text-slate-400 -mt-0.5">LiFePO₄ 12.8V</p>
               </div>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">
