@@ -100,7 +100,10 @@ export function SOCTimeReminder() {
       <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
         <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="text-sm text-blue-900 dark:text-blue-300">
-          Próxima ventana recomendada para guardar SOC en <span className="font-medium">{timeUntilWindow}</span> ({startFormatted}-{endFormatted})
+          <span className="inline-block">
+            Próxima ventana recomendada para guardar SOC en <span className="font-medium whitespace-nowrap">{timeUntilWindow}</span>
+          </span>
+          <span className="whitespace-nowrap ml-1">({startFormatted}-{endFormatted})</span>
         </AlertDescription>
       </Alert>
     );
