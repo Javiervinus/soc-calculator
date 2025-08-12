@@ -118,7 +118,7 @@ export function NightProjection() {
           const utilMarginColor = getSOCColor(socWithReserve, projection.willLastUntil8AM);
           
           return (
-            <div className="space-y-2">
+            <div className="space-y-2 hidden">
               <div className="text-xs text-center text-muted-foreground">
                 Margen disponible
               </div>
