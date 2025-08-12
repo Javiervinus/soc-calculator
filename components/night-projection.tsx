@@ -98,6 +98,30 @@ export function NightProjection() {
             </span>
           </div>
         </div>
+
+        {/* SOC Estimado para las 8:00 AM */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+          <span className="text-sm text-muted-foreground">SOC estimado a las 08:00</span>
+          <div className="text-right">
+            {(() => {
+              const remainingWh = Math.max(0, projection.availableWh - projection.requiredWh);
+              const totalWh = profile.batteryConfig.capacityWh;
+              const estimatedSOC = Math.round((remainingWh / totalWh) * 100);
+              const remainingAh = (remainingWh / 12.8).toFixed(1);
+              
+              return (
+                <>
+                  <span className={`text-base font-bold ${estimatedSOC > profile.batteryConfig.safetyReserve ? 'text-green-600' : 'text-orange-600'}`}>
+                    {estimatedSOC}%
+                  </span>
+                  <span className="text-xs ml-1 text-muted-foreground">
+                    ({remainingAh} Ah restantes)
+                  </span>
+                </>
+              );
+            })()}
+          </div>
+        </div>
       </div>
 
       {/* Alert Messages */}
