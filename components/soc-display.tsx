@@ -63,7 +63,7 @@ export function SOCDisplay() {
               </div>
               <p className="text-xs lg:text-sm text-muted-foreground">SOC Actual</p>
             </div>
-            {/* Botón de guardar SOC */}
+            {/* Botón de guardar SOC  prueba*/}
           </div>
           
           <div className="text-right">
