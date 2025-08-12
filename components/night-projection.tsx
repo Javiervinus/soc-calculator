@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { calculateNightProjection, interpolateSOC } from '@/lib/battery-calculations';
 import { useBatteryStore } from '@/lib/store';
+import { TIME_CONFIG } from '@/lib/time-config';
 import { formatGuayaquilTime, getGuayaquilTime } from '@/lib/timezone-utils';
 import { Activity, CheckCircle, ChevronDown, ChevronUp, Clock, Moon, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -33,7 +34,7 @@ export function NightProjection() {
   );
 
   const currentHour = currentTime.getHours();
-  const isNightTime = currentHour >= 17 || currentHour < 8;
+  const isNightTime = currentHour >= TIME_CONFIG.nightCycle.startHour || currentHour < TIME_CONFIG.nightCycle.endHour;
 
   const progressPercentage = projection.availableWh > 0 && projection.requiredWh > 0
     ? Math.min((projection.availableWh / projection.requiredWh) * 100, 100)
@@ -55,7 +56,7 @@ export function NightProjection() {
       {/* Main Status Card */}
       <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-muted-foreground">Estado hasta las 08:00</span>
+          <span className="text-sm font-medium text-muted-foreground">Estado hasta las {TIME_CONFIG.nightCycle.endTime}</span>
           {projection.willLastUntil8AM ? (
             <div className="flex items-center gap-1.5">
               <CheckCircle className="h-5 w-5 text-green-600" />
@@ -86,49 +87,183 @@ export function NightProjection() {
         {/* Progress Bar */}
         <Progress value={progressPercentage} className="h-2 mb-3" />
 
-        {/* Margin */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Margen</span>
-          <div className="text-right">
-            <span className={`text-base font-bold ${projection.marginWh >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {projection.marginWh >= 0 ? '+' : ''}{projection.marginWh} Wh
-            </span>
-            <span className={`text-xs ml-1 ${projection.marginWh >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ({(projection.marginWh / 12.8).toFixed(1)} Ah)
-            </span>
-          </div>
-        </div>
+        {/* Margin - Mostrar con y sin reserva */}
+        {(() => {
+          // Calcular márgenes reales
+          const currentSOCDecimal = socResult.soc / 100;
+          const totalWh = profile.batteryConfig.capacityWh;
+          const realAvailableWh = currentSOCDecimal * totalWh;
+          const realMarginWh = Math.round(realAvailableWh - projection.requiredWh);
+          const utilMarginWh = Math.round(projection.marginWh); // Este ya tiene la reserva aplicada
+          
+          // Calcular los SOC finales estimados (estos son los que determinan los colores)
+          const realRemainingWh = Math.round(Math.max(0, realAvailableWh - projection.requiredWh));
+          const socWithoutReserve = Math.round((realRemainingWh / totalWh) * 100);
+          
+          const utilRemainingWh = Math.round(Math.max(0, projection.availableWh - projection.requiredWh));
+          const socWithReserve = Math.round((utilRemainingWh / totalWh) * 100);
+          
+          // Función para determinar el color basado en el SOC
+          const getSOCColor = (soc: number, willLast: boolean) => {
+            if (!willLast) return 'text-red-600';
+            if (soc >= 50) return 'text-green-600';
+            if (soc >= 30) return 'text-yellow-600';
+            return 'text-orange-600';
+          };
+          
+          const hasReserve = profile.batteryConfig.safetyReserve > 0;
+          
+          // Usar exactamente los mismos colores que los SOC estimados
+          const realMarginColor = getSOCColor(socWithoutReserve, projection.willLastUntil8AM);
+          const utilMarginColor = getSOCColor(socWithReserve, projection.willLastUntil8AM);
+          
+          return (
+            <div className="space-y-2">
+              <div className="text-xs text-center text-muted-foreground">
+                Margen disponible
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {/* Margen Real (sin reserva) */}
+                <div className="bg-muted/30 rounded-lg p-2">
+                  <div className="text-[10px] text-muted-foreground text-center mb-1">
+                    Real
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-sm font-bold ${realMarginColor}`}>
+                      {realMarginWh >= 0 ? '+' : ''}{realMarginWh} Wh
+                    </div>
+                    <div className={`text-[10px] ${realMarginColor}`}>
+                      ({(realMarginWh / 12.8).toFixed(1)} Ah)
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Margen Útil (con reserva) */}
+                {hasReserve ? (
+                  <div className="bg-muted/30 rounded-lg p-2">
+                    <div className="text-[10px] text-muted-foreground text-center mb-1">
+                      Útil
+                      <span className="text-[9px] ml-1">(-{profile.batteryConfig.safetyReserve}%)</span>
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-sm font-bold ${utilMarginColor}`}>
+                        {utilMarginWh >= 0 ? '+' : ''}{utilMarginWh} Wh
+                      </div>
+                      <div className={`text-[10px] ${utilMarginColor}`}>
+                        ({(utilMarginWh / 12.8).toFixed(1)} Ah)
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-muted/30 rounded-lg p-2 opacity-50">
+                    <div className="text-[10px] text-muted-foreground text-center mb-1">
+                      Sin Reserva
+                    </div>
+                    <div className="text-center">
+                      <div className="text-sm font-bold text-muted-foreground">
+                        N/A
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">
+                        0% configurado
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* SOC Estimado para las 8:00 AM */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-          <span className="text-sm text-muted-foreground">SOC estimado a las 08:00</span>
-          <div className="text-right">
-            {(() => {
-              const remainingWh = Math.max(0, projection.availableWh - projection.requiredWh);
-              const totalWh = profile.batteryConfig.capacityWh;
-              const estimatedSOC = Math.round((remainingWh / totalWh) * 100);
-              const remainingAh = (remainingWh / 12.8).toFixed(1);
-              
-              return (
-                <>
-                  <span className={`text-base font-bold ${estimatedSOC > profile.batteryConfig.safetyReserve ? 'text-green-600' : 'text-orange-600'}`}>
-                    {estimatedSOC}%
-                  </span>
-                  <span className="text-xs ml-1 text-muted-foreground">
-                    ({remainingAh} Ah restantes)
-                  </span>
-                </>
-              );
-            })()}
+        <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+          <div className="text-xs text-center text-muted-foreground mb-2">
+            SOC estimado a las {TIME_CONFIG.nightCycle.endTime}
           </div>
+          
+          {(() => {
+            // La proyección ya tiene la reserva aplicada en availableWh
+            // Necesitamos calcular el SOC real sin considerar la reserva
+            const totalWh = profile.batteryConfig.capacityWh;
+            const hasReserve = profile.batteryConfig.safetyReserve > 0;
+            
+            // Si hay reserva, projection.availableWh ya la tiene descontada
+            // Para obtener el SOC real, necesitamos recalcular desde el SOC actual
+            const currentSOCDecimal = socResult.soc / 100;
+            const realAvailableWh = Math.round(currentSOCDecimal * totalWh);
+            const realRemainingWh = Math.round(Math.max(0, realAvailableWh - projection.requiredWh));
+            const socWithoutReserve = Math.round((realRemainingWh / totalWh) * 100);
+            
+            // El SOC con reserva es lo que ya está calculado en projection
+            const utilRemainingWh = Math.round(Math.max(0, projection.availableWh - projection.requiredWh));
+            const socWithReserve = hasReserve ? Math.round((utilRemainingWh / totalWh) * 100) : socWithoutReserve;
+            
+            // Función para determinar el color basado en el SOC
+            const getSOCColor = (soc: number, willLast: boolean) => {
+              if (!willLast) return 'text-red-600';
+              if (soc >= 50) return 'text-green-600';
+              if (soc >= 30) return 'text-yellow-600';
+              return 'text-orange-600';
+            };
+            
+            return (
+              <div className="grid grid-cols-2 gap-3">
+                {/* SOC Real (sin reserva) */}
+                <div className="bg-muted/50 rounded-lg p-2">
+                  <div className="text-[10px] text-muted-foreground text-center mb-1">
+                    SOC Real
+                  </div>
+                  <div className="text-center">
+                    <span className={`text-lg font-bold ${getSOCColor(socWithoutReserve, projection.willLastUntil8AM)}`}>
+                      {socWithoutReserve}%
+                    </span>
+                    <div className="text-[10px] text-muted-foreground">
+                      {(realRemainingWh / 12.8).toFixed(1)} Ah
+                    </div>
+                  </div>
+                </div>
+                
+                {/* SOC Útil (con reserva) - solo si hay reserva */}
+                {hasReserve ? (
+                  <div className="bg-muted/50 rounded-lg p-2">
+                    <div className="text-[10px] text-muted-foreground text-center mb-1">
+                      SOC Útil
+                      <span className="text-[9px] ml-1">(-{profile.batteryConfig.safetyReserve}%)</span>
+                    </div>
+                    <div className="text-center">
+                      <span className={`text-lg font-bold ${getSOCColor(socWithReserve, projection.willLastUntil8AM)}`}>
+                        {socWithReserve}%
+                      </span>
+                      <div className="text-[10px] text-muted-foreground">
+                        {(utilRemainingWh / 12.8).toFixed(1)} Ah
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-muted/50 rounded-lg p-2 opacity-50">
+                    <div className="text-[10px] text-muted-foreground text-center mb-1">
+                      Sin Reserva
+                    </div>
+                    <div className="text-center">
+                      <span className="text-lg font-bold text-muted-foreground">
+                        N/A
+                      </span>
+                      <div className="text-[10px] text-muted-foreground">
+                        0% configurado
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
       {/* Alert Messages */}
-      {!isNightTime && currentHour < 17 && (
+      {!isNightTime && currentHour < TIME_CONFIG.nightCycle.startHour && (
         <Alert className="mb-3 p-3 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20">
           <AlertDescription className="text-xs leading-relaxed dark:text-blue-300">
-            Proyección activa desde las 17:00. El banco recarga durante el día.
+            Proyección activa desde las {TIME_CONFIG.nightCycle.startTime}. El banco recarga durante el día.
           </AlertDescription>
         </Alert>
       )}

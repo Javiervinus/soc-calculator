@@ -3,8 +3,11 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBatteryStore } from '@/lib/store';
 import { getGuayaquilTime } from '@/lib/timezone-utils';
+import { TIME_CONFIG, formatHour12 } from '@/lib/time-config';
 import { Clock, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { formatDistanceToNow, setHours, setMinutes, isWithinInterval, addHours, isBefore } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export function SOCTimeReminder() {
   const { getTodaySOCEntry, getSOCHistory } = useBatteryStore();
@@ -18,31 +21,36 @@ export function SOCTimeReminder() {
   useEffect(() => {
     const checkTimeRange = () => {
       const now = getGuayaquilTime();
-      const hour = now.getHours();
-      const minutes = now.getMinutes();
       
       // Solo mostrar si no se ha guardado hoy
       if (!todayEntry) {
-        // Estamos en el rango de 4-5 PM
-        if (hour >= 16 && hour < 18) {
+        // Crear las fechas de inicio y fin del período de recordatorio
+        const reminderStart = setMinutes(setHours(now, TIME_CONFIG.socReminder.startHour), 0);
+        const reminderEnd = setMinutes(setHours(now, TIME_CONFIG.socReminder.endHour), 0);
+        const advanceNoticeTime = addHours(reminderStart, -TIME_CONFIG.socReminder.advanceNoticeHours);
+        
+        // Verificar si estamos en el rango de recordatorio
+        if (isWithinInterval(now, { start: reminderStart, end: reminderEnd })) {
           setShowReminder(true);
           setTimeUntilWindow(null);
         } 
-        // Antes de las 4 PM - calcular tiempo restante
-        else if (hour < 16) {
+        // Verificar si estamos en el período de notificación anticipada
+        else if (isWithinInterval(now, { start: advanceNoticeTime, end: reminderStart })) {
           setShowReminder(false);
-          const hoursLeft = 15 - hour;
-          const minutesLeft = 60 - minutes;
           
-          if (hoursLeft === 0) {
-            setTimeUntilWindow(`${minutesLeft} minutos`);
-          } else if (hoursLeft === 1 && minutesLeft === 60) {
-            setTimeUntilWindow('1 hora');
-          } else if (hoursLeft === 1) {
-            setTimeUntilWindow(`1 hora ${minutesLeft} min`);
-          } else {
-            setTimeUntilWindow(`${hoursLeft} horas`);
-          }
+          // Calcular tiempo restante usando date-fns
+          const distance = formatDistanceToNow(reminderStart, { 
+            locale: es,
+            includeSeconds: false,
+            addSuffix: false
+          });
+          
+          setTimeUntilWindow(distance);
+        } 
+        // Antes del período de notificación anticipada
+        else if (isBefore(now, advanceNoticeTime)) {
+          setShowReminder(false);
+          setTimeUntilWindow(null);
         } else {
           setShowReminder(false);
           setTimeUntilWindow(null);
@@ -76,20 +84,23 @@ export function SOCTimeReminder() {
           </span>
           <span className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            Ventana óptima: 4-5 PM
+            Ventana óptima: {formatHour12(TIME_CONFIG.socReminder.startHour).replace(':00', '')}-{formatHour12(TIME_CONFIG.socReminder.endHour - 1).replace(':00', '')}
           </span>
         </AlertDescription>
       </Alert>
     );
   }
 
-  // Mostrar próximo horario recomendado (solo si falta menos de 3 horas)
-  if (timeUntilWindow && (timeUntilWindow.includes('minutos') || timeUntilWindow.includes('1 hora') || timeUntilWindow.includes('2 hora'))) {
+  // Mostrar próximo horario recomendado (cuando está en el período de notificación anticipada)
+  if (timeUntilWindow) {
+    const startFormatted = formatHour12(TIME_CONFIG.socReminder.startHour).replace(':00', '');
+    const endFormatted = formatHour12(TIME_CONFIG.socReminder.endHour - 1).replace(':00', '');
+    
     return (
       <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
         <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertDescription className="text-sm text-blue-900 dark:text-blue-300">
-          Próxima ventana recomendada para guardar SOC en <span className="font-medium">{timeUntilWindow}</span> (4-5 PM)
+          Próxima ventana recomendada para guardar SOC en <span className="font-medium">{timeUntilWindow}</span> ({startFormatted}-{endFormatted})
         </AlertDescription>
       </Alert>
     );

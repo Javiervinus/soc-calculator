@@ -59,7 +59,7 @@ interface BatteryStore {
   setAppTheme: (appTheme: 'default' | 'futuristic' | 'minimal' | 'retro') => void;
   resetToDefaults: () => void;
   exportFullState: () => string;
-  importFullState: (stateJson: string) => { success: boolean; message: string };
+  importFullState: (stateJson: string, preserveTheme?: boolean) => { success: boolean; message: string };
   pushToCloud: () => Promise<{ success: boolean; message: string }>;
   pullFromCloud: () => Promise<{ success: boolean; message: string; data?: any }>;
 }
@@ -348,7 +348,7 @@ export const useBatteryStore = create<BatteryStore>()(
         return JSON.stringify(fullState, null, 2);
       },
       
-      importFullState: (stateJson: string) => {
+      importFullState: (stateJson: string, preserveTheme: boolean = false) => {
         try {
           const importedState = JSON.parse(stateJson);
           
@@ -360,13 +360,19 @@ export const useBatteryStore = create<BatteryStore>()(
             };
           }
           
+          // Obtener temas actuales antes de importar
+          const currentState = get();
+          const currentTheme = currentState.theme;
+          const currentAppTheme = currentState.appTheme;
+          
           // Aplicar el estado importado
           set({
             currentVoltage: importedState.currentVoltage || 13.2,
             currentProfileId: importedState.currentProfileId || 'default',
             profiles: importedState.profiles,
-            theme: importedState.theme || 'light',
-            appTheme: importedState.appTheme || 'default'
+            // Si preserveTheme es true, mantener los temas actuales
+            theme: preserveTheme ? currentTheme : (importedState.theme || 'light'),
+            appTheme: preserveTheme ? currentAppTheme : (importedState.appTheme || 'default')
           });
           
           return { 
@@ -435,8 +441,8 @@ export const useBatteryStore = create<BatteryStore>()(
           const result = await response.json();
           
           if (response.ok && result.success) {
-            // Usar la función importFullState existente
-            const importResult = get().importFullState(JSON.stringify(result.data));
+            // Usar la función importFullState con preserveTheme = true para mantener los temas locales
+            const importResult = get().importFullState(JSON.stringify(result.data), true);
             
             if (importResult.success) {
               return {

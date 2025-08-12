@@ -1,4 +1,5 @@
 import { VoltageSOCEntry, BatteryConfig, ConsumptionProfile } from './battery-data';
+import { TIME_CONFIG } from './time-config';
 
 export function interpolateSOC(voltage: number, table: VoltageSOCEntry[]): {
   soc: number;
@@ -126,16 +127,16 @@ export function calculateNightProjection(
     const cycleStart = new Date(baseTime);
     const hour = baseTime.getHours();
     
-    if (hour >= 17) {
-      // Estamos después de las 17:00, el ciclo comenzó hoy
-      cycleStart.setHours(17, 0, 0, 0);
-    } else if (hour < 8) {
+    if (hour >= TIME_CONFIG.nightCycle.startHour) {
+      // Estamos después del inicio del ciclo nocturno, el ciclo comenzó hoy
+      cycleStart.setHours(TIME_CONFIG.nightCycle.startHour, 0, 0, 0);
+    } else if (hour < TIME_CONFIG.nightCycle.endHour) {
       // Estamos en la madrugada, el ciclo comenzó ayer
       cycleStart.setDate(cycleStart.getDate() - 1);
-      cycleStart.setHours(17, 0, 0, 0);
+      cycleStart.setHours(TIME_CONFIG.nightCycle.startHour, 0, 0, 0);
     } else {
       // Estamos durante el día, el próximo ciclo comienza hoy
-      cycleStart.setHours(17, 0, 0, 0);
+      cycleStart.setHours(TIME_CONFIG.nightCycle.startHour, 0, 0, 0);
     }
     
     return cycleStart;
@@ -147,7 +148,7 @@ export function calculateNightProjection(
     const end = new Date(cycleStart);
     
     // Ajustar el día según la hora del período
-    if (profile.startHour < 17) {
+    if (profile.startHour < TIME_CONFIG.nightCycle.startHour) {
       // Períodos de madrugada (0-8) son del día siguiente
       start.setDate(start.getDate() + 1);
       end.setDate(end.getDate() + 1);
@@ -285,10 +286,10 @@ export function calculateNightProjection(
       }
     }
   } else if (willLastUntil8AM) {
-    // Calcular horas hasta las 08:00
+    // Calcular horas hasta el fin del ciclo nocturno
     const cycleEnd = new Date(cycleStart);
     cycleEnd.setDate(cycleEnd.getDate() + 1);
-    cycleEnd.setHours(8, 0, 0, 0);
+    cycleEnd.setHours(TIME_CONFIG.nightCycle.endHour, 0, 0, 0);
     
     hoursRemaining = (cycleEnd.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
   }

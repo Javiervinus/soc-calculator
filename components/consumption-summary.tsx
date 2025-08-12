@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { useBatteryStore } from '@/lib/store';
+import { TIME_CONFIG } from '@/lib/time-config';
 import { Battery, Moon } from 'lucide-react';
 import React from 'react';
 
@@ -40,7 +41,7 @@ export function ConsumptionSummary() {
           <h2 className="text-sm font-semibold text-foreground">Resumen Nocturno</h2>
         </div>
         <Badge variant="outline" className="text-[10px] sm:text-sm px-2">
-          17:00 → 08:00
+          {TIME_CONFIG.nightCycle.startTime} → {TIME_CONFIG.nightCycle.endTime}
         </Badge>
       </div>
 
