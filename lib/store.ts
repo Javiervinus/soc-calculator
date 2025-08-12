@@ -58,6 +58,8 @@ interface BatteryStore {
   resetToDefaults: () => void;
   exportFullState: () => string;
   importFullState: (stateJson: string) => { success: boolean; message: string };
+  pushToCloud: () => Promise<{ success: boolean; message: string }>;
+  pullFromCloud: () => Promise<{ success: boolean; message: string; data?: any }>;
 }
 
 const defaultProfile: Profile = {
@@ -367,6 +369,89 @@ export const useBatteryStore = create<BatteryStore>()(
           return { 
             success: false, 
             message: 'Error al importar: formato JSON inválido' 
+          };
+        }
+      },
+      
+      pushToCloud: async () => {
+        try {
+          const state = get();
+          const currentProfile = state.getCurrentProfile();
+          
+          const fullState = {
+            currentVoltage: state.currentVoltage,
+            currentProfileId: state.currentProfileId,
+            profiles: state.profiles,
+            theme: state.theme,
+            exportedAt: new Date().toISOString(),
+            version: '1.0.0'
+          };
+          
+          const response = await fetch('/api/backup/push', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: fullState,
+              profileName: currentProfile.name.replace(/[^a-zA-Z0-9]/g, '_')
+            }),
+          });
+          
+          const result = await response.json();
+          
+          if (response.ok && result.success) {
+            return {
+              success: true,
+              message: 'Backup subido exitosamente'
+            };
+          } else {
+            return {
+              success: false,
+              message: result.error || 'Error al subir el backup'
+            };
+          }
+        } catch (error) {
+          console.error('Error pushing to cloud:', error);
+          return {
+            success: false,
+            message: 'Error de conexión al subir backup'
+          };
+        }
+      },
+      
+      pullFromCloud: async () => {
+        try {
+          const response = await fetch('/api/backup/pull');
+          const result = await response.json();
+          
+          if (response.ok && result.success) {
+            // Usar la función importFullState existente
+            const importResult = get().importFullState(JSON.stringify(result.data));
+            
+            if (importResult.success) {
+              return {
+                success: true,
+                message: `Backup restaurado (${new Date(result.metadata.uploadedAt).toLocaleString('es-EC')})`,
+                data: result.metadata
+              };
+            } else {
+              return {
+                success: false,
+                message: importResult.message
+              };
+            }
+          } else {
+            return {
+              success: false,
+              message: result.error || 'Error al obtener el backup'
+            };
+          }
+        } catch (error) {
+          console.error('Error pulling from cloud:', error);
+          return {
+            success: false,
+            message: 'Error de conexión al obtener backup'
           };
         }
       },

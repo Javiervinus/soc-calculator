@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { VoltageSOCEntry } from '@/lib/battery-data';
 import { useBatteryStore } from '@/lib/store';
 import { createEcuadorDate, formatEcuadorDateString, getTodayEcuadorDateString } from '@/lib/timezone-utils';
-import { Copy, Download, Moon, Plus, RefreshCw, Save, Settings, Share2, Sun, Trash2, Upload } from 'lucide-react';
+import { Cloud, CloudDownload, CloudUpload, Copy, Download, Moon, Plus, RefreshCw, Save, Settings, Share2, Sun, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConsumptionEditor } from './consumption-editor';
@@ -36,6 +36,8 @@ export function SettingsPanel() {
     clearSOCHistory,
     exportFullState,
     importFullState,
+    pushToCloud,
+    pullFromCloud,
   } = useBatteryStore();
 
   const currentProfile = getCurrentProfile();
@@ -44,6 +46,8 @@ export function SettingsPanel() {
   const [newProfileName, setNewProfileName] = useState('');
   const [importSOCText, setImportSOCText] = useState('');
   const [importFullStateText, setImportFullStateText] = useState('');
+  const [isPushing, setIsPushing] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
 
   const handleSaveReserve = (value: number[]) => {
     updateBatteryConfig({ safetyReserve: value[0] });
@@ -348,12 +352,55 @@ export function SettingsPanel() {
     const result = importFullState(importFullStateText);
     
     if (result.success) {
-      toast.success(result.message);
+      toast.success(result.message, {
+        duration: 3000 // Mostrar el toast por 3 segundos
+      });
       setImportFullStateText('');
       // Recargar para aplicar todos los cambios
-      setTimeout(() => window.location.reload(), 500);
+      setTimeout(() => window.location.reload(), 2000);
     } else {
       toast.error(result.message);
+    }
+  };
+
+  const handlePushToCloud = async () => {
+    setIsPushing(true);
+    try {
+      const result = await pushToCloud();
+      
+      if (result.success) {
+        toast.success(result.message, {
+          description: 'Backup subido a la nube'
+        });
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error('Error al subir el backup');
+    } finally {
+      setIsPushing(false);
+    }
+  };
+
+  const handlePullFromCloud = async () => {
+    setIsPulling(true);
+    try {
+      const result = await pullFromCloud();
+      
+      if (result.success) {
+        toast.success(result.message, {
+          description: 'Configuración restaurada desde la nube',
+          duration: 3000 // Mostrar el toast por 3 segundos
+        });
+        // Recargar para aplicar todos los cambios
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      toast.error('Error al obtener el backup');
+    } finally {
+      setIsPulling(false);
     }
   };
 
@@ -391,8 +438,59 @@ export function SettingsPanel() {
             </summary>
             
             <div className="mt-4 space-y-4 p-4 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700">
+              {/* Backup en la Nube */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm">Exportar Configuración</h3>
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <Cloud className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  Backup en la Nube
+                </h3>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handlePushToCloud} 
+                    variant="default" 
+                    size="sm"
+                    className="flex-1"
+                    disabled={isPushing || isPulling}
+                  >
+                    {isPushing ? (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        <CloudUpload className="h-3.5 w-3.5 mr-1.5" />
+                        Push
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={handlePullFromCloud} 
+                    variant="secondary" 
+                    size="sm"
+                    className="flex-1"
+                    disabled={isPushing || isPulling}
+                  >
+                    {isPulling ? (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                        Descargando...
+                      </>
+                    ) : (
+                      <>
+                        <CloudDownload className="h-3.5 w-3.5 mr-1.5" />
+                        Pull
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  ⚠️ Push sube un nuevo backup. Pull trae el más reciente y reemplaza tu configuración local.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="font-semibold text-sm">Backup Local</h3>
                 <div className="flex gap-2">
                   <Button 
                     onClick={handleCopyFullState} 
