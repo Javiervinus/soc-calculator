@@ -17,6 +17,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "SOC Calculator - Calculadora de Estado de Carga LiFePO₄",
   description: "Calculadora de estado de carga para baterías LiFePO₄ con proyección de consumo nocturno",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({

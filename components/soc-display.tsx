@@ -45,8 +45,8 @@ export function SOCDisplay() {
       </div>
 
       {socResult.isOutOfRange && (
-        <Alert className="mb-3 p-2 border-yellow-200 bg-yellow-50">
-          <AlertDescription className="text-xs flex items-center gap-1">
+        <Alert className="mb-3 p-2 border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20">
+          <AlertDescription className="text-xs flex items-center gap-1 text-yellow-900 dark:text-yellow-300">
             <AlertTriangle className="h-3 w-3" />
             Voltaje fuera de rango
           </AlertDescription>
