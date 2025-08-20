@@ -27,7 +27,6 @@ export function PredictionResultCard({ prediction, compact = false }: Prediction
             ) : (
               <Sun className="h-3 w-3 text-yellow-500" />
             )}
-            {prediction.cloudCoverMedian}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 pb-4">
