@@ -11,6 +11,11 @@ import {
   defaultConsumptionTramos
 } from './battery-data';
 import { getTodayEcuadorDateString } from './timezone-utils';
+import { 
+  PredictionParams, 
+  DEFAULT_PREDICTION_PARAMS,
+  PredictionCache 
+} from './solar-predictions';
 
 export interface SOCHistoryEntry {
   date: string; // formato YYYY-MM-DD
@@ -37,6 +42,10 @@ interface BatteryStore {
   theme: 'light' | 'dark';
   appTheme: 'default' | 'futuristic' | 'minimal' | 'retro' | 'hippie';
   
+  // Predicciones solares
+  predictionParams: Omit<PredictionParams, 'nPanels' | 'pPanelSTC_W'>;
+  predictionCacheData: string; // JSON serializado del caché
+  
   setVoltage: (voltage: number) => void;
   getCurrentProfile: () => Profile;
   setCurrentProfile: (profileId: string) => void;
@@ -56,8 +65,13 @@ interface BatteryStore {
   getSOCHistory: () => SOCHistoryEntry[];
   clearSOCHistory: () => void;
   setTheme: (theme: 'light' | 'dark') => void;
-  setAppTheme: (appTheme: 'default' | 'futuristic' | 'minimal' | 'retro') => void;
+  setAppTheme: (appTheme: 'default' | 'futuristic' | 'minimal' | 'retro' | 'hippie') => void;
   resetToDefaults: () => void;
+  
+  // Métodos para predicciones
+  updatePredictionParams: (params: Partial<Omit<PredictionParams, 'nPanels' | 'pPanelSTC_W'>>) => void;
+  getPredictionCache: () => PredictionCache;
+  savePredictionCache: (cache: PredictionCache) => void;
   exportFullState: () => string;
   importFullState: (stateJson: string, preserveTheme?: boolean) => { success: boolean; message: string };
   pushToCloud: () => Promise<{ success: boolean; message: string }>;
@@ -84,6 +98,10 @@ export const useBatteryStore = create<BatteryStore>()(
       profiles: [defaultProfile],
       theme: 'light', // Siempre inicia en modo claro
       appTheme: 'default',
+      
+      // Valores por defecto para predicciones
+      predictionParams: DEFAULT_PREDICTION_PARAMS,
+      predictionCacheData: '[]',
       
       setVoltage: (voltage) => set({ currentVoltage: voltage }),
       
@@ -330,7 +348,29 @@ export const useBatteryStore = create<BatteryStore>()(
           profiles: [freshDefaultProfile],
           theme: 'light', // Resetear tema también
           appTheme: 'default',
+          predictionParams: DEFAULT_PREDICTION_PARAMS,
+          predictionCacheData: '[]'
         });
+      },
+      
+      // Métodos para predicciones
+      updatePredictionParams: (params) => {
+        set((state) => ({
+          predictionParams: { ...state.predictionParams, ...params }
+        }));
+      },
+      
+      getPredictionCache: () => {
+        const state = get();
+        const cache = new PredictionCache();
+        if (state.predictionCacheData) {
+          cache.fromJSON(state.predictionCacheData);
+        }
+        return cache;
+      },
+      
+      savePredictionCache: (cache) => {
+        set({ predictionCacheData: cache.toJSON() });
       },
       
       exportFullState: () => {

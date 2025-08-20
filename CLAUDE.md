@@ -54,7 +54,8 @@ Lógica del ciclo:
 - **Proyección nocturna**: Auto-update cada minuto
 - **Histórico SOC**: Un registro por día, sin voltaje
 - **Backup**: Local (clipboard) y cloud (Vercel Blob)
-- **Sistema de Temas**: 4 temas únicos + modo claro/oscuro
+- **Sistema de Temas**: 5 temas únicos + modo claro/oscuro
+- **Navegación**: Sidebar con navegación entre páginas
 
 ### Estructura de Estado (Zustand)
 ```typescript
@@ -64,7 +65,7 @@ Lógica del ciclo:
 - consumptionTramos[] // Tramos editables
 - socHistory[] // Histórico diario (sin voltaje)
 - theme // 'light' | 'dark' (modo claro/oscuro)
-- appTheme // 'default' | 'futuristic' | 'minimal' | 'retro'
+- appTheme // 'default' | 'futuristic' | 'minimal' | 'retro' | 'hippie'
 ```
 
 ### Archivos Clave
@@ -78,25 +79,37 @@ Lógica del ciclo:
   theme-utils.ts          # Utilidades para temas condicionales
 
 /components/
-  settings-panel.tsx      # Config con máx 5 tabs (mobile-first)
+  app-sidebar.tsx         # Sidebar de navegación principal
+  settings-panel.tsx      # Drawer de configuración
   consumption-editor.tsx  # CRUD de tramos
   night-projection.tsx    # Proyección con auto-update
   theme-provider.tsx      # Proveedor de temas
+  hippie-optimized.tsx    # Elementos florales hawaianos (solo tema hippie)
 
 /app/
+  layout.tsx             # Layout principal con SidebarProvider
+  page.tsx               # Página principal (Home)
+  predictions/page.tsx   # Página de predicciones (nueva)
   globals.css            # Definición de todos los temas
 ```
 
 ### Decisiones de UX/UI
 
+#### Layout y Navegación
+- **Sidebar navegación**: Usa componente shadcn/ui Sidebar nativo
+- **Header sticky**: Fijo en la parte superior con botón para abrir sidebar
+- **Sidebar móvil**: Ocupa 100% del ancho, con botón X para cerrar
+- **Animaciones**: 150ms para transiciones rápidas en móvil
+- **Páginas disponibles**: Home (/), Predicciones (/predictions)
+
 #### Mobile-First
 - Inputs con `font-size: 16px` (previene zoom iOS)
-- Máximo 5 tabs en Settings (con flex-wrap para móviles pequeños)
+- Sidebar con ítems más grandes en móvil (altura 48px vs 32px desktop)
 - Componentes compactos
 - Viewport con `maximum-scale: 1`
 
 #### Sistema de Temas
-**4 temas disponibles** (cada uno con modo claro/oscuro):
+**5 temas disponibles** (cada uno con modo claro/oscuro):
 
 1. **Default**: Diseño profesional con fuente Geist Sans
    - Colores azules, bordes redondeados suaves
@@ -118,6 +131,12 @@ Lógica del ciclo:
    - Sombras duras, bordes gruesos
    - Fondo con patrón diagonal
 
+5. **Hippie**: Estilo hawaiano tropical con fuentes Fredoka/Lilita One
+   - Colores vibrantes: naranjas, morados, verdes
+   - Text-stroke para títulos (visibilidad)
+   - Elementos florales: hibiscos, plumerias, hojas de palma
+   - Animaciones orgánicas y suaves (optimizadas para rendimiento)
+
 #### Toasts (Sonner)
 - Usa tema del store, NO next-themes
 - Mantener blanco/negro elegante
@@ -125,6 +144,8 @@ Lógica del ciclo:
 - Descripción: `text-gray-600` (claro) / `text-gray-400` (oscuro)
 
 #### Panel de Configuración
+- Se abre desde el botón "Ajustes" en el sidebar
+- Drawer que ocupa 100% en móvil
 - Backup como panel colapsable (NO como tab)
 - Orden tabs: Batería, Consumo, Histórico, Tabla, Perfiles
 - Selector de temas en tab Batería > Apariencia
@@ -154,10 +175,13 @@ Lógica del ciclo:
 4. Usar colores de fondo en toasts
 5. Modificar consumption-constants.ts (solo lectura)
 
+
 ### Al Modificar
 1. Verificar migración automática en getCurrentProfile()
 2. Actualizar este archivo si el cambio afecta arquitectura
 3. Mantener compatibilidad con datos existentes en localStorage
+4. Optimizar rendimiento: usar useMemo(), constantes pre-calculadas
+5. Verificar que componentes no activos retornen null inmediatamente
 
 ## Variables de Entorno
 ```bash

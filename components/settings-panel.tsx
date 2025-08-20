@@ -18,7 +18,12 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { ConsumptionEditor } from './consumption-editor';
 
-export function SettingsPanel() {
+interface SettingsPanelProps {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+export function SettingsPanel({ isOpen, setIsOpen }: SettingsPanelProps) {
   const { 
     profiles, 
     currentProfileId, 
@@ -43,7 +48,6 @@ export function SettingsPanel() {
   } = useBatteryStore();
 
   const currentProfile = getCurrentProfile();
-  const [isOpen, setIsOpen] = useState(false);
   const [tableText, setTableText] = useState('');
   const [newProfileName, setNewProfileName] = useState('');
   const [importSOCText, setImportSOCText] = useState('');
@@ -407,12 +411,7 @@ export function SettingsPanel() {
   };
 
   return (
-    <Sheet  open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg bg-card border-border">
-          <Settings className="h-5 w-5" />
-        </Button>
-      </SheetTrigger>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-background">
         <SheetHeader className="px-6">
           <SheetTitle className="text-foreground">Configuración</SheetTitle>

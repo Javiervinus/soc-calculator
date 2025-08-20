@@ -3,6 +3,9 @@ import { Geist, Geist_Mono, Orbitron, Space_Mono, Inter, JetBrains_Mono, Press_S
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeScript } from "./theme-script";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Battery } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,7 +93,27 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
-          {children}
+          <SidebarProvider defaultOpen={true}>
+            <AppSidebar />
+            <SidebarInset>
+              <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <SidebarTrigger className="-ml-1" />
+                <div className="flex items-center gap-2 flex-1 xl:hidden">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    <Battery className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-base font-bold">SOC Calculator</h1>
+                    <p className="text-[10px] text-muted-foreground -mt-0.5">LiFePO₄ 12.8V</p>
+                  </div>
+                </div>
+                <div className="flex-1 hidden xl:block" />
+              </header>
+              <main className="flex-1">
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -471,13 +471,9 @@
     font-weight: 500;
   }
 
-
   [data-theme="hippie"].dark body {
     background: #3e2723 !important;
   }
-
-
-
 
   /* Anillos org\u00e1nicos en patrones de tarjetas */
   [data-theme="hippie"] .floating-flowers {
@@ -533,8 +529,12 @@
     font-weight: 600;
   }
 
-  /* Efectos minimalistas */
-  [data-theme="minimal"] * {
+  /* Efectos minimalistas - Sin transiciones para elementos específicos */
+  [data-theme="minimal"] .card,
+  [data-theme="minimal"] button:not([data-sidebar-toggle]),
+  [data-theme="minimal"] input,
+  [data-theme="minimal"] select,
+  [data-theme="minimal"] textarea {
     transition: none !important;
   }
 
@@ -585,7 +585,6 @@
     border-radius: var(--radius);
     box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
   }
-
 
   [data-theme="hippie"] button {
     background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -893,5 +892,65 @@
   [data-theme="retro"] .alert-summary {
     border-width: 2px !important;
     box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+/* Personalización del Sidebar para móvil */
+@layer components {
+
+  /* Sidebar en móvil */
+  @media (max-width: 768px) {
+
+    /* Sheet del sidebar ocupar 100% del ancho */
+    [data-mobile="true"][data-sidebar="sidebar"] {
+      width: 100% !important;
+      max-width: 100% !important;
+      /* Fondo blanco semi-transparente con blur en modo claro */
+      background: rgba(255, 255, 255, 0.70) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+    }
+
+    /* Modo oscuro */
+    .dark [data-mobile="true"][data-sidebar="sidebar"] {
+      background: rgba(10, 10, 10, 0.85) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+    }
+
+    /* Overlay con blur FUERTE para el sidebar móvil */
+    .sidebar-sheet+[data-radix-portal] [data-slot="sheet-overlay"],
+    .sidebar-sheet~div[style*="pointer-events"] {
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      background: rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Animación más rápida en móvil - 150ms en lugar de 300ms/500ms */
+    [data-mobile="true"][data-sidebar="sidebar"] {
+      transition-duration: 150ms !important;
+    }
+
+    [data-slot="sheet-content"] {
+      --tw-enter-duration: 150ms !important;
+      --tw-exit-duration: 150ms !important;
+    }
+
+    /* Duración de animación para el Sheet y overlay */
+    [data-state="open"][data-mobile="true"],
+    [data-state="closed"][data-mobile="true"],
+    [data-slot="sheet-overlay"] {
+      animation-duration: 150ms !important;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
   }
 }
