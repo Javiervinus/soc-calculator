@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Battery, Home, Settings, TrendingUp, X } from 'lucide-react'
+import { Battery, Home, Settings, TrendingUp, X, Sun, Moon } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -19,12 +19,14 @@ import {
 import { SettingsPanel } from '@/components/settings-panel'
 import { Button } from '@/components/ui/button'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useBatteryStore } from '@/lib/store'
 
 export function AppSidebar() {
   const pathname = usePathname()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const { setOpenMobile } = useSidebar()
   const isMobile = useIsMobile()
+  const { theme, setTheme } = useBatteryStore()
 
   const handleNavigation = () => {
     // Close sidebar on mobile when navigating
@@ -104,8 +106,33 @@ export function AppSidebar() {
         </SidebarContent>
         
         <SidebarFooter>
-          <div className="px-2 py-4 text-xs text-muted-foreground">
-            108 Ah | 1380 Wh
+          <div className="px-2 py-2 space-y-2">
+            {/* Selector de tema claro/oscuro */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">Tema</span>
+              <div className="flex border rounded-md">
+                <Button
+                  variant={theme === 'light' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTheme('light')}
+                  className="h-7 px-2 text-xs rounded-r-none"
+                >
+                  <Sun className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant={theme === 'dark' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTheme('dark')}
+                  className="h-7 px-2 text-xs rounded-l-none border-l-0"
+                >
+                  <Moon className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="text-xs text-muted-foreground text-center">
+              108 Ah | 1380 Wh
+            </div>
           </div>
         </SidebarFooter>
       </Sidebar>

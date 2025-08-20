@@ -53,6 +53,7 @@ Lógica del ciclo:
 - **Gestión consumo**: CRUD de tramos (mín. 1 tramo)
 - **Proyección nocturna**: Auto-update cada minuto
 - **Histórico SOC**: Un registro por día, sin voltaje
+- **Predicciones solares**: Pronóstico de generación fotovoltaica (día único y semanal)
 - **Backup**: Local (clipboard) y cloud (Vercel Blob)
 - **Sistema de Temas**: 5 temas únicos + modo claro/oscuro
 - **Navegación**: Sidebar con navegación entre páginas
@@ -64,6 +65,8 @@ Lógica del ciclo:
 - currentVoltage // Voltaje actual
 - consumptionTramos[] // Tramos editables
 - socHistory[] // Histórico diario (sin voltaje)
+- predictionParams // Parámetros para predicciones solares
+- predictionCache // Caché de predicciones
 - theme // 'light' | 'dark' (modo claro/oscuro)
 - appTheme // 'default' | 'futuristic' | 'minimal' | 'retro' | 'hippie'
 ```
@@ -72,8 +75,9 @@ Lógica del ciclo:
 ```
 /lib/
   store.ts                # Estado global (fuente de verdad)
-  battery-calculations.ts # Lógica de cálculos
+  battery-calculations.ts # Lógica de cálculos SOC
   consumption-constants.ts# Valores por defecto (solo lectura)
+  solar-predictions.ts    # Lógica de predicciones solares
   timezone-utils.ts       # Manejo de fechas Ecuador
   chart-colors.ts         # Colores de gráficos por tema
   theme-utils.ts          # Utilidades para temas condicionales
@@ -85,11 +89,15 @@ Lógica del ciclo:
   night-projection.tsx    # Proyección con auto-update
   theme-provider.tsx      # Proveedor de temas
   hippie-optimized.tsx    # Elementos florales hawaianos (solo tema hippie)
+  predictions/            # Componentes de predicciones solares
+    prediction-result-card.tsx    # Card de resultado individual
+    prediction-params.tsx         # Panel de parámetros ajustables
+    week-chart.tsx               # Gráfico semanal
 
 /app/
   layout.tsx             # Layout principal con SidebarProvider
   page.tsx               # Página principal (Home)
-  predictions/page.tsx   # Página de predicciones (nueva)
+  predictions/page.tsx   # Página de predicciones solares
   globals.css            # Definición de todos los temas
 ```
 
@@ -101,6 +109,7 @@ Lógica del ciclo:
 - **Sidebar móvil**: Ocupa 100% del ancho, con botón X para cerrar
 - **Animaciones**: 150ms para transiciones rápidas en móvil
 - **Páginas disponibles**: Home (/), Predicciones (/predictions)
+- **Selector tema**: Disponible en sidebar footer (claro/oscuro)
 
 #### Mobile-First
 - Inputs con `font-size: 16px` (previene zoom iOS)
@@ -156,6 +165,31 @@ Lógica del ciclo:
 - Push crea nuevo archivo con timestamp (no reemplaza)
 - Pull trae el más reciente
 - Reload después de 2 segundos (dar tiempo para leer toast)
+
+## Predicciones Solares
+
+### Funcionalidad
+- **API**: Open-Meteo para datos meteorológicos gratuitos
+- **Modos**: Día específico (hasta 7 días futuros) y vista semanal
+- **Métricas**: Ah estimados, Wh, PSH efectivas, directa/difusa, nubosidad
+- **Caché**: Sistema inteligente con invalidación por fecha
+- **Parámetros ajustables**: Eficiencia, ángulo, orientación, temperatura
+
+### Componentes Clave
+- **PredictionResultCard**: Vista compacta (2 cols móvil, 3 cols desktop) y completa
+- **PredictionParams**: Panel colapsable con parámetros del sistema
+- **WeekChart**: Gráfico de barras para vista semanal con Recharts
+
+### Layout Responsivo
+- **Desktop**: 3 columnas (1 control + 2 resultado) para día único
+- **Móvil**: Stack vertical, cards compactas 2x2 para semana
+- **Navegación**: Botones rápidos para días + calendario picker
+
+### Datos y Cálculos
+- **Fórmula base**: `Ah = (PSH × Watts × Eficiencia) / Voltaje`
+- **PSH efectivas**: Directa + (Difusa × 0.8) con correcciones de temperatura
+- **Calidad de datos**: Indicador cuando datos meteorológicos son parciales
+- **Horario**: 06:00-18:00 Ecuador (America/Guayaquil)
 
 ## Reglas de Desarrollo
 
