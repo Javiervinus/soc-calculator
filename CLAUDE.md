@@ -5,13 +5,14 @@ Calculadora de Estado de Carga (SOC) para sistema de batería LiFePO₄ de 12.8V
 Aplicación web móvil-first para monitoreo en tiempo real del estado de la batería y proyección de consumo nocturno.
 
 ## Stack Técnico
-- **Framework**: Next.js 15.4.6 con App Router
+- **Framework**: Next.js 15.4.6 con App Router + SSR
 - **TypeScript**: Modo estricto
-- **Base de datos**: Supabase (PostgreSQL) - MIGRACIÓN EN PROCESO
+- **Base de datos**: Supabase (PostgreSQL) - ✅ Migración completada
 - **Gestor de paquetes**: pnpm (NO usar npm)
 - **Estilos**: Tailwind CSS v4
 - **UI**: shadcn/ui (Radix UI + Tailwind)
-- **Estado**: Zustand con localStorage (migrando a Supabase)
+- **Estado**: React Query v5 + Supabase (sin Zustand)
+- **Caché**: React Query con persistencia automática en localStorage
 - **Gráficos**: Recharts
 - **Fechas**: date-fns + date-fns-tz
 - **Notificaciones**: Sonner
@@ -59,23 +60,53 @@ Lógica del ciclo:
 - **Sistema de Temas**: 5 temas únicos + modo claro/oscuro
 - **Navegación**: Sidebar con navegación entre páginas
 
-### Estructura de Estado (Zustand)
+### Arquitectura de Estado (React Query + Supabase)
+
+#### IDs Fijos (temporales hasta autenticación)
 ```typescript
-// Todo el estado está en /lib/store.ts
-- profiles[] // Múltiples perfiles
-- currentVoltage // Voltaje actual
-- consumptionTramos[] // Tramos editables
-- socHistory[] // Histórico diario (sin voltaje)
-- predictionParams // Parámetros para predicciones solares
-- predictionCache // Caché de predicciones
-- theme // 'light' | 'dark' (modo claro/oscuro)
-- appTheme // 'default' | 'futuristic' | 'minimal' | 'retro' | 'hippie'
+// /lib/constants/user-constants.ts
+CURRENT_USER_ID = 'd51dbd52-d285-415b-b99f-ab399e828dff'
+CURRENT_BATTERY_PROFILE_ID = '1e60ecb6-b0e0-48e1-a265-bed99de33ffc'
 ```
+
+#### Patrón de Hooks (React Query)
+```typescript
+// Cada dominio tiene su propio hook
+- useVoltage() // Voltaje actual
+- useBatteryProfile() // Perfil + tabla SOC
+- useConsumptionSegments() // Tramos de consumo
+- useUserPreferences() // Temas y configuración UI
+- useSolarConfig() // Configuración sistema solar
+- useDailySoc() // Histórico SOC diario
+- useSolarPredictions() // Predicciones solares
+```
+
+#### Principios de Separación
+- **QueryKey separado** cuando los datos se actualizan con diferente frecuencia
+- **Compartir queryFn** cuando los datos siempre se necesitan juntos
+- **SSR con HydrationBoundary** para datos iniciales sin loading
+- **Persistencia automática** via PersistQueryClientProvider
 
 ### Archivos Clave
 ```
 /lib/
-  store.ts                # Estado global (fuente de verdad)
+  constants/
+    user-constants.ts     # IDs del usuario/perfil actual
+  supabase/               
+    client.ts            # Cliente para lado cliente
+    server.ts            # Cliente para Server Components
+    database.types.ts    # Tipos generados automáticamente
+  hooks/                 # Hooks de React Query
+    use-voltage.ts       
+    use-battery-profile.ts
+    use-consumption-segments.ts
+    use-user-preferences.ts
+    use-solar-config.ts
+    use-daily-soc.ts
+    use-solar-predictions.ts
+  providers/
+    query-provider.tsx   # Provider de React Query con persistencia
+  
   battery-calculations.ts # Lógica de cálculos SOC
   consumption-constants.ts# Valores por defecto (solo lectura)
   solar-predictions.ts    # Lógica de predicciones solares
@@ -212,11 +243,11 @@ Lógica del ciclo:
 
 
 ### Al Modificar
-1. Verificar migración automática en getCurrentProfile()
-2. Actualizar este archivo si el cambio afecta arquitectura
-3. Mantener compatibilidad con datos existentes en localStorage
-4. Optimizar rendimiento: usar useMemo(), constantes pre-calculadas
-5. Verificar que componentes no activos retornen null inmediatamente
+1. Actualizar este archivo si el cambio afecta arquitectura
+2. Optimizar rendimiento: usar useMemo(), constantes pre-calculadas
+3. Verificar que componentes no activos retornen null inmediatamente
+4. Usar SSR con HydrationBoundary para nuevas páginas
+5. Implementar mutaciones optimistas con rollback en errores
 
 ## Modelo de Base de Datos - IMPORTANTE
 
@@ -298,26 +329,29 @@ pnpm db:reset            # 🚨 EXTREMO: Reset completo (NUNCA usar en producci�
 
 ## Estado de Migración a Supabase
 
-### ✅ Completado (2025-01-30)
+### ✅ Completado (2025-02-02)
 - Proyecto Supabase creado y configurado
 - Migración 001: Schema inicial con 10 tablas
-- Tipos TypeScript generados
+- Migración 002: Datos importados desde backup
+- Tipos TypeScript generados y sincronizados
 - Cliente Supabase configurado (browser y server)
-- Comandos npm para gestión de DB
+- **MIGRACIÓN COMPLETA a React Query + Supabase**
+- Todos los componentes usando hooks de React Query
+- SSR implementado con HydrationBoundary
+- Persistencia automática en localStorage
+- Mutaciones optimistas con rollback
+- Sincronización de caché entre queries relacionadas
 
-### 🚧 En Proceso
-- Migración 002: Importar datos desde backup JSON
-- Capa de datos abstracta (DataLayer)
-- Dual-write (localStorage + Supabase)
-
-### 📋 Pendiente
-- Migración de componentes uno por uno
-- Dual-read con fallback
-- Cutover final a Supabase
+### 📋 Próximas Funcionalidades
+- Sistema de autenticación (reemplazar IDs fijos)
 - Features avanzados (análisis, alertas, PWA)
+- Dashboard de estadísticas
+- Exportación de datos
 
 ## Testing Manual Crítico
 1. Cambiar hora del sistema para probar proyecciones
 2. Verificar cálculos en diferentes zonas del ciclo nocturno
-3. Probar importación con datos antiguos (migración)
-4. Verificar en iPhone (zoom de inputs)
+3. Verificar en iPhone (zoom de inputs)
+4. Probar SSR: los datos deben aparecer sin flash/loading
+5. Verificar persistencia: recargar página mantiene datos
+6. Probar actualización optimista: cambios instantáneos con rollback en error
