@@ -2,24 +2,37 @@ export function ThemeScript() {
   const themeScript = `
     (function() {
       try {
-        const stored = localStorage.getItem('battery-storage');
-        if (stored) {
-          const data = JSON.parse(stored);
-          const state = data?.state || {};
-          const theme = state.theme || 'light';
-          const appTheme = state.appTheme || 'default';
+        // Leer del caché de React Query (PersistQueryClientProvider)
+        const queryCache = localStorage.getItem('soc-calculator-cache');
+        if (queryCache) {
+          const cacheData = JSON.parse(queryCache);
           
-          // Aplicar modo oscuro/claro
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          }
+          // Buscar las preferencias de usuario en el caché
+          const queries = cacheData?.clientState?.queries || [];
+          const userPrefsQuery = queries.find(q => 
+            q.queryKey && 
+            q.queryKey[0] === 'user-preferences'
+          );
           
-          // Aplicar tema de la aplicación
-          if (appTheme && appTheme !== 'default') {
-            document.documentElement.setAttribute('data-theme', appTheme);
+          if (userPrefsQuery?.state?.data) {
+            const preferences = userPrefsQuery.state.data;
+            const theme = preferences.theme || 'light';
+            const appTheme = preferences.app_theme || 'default';
+            
+            // Aplicar modo oscuro/claro
+            if (theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            }
+            
+            // Aplicar tema de la aplicación
+            if (appTheme && appTheme !== 'default') {
+              document.documentElement.setAttribute('data-theme', appTheme);
+            }
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        // En caso de error, usar defaults
+      }
     })();
   `;
 

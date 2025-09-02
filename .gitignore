@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Supabase
+supabase/.branches
+supabase/.temp
+supabase/.env
+# NO ignoramos supabase/config.toml ni /migrations porque son parte del proyecto

@@ -2,21 +2,26 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { calculateNightProjection, interpolateSOC } from '@/lib/battery-calculations';
-import { useBatteryStore } from '@/lib/store';
 import { TIME_CONFIG } from '@/lib/time-config';
 import { formatGuayaquilTime, getGuayaquilTime } from '@/lib/timezone-utils';
-import { Activity, CheckCircle, ChevronDown, ChevronUp, Clock, Moon, XCircle } from 'lucide-react';
+import { Activity, CheckCircle, ChevronDown, ChevronUp, Clock, Moon, XCircle, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { HippieCardWrapper } from './hippie-card-wrapper';
 import { HippieProgress } from './hippie-progress';
 import { HippieIcon } from './hippie-icon';
 import { HippieText } from './hippie-text';
 import { HippieCornerFlorals } from './hippie-corner-florals';
+import { useVoltage } from '@/lib/hooks/use-voltage';
+import { useBatteryProfile } from '@/lib/hooks/use-battery-profile';
+import { useConsumptionSegments } from '@/lib/hooks/use-consumption-segments';
+import { interpolateSOC } from '@/lib/supabase-store/calculations';
+import { calculateNightProjection } from '@/lib/supabase-store/night-calculations';
 
 export function NightProjection() {
-  const { currentVoltage, getCurrentProfile } = useBatteryStore();
-  const profile = getCurrentProfile();
+  const { voltage } = useVoltage();
+  const { profile, voltageSOCPoints, isLoading: profileLoading } = useBatteryProfile();
+  const { segments, isLoading: segmentsLoading } = useConsumptionSegments();
+  
   const [currentTime, setCurrentTime] = useState(getGuayaquilTime());
   const [showDetails, setShowDetails] = useState(true);
 
@@ -29,11 +34,16 @@ export function NightProjection() {
     return () => clearInterval(timer);
   }, []);
 
-  const socResult = interpolateSOC(currentVoltage, profile.voltageSOCTable);
+  // Calcular SOC basado en el voltaje actual
+  const socResult = voltageSOCPoints && voltageSOCPoints.length > 0
+    ? interpolateSOC(voltage, voltageSOCPoints)
+    : { soc: 0, confidence: 'low' as const, isOutOfRange: true };
+
+  // Calcular proyección nocturna
   const projection = calculateNightProjection(
     socResult.soc,
-    profile.batteryConfig,
-    profile.consumptionProfile,
+    profile || null,
+    segments,
     currentTime
   );
 
@@ -43,6 +53,33 @@ export function NightProjection() {
   const progressPercentage = projection.availableWh > 0 && projection.requiredWh > 0
     ? Math.min((projection.availableWh / projection.requiredWh) * 100, 100)
     : 0;
+
+  // Mostrar loading si está cargando datos
+  const isLoading = profileLoading || segmentsLoading;
+  
+  if (isLoading) {
+    return (
+      <HippieCardWrapper className="p-4 lg:p-5">
+        <div className="flex items-center justify-center h-32">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </HippieCardWrapper>
+    );
+  }
+
+  // Si no hay perfil o segmentos, mostrar mensaje
+  if (!profile || segments.length === 0) {
+    return (
+      <HippieCardWrapper className="p-4 lg:p-5">
+        <Alert>
+          <Moon className="h-4 w-4" />
+          <AlertDescription>
+            No se pudieron cargar los datos de consumo. Por favor, recarga la página.
+          </AlertDescription>
+        </Alert>
+      </HippieCardWrapper>
+    );
+  }
 
   return (
     <HippieCardWrapper className="p-4 lg:p-5">
@@ -65,7 +102,7 @@ export function NightProjection() {
 
       {/* Main Status Card */}
       <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-muted/50 to-muted">
-        {/* SOC Estimado para las 8:00 AM - MOVIDO AL PRINCIPIO */}
+        {/* SOC Estimado para las 8:00 AM */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-muted-foreground">SOC estimado a las {TIME_CONFIG.nightCycle.endTime}</span>
@@ -83,19 +120,15 @@ export function NightProjection() {
           </div>
           
           {(() => {
-            // La proyección ya tiene la reserva aplicada en availableWh
-            // Necesitamos calcular el SOC real sin considerar la reserva
-            const totalWh = profile.batteryConfig.capacityWh;
-            const hasReserve = profile.batteryConfig.safetyReserve > 0;
+            const totalWh = profile.battery_capacity_wh;
+            const hasReserve = (profile.safety_reserve_percent || 0) > 0;
             
-            // Si hay reserva, projection.availableWh ya la tiene descontada
-            // Para obtener el SOC real, necesitamos recalcular desde el SOC actual
+            // Calcular SOCs estimados
             const currentSOCDecimal = socResult.soc / 100;
             const realAvailableWh = Math.round(currentSOCDecimal * totalWh);
             const realRemainingWh = Math.round(Math.max(0, realAvailableWh - projection.requiredWh));
             const socWithoutReserve = Math.round((realRemainingWh / totalWh) * 100);
             
-            // El SOC con reserva es lo que ya está calculado en projection
             const utilRemainingWh = Math.round(Math.max(0, projection.availableWh - projection.requiredWh));
             const socWithReserve = hasReserve ? Math.round((utilRemainingWh / totalWh) * 100) : socWithoutReserve;
             
@@ -131,7 +164,7 @@ export function NightProjection() {
                   <div className="bg-background/80 rounded-lg p-3 border border-border/50">
                     <div className="text-[10px] text-muted-foreground text-center mb-1">
                       SOC Útil
-                      <span className="text-[9px] ml-1">(-{profile.batteryConfig.safetyReserve}%)</span>
+                      <span className="text-[9px] ml-1">(-{profile.safety_reserve_percent}%)</span>
                     </div>
                     <div className="text-center">
                       <HippieText variant="glow">
@@ -182,94 +215,6 @@ export function NightProjection() {
           {/* Progress Bar */}
           <HippieProgress value={progressPercentage} className="h-2" />
         </div>
-
-        {/* Margin - Mostrar con y sin reserva - OCULTO */}
-        {(() => {
-          // Calcular márgenes reales
-          const currentSOCDecimal = socResult.soc / 100;
-          const totalWh = profile.batteryConfig.capacityWh;
-          const realAvailableWh = currentSOCDecimal * totalWh;
-          const realMarginWh = Math.round(realAvailableWh - projection.requiredWh);
-          const utilMarginWh = Math.round(projection.marginWh); // Este ya tiene la reserva aplicada
-          
-          // Calcular los SOC finales estimados (estos son los que determinan los colores)
-          const realRemainingWh = Math.round(Math.max(0, realAvailableWh - projection.requiredWh));
-          const socWithoutReserve = Math.round((realRemainingWh / totalWh) * 100);
-          
-          const utilRemainingWh = Math.round(Math.max(0, projection.availableWh - projection.requiredWh));
-          const socWithReserve = Math.round((utilRemainingWh / totalWh) * 100);
-          
-          // Función para determinar el color basado en el SOC
-          const getSOCColor = (soc: number, willLast: boolean) => {
-            if (!willLast) return 'text-red-600';
-            if (soc >= 50) return 'text-green-600';
-            if (soc >= 30) return 'text-yellow-600';
-            return 'text-orange-600';
-          };
-          
-          const hasReserve = profile.batteryConfig.safetyReserve > 0;
-          
-          // Usar exactamente los mismos colores que los SOC estimados
-          const realMarginColor = getSOCColor(socWithoutReserve, projection.willLastUntil8AM);
-          const utilMarginColor = getSOCColor(socWithReserve, projection.willLastUntil8AM);
-          
-          return (
-            <div className="space-y-2 hidden">
-              <div className="text-xs text-center text-muted-foreground">
-                Margen disponible
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {/* Margen Real (sin reserva) */}
-                <div className="bg-muted/30 rounded-lg p-2">
-                  <div className="text-[10px] text-muted-foreground text-center mb-1">
-                    Real
-                  </div>
-                  <div className="text-center">
-                    <div className={`text-sm font-bold ${realMarginColor}`}>
-                      {realMarginWh >= 0 ? '+' : ''}{realMarginWh} Wh
-                    </div>
-                    <div className={`text-[10px] ${realMarginColor}`}>
-                      ({(realMarginWh / 12.8).toFixed(1)} Ah)
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Margen Útil (con reserva) */}
-                {hasReserve ? (
-                  <div className="bg-muted/30 rounded-lg p-2">
-                    <div className="text-[10px] text-muted-foreground text-center mb-1">
-                      Útil
-                      <span className="text-[9px] ml-1">(-{profile.batteryConfig.safetyReserve}%)</span>
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-sm font-bold ${utilMarginColor}`}>
-                        {utilMarginWh >= 0 ? '+' : ''}{utilMarginWh} Wh
-                      </div>
-                      <div className={`text-[10px] ${utilMarginColor}`}>
-                        ({(utilMarginWh / 12.8).toFixed(1)} Ah)
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-muted/30 rounded-lg p-2 opacity-50">
-                    <div className="text-[10px] text-muted-foreground text-center mb-1">
-                      Sin Reserva
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm font-bold text-muted-foreground">
-                        N/A
-                      </div>
-                      <div className="text-[10px] text-muted-foreground">
-                        0% configurado
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })()}
-
       </div>
 
       {/* Alert Messages */}

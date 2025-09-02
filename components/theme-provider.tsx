@@ -1,11 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useBatteryStore } from '@/lib/store';
+import { useUserPreferences } from '@/lib/hooks/use-user-preferences';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useBatteryStore((state) => state.theme);
-  const appTheme = useBatteryStore((state) => state.appTheme);
+  const { theme, appTheme } = useUserPreferences();
 
   useEffect(() => {
     // Aplicar o remover la clase 'dark' al elemento html

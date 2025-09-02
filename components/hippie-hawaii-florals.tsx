@@ -297,13 +297,22 @@ export function HippieHawaiiFlorals() {
         }}
       />
 
-      {/* Pétalos flotantes cayendo suavemente */}
-      {[...Array(8)].map((_, index) => (
+      {/* Pétalos flotantes cayendo suavemente - posiciones fijas para evitar hidratación */}
+      {[
+        { left: '8%', duration: 20 },
+        { left: '18%', duration: 18 },
+        { left: '32%', duration: 22 },
+        { left: '45%', duration: 16 },
+        { left: '58%', duration: 24 },
+        { left: '72%', duration: 19 },
+        { left: '85%', duration: 21 },
+        { left: '94%', duration: 17 }
+      ].map((petal, index) => (
         <motion.div
           key={`floating-petal-${index}`}
           className="absolute"
           style={{
-            left: `${Math.random() * 100}%`,
+            left: petal.left,
             top: '-10px',
             width: '8px',
             height: '12px',
@@ -314,13 +323,13 @@ export function HippieHawaiiFlorals() {
             opacity: 0.5
           }}
           animate={{
-            y: [0, window.innerHeight + 50],
+            y: [0, typeof window !== 'undefined' ? window.innerHeight + 50 : 800],
             x: [0, 20, -20, 20, 0],
             rotate: [0, 180, 360],
             scale: [1, 0.8, 1.2, 0.6]
           }}
           transition={{
-            duration: 15 + Math.random() * 10,
+            duration: petal.duration,
             repeat: Infinity,
             ease: "easeOut",
             delay: index * 2

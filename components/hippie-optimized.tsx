@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useBatteryStore } from '@/lib/store';
+import { useUserPreferences } from '@/lib/hooks/use-user-preferences';
 import { useMemo } from 'react';
 
 // Constantes pre-calculadas para evitar re-renders
@@ -35,17 +35,18 @@ const PLUMERIA_GRADIENT = 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, 
 const PALM_GRADIENT = 'linear-gradient(90deg, transparent 0%, rgba(76, 175, 80, 0.4) 20%, rgba(139, 195, 74, 0.5) 50%, rgba(76, 175, 80, 0.4) 80%, transparent 100%)';
 
 export function HippieOptimized() {
-  const { appTheme } = useBatteryStore();
+  const { appTheme } = useUserPreferences();
 
-  // Memoizar elementos para evitar re-renders innecesarios
-  const floatingPetals = useMemo(() => 
-    Array.from({ length: 6 }, (_, index) => ({
-      id: `petal-${index}`,
-      left: `${Math.random() * 100}%`,
-      delay: index * 2,
-      duration: 15 + Math.random() * 10
-    })), []
-  );
+  // Usar posiciones fijas para evitar problemas de hidratación
+  // Los valores están pre-calculados para parecer aleatorios pero ser consistentes
+  const floatingPetals = useMemo(() => [
+    { id: 'petal-0', left: '12%', delay: 0, duration: 18 },
+    { id: 'petal-1', left: '28%', delay: 2, duration: 22 },
+    { id: 'petal-2', left: '45%', delay: 4, duration: 16 },
+    { id: 'petal-3', left: '67%', delay: 6, duration: 20 },
+    { id: 'petal-4', left: '83%', delay: 8, duration: 24 },
+    { id: 'petal-5', left: '95%', delay: 10, duration: 19 }
+  ], []);
 
   if (appTheme !== 'hippie') return null;
 

@@ -1,9 +1,10 @@
 'use client';
 
-import { useBatteryStore } from '@/lib/store';
 import { Card } from '@/components/ui/card';
-import { TrendingUp, Calendar, Database } from 'lucide-react';
+import { TrendingUp, Calendar, Database, Loader2 } from 'lucide-react';
 import { getChartColors } from '@/lib/chart-colors';
+import { useDailySOC } from '@/lib/hooks/use-daily-soc';
+import { useUserPreferences } from '@/lib/hooks/use-user-preferences';
 import {
   LineChart,
   Line,
@@ -16,13 +17,29 @@ import {
   Area,
   ComposedChart,
 } from 'recharts';
-import { format } from 'date-fns';
+import { parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { es } from 'date-fns/locale';
 
 export function SOCHistoryChart() {
-  const { getSOCHistory, theme, appTheme } = useBatteryStore();
-  const history = getSOCHistory();
-  const colors = getChartColors(theme, appTheme);
+  const { theme, appTheme } = useUserPreferences();
+  const { history, isLoadingHistory } = useDailySOC();
+  const colors = getChartColors(theme as 'light' | 'dark', appTheme);
+  
+  // Si está cargando, mostrar loader
+  if (isLoadingHistory) {
+    return (
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="h-4 w-4 text-blue-600" />
+          <h3 className="text-lg font-semibold">Histórico de SOC</h3>
+        </div>
+        <div className="h-48 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </Card>
+    );
+  }
 
   // Si no hay datos, mostrar mensaje
   if (history.length === 0) {
@@ -43,14 +60,24 @@ export function SOCHistoryChart() {
     );
   }
 
-  // Preparar datos para el gráfico
-  const chartData = history.map(entry => ({
-    date: format(new Date(entry.timestamp), 'dd MMM', { locale: es }),
-    fullDate: format(new Date(entry.timestamp), 'dd/MM/yyyy'),
-    soc: entry.soc,
-    // Agregar indicadores de estado
-    status: entry.soc >= 70 ? 'good' : entry.soc >= 40 ? 'medium' : 'low'
-  }));
+  // Preparar datos para el gráfico - ordenar por fecha ascendente para el gráfico
+  const chartData = [...history]
+    .sort((a, b) => {
+      // Comparar las fechas como strings (YYYY-MM-DD) funciona correctamente
+      return a.date.localeCompare(b.date);
+    })
+    .map(entry => {
+      // entry.date viene como "YYYY-MM-DD" string
+      // Parseamos y formateamos en zona horaria de Ecuador
+      return {
+        date: formatInTimeZone(`${entry.date}T00:00:00`, 'America/Guayaquil', 'dd MMM', { locale: es }),
+        fullDate: formatInTimeZone(`${entry.date}T00:00:00`, 'America/Guayaquil', 'dd/MM/yyyy', { locale: es }),
+        soc: entry.soc,
+        voltage: entry.voltage,
+        // Agregar indicadores de estado
+        status: entry.soc >= 70 ? 'good' : entry.soc >= 40 ? 'medium' : 'low'
+      };
+    });
 
   // Calcular estadísticas
   const avgSOC = Math.round(history.reduce((sum, e) => sum + e.soc, 0) / history.length);
@@ -66,6 +93,11 @@ export function SOCHistoryChart() {
           <p className="text-xs" style={{ color: colors.chart1 }}>
             SOC: {data.soc}%
           </p>
+          {data.voltage && (
+            <p className="text-xs" style={{ color: colors.tooltip.text }}>
+              Voltaje: {data.voltage}V
+            </p>
+          )}
         </div>
       );
     }

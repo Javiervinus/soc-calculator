@@ -22,7 +22,7 @@ interface PredictionParamsProps {
     midStart: number;
     midEnd: number;
   };
-  onParamChange: (param: any) => void;
+  onParamChange: (key: string, value: number) => void;
   onRecalculate: () => void;
   loading: boolean;
   open: boolean;
@@ -73,7 +73,7 @@ export function PredictionParams({
                   </div>
                   <Slider
                     value={[params.etaElec * 100]}
-                    onValueChange={([v]) => onParamChange({ etaElec: v / 100 })}
+                    onValueChange={([v]) => onParamChange('etaElec', v / 100)}
                     min={85}
                     max={95}
                     step={1}
@@ -88,7 +88,7 @@ export function PredictionParams({
                   </div>
                   <Slider
                     value={[params.etaSoil * 100]}
-                    onValueChange={([v]) => onParamChange({ etaSoil: v / 100 })}
+                    onValueChange={([v]) => onParamChange('etaSoil', v / 100)}
                     min={90}
                     max={97}
                     step={1}
@@ -103,7 +103,7 @@ export function PredictionParams({
                   </div>
                   <Slider
                     value={[params.etaCtrl * 100]}
-                    onValueChange={([v]) => onParamChange({ etaCtrl: v / 100 })}
+                    onValueChange={([v]) => onParamChange('etaCtrl', v / 100)}
                     min={70}
                     max={90}
                     step={1}
@@ -118,7 +118,7 @@ export function PredictionParams({
                   </div>
                   <Slider
                     value={[params.etaAOI * 100]}
-                    onValueChange={([v]) => onParamChange({ etaAOI: v / 100 })}
+                    onValueChange={([v]) => onParamChange('etaAOI', v / 100)}
                     min={90}
                     max={97}
                     step={1}
@@ -138,7 +138,7 @@ export function PredictionParams({
                   </div>
                   <Slider
                     value={[params.svf * 100]}
-                    onValueChange={([v]) => onParamChange({ svf: v / 100 })}
+                    onValueChange={([v]) => onParamChange('svf', v / 100)}
                     min={50}
                     max={80}
                     step={1}
@@ -154,7 +154,7 @@ export function PredictionParams({
                   <div className="flex gap-2">
                     <Slider
                       value={[params.midStart]}
-                      onValueChange={([v]) => onParamChange({ midStart: v })}
+                      onValueChange={([v]) => onParamChange('midStart', v)}
                       min={8}
                       max={10}
                       step={1}
@@ -162,7 +162,7 @@ export function PredictionParams({
                     />
                     <Slider
                       value={[params.midEnd]}
-                      onValueChange={([v]) => onParamChange({ midEnd: v })}
+                      onValueChange={([v]) => onParamChange('midEnd', v)}
                       min={13}
                       max={15}
                       step={1}

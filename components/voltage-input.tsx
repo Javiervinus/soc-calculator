@@ -4,19 +4,21 @@ import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Battery, Mic, MicOff } from 'lucide-react';
-import { useBatteryStore } from '@/lib/store';
+import { Battery, Mic, MicOff, Loader2 } from 'lucide-react';
+import { useVoltage, useUpdateVoltage } from '@/lib/hooks/use-voltage';
 import { toast } from 'sonner';
 
 export function VoltageInput() {
-  const { currentVoltage, setVoltage } = useBatteryStore();
-  const [inputValue, setInputValue] = useState(currentVoltage.toString());
+  const { voltage, isLoading } = useVoltage();
+  const updateVoltageMutation = useUpdateVoltage();
+  
+  const [inputValue, setInputValue] = useState(voltage.toString());
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    setInputValue(currentVoltage.toString());
-  }, [currentVoltage]);
+    setInputValue(voltage.toString());
+  }, [voltage]);
 
   useEffect(() => {
     // Inicializar reconocimiento de voz si está disponible
@@ -86,7 +88,8 @@ export function VoltageInput() {
       }
       
       if (!isNaN(voltage) && voltage >= 10 && voltage <= 15) {
-        setVoltage(voltage);
+        // Para entrada de voz, actualizar inmediatamente sin debounce
+        updateVoltageMutation.mutate(voltage);
         setInputValue(voltage.toFixed(2));
         toast.success(`Voltaje establecido: ${voltage.toFixed(2)} V`);
       } else {
@@ -97,18 +100,23 @@ export function VoltageInput() {
     }
   };
 
+  const handleVoltageChange = (newVoltage: number) => {
+    // Actualizar directamente sin debounce por ahora
+    updateVoltageMutation.mutate(newVoltage);
+  };
+
   const handleInputChange = (value: string) => {
     setInputValue(value);
-    const voltage = parseFloat(value);
-    if (!isNaN(voltage) && voltage >= 10 && voltage <= 15) {
-      setVoltage(voltage);
+    const newVoltage = parseFloat(value);
+    if (!isNaN(newVoltage) && newVoltage >= 10 && newVoltage <= 15) {
+      handleVoltageChange(newVoltage);
     }
   };
 
   const handleSliderChange = (value: number[]) => {
-    const voltage = value[0];
-    setVoltage(voltage);
-    setInputValue(voltage.toFixed(2));
+    const newVoltage = value[0];
+    setInputValue(newVoltage.toFixed(2));
+    handleVoltageChange(newVoltage);
   };
 
   const toggleVoiceInput = () => {
@@ -127,6 +135,17 @@ export function VoltageInput() {
     }
   };
 
+  // Mostrar loading solo en la primera carga
+  if (isLoading) {
+    return (
+      <div className="p-3 sm:p-4 lg:p-5">
+        <div className="flex items-center justify-center h-32">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-3 sm:p-4 lg:p-5">
       <div className="flex items-center justify-between mb-3">
@@ -135,7 +154,7 @@ export function VoltageInput() {
           <h2 className="text-sm lg:text-base font-semibold text-foreground">Voltaje de Entrada</h2>
         </div>
         <div className="text-2xl lg:text-3xl font-bold text-blue-600">
-          {currentVoltage.toFixed(2)} V
+          {voltage.toFixed(2)} V
         </div>
       </div>
 
@@ -165,7 +184,7 @@ export function VoltageInput() {
           </Button>
           <div className="flex-1">
             <Slider
-              value={[currentVoltage]}
+              value={[voltage]}
               onValueChange={handleSliderChange}
               min={10}
               max={15}

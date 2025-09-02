@@ -1,0 +1,330 @@
+// SOC Calculator Database Schema
+// DBML (Database Markup Language) for documentation and visualization
+// Use https://dbdiagram.io/d to visualize
+
+Project SOC_Calculator {
+  database_type: 'PostgreSQL'
+  Note: 'Sistema de monitoreo de baterías LiFePO4 con predicción solar'
+}
+
+// ====================================
+// PREFERENCIAS Y CONFIGURACIÓN USUARIO
+// ====================================
+
+Table user_preferences {
+  id uuid [pk, default: `gen_random_uuid()`, note: 'UUID para escalabilidad futura']
+  
+  // Perfil activo del sistema
+  active_battery_profile_id uuid [ref: > battery_profiles.id]
+  
+  // Voltaje actual del sistema
+  current_voltage decimal(4,2) [default: 13.2, note: 'Último voltaje medido']
+  
+  // Preferencias de UI
+  theme varchar [default: 'light', note: 'light | dark']
+  app_theme varchar [default: 'default', note: 'default | futuristic | minimal | retro | hippie']
+  
+  // Configuración regional
+  timezone varchar [default: 'America/Guayaquil', note: 'Zona horaria para todos los cálculos']
+  
+  // Parámetros para predicciones solares
+  prediction_efficiency decimal(3,2) [default: 0.75]
+  prediction_tilt_angle integer [default: 10]
+  prediction_azimuth integer [default: 0]
+  prediction_temperature_coefficient decimal(4,3) [default: -0.004]
+  
+  // Metadata
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  
+  Note: 'Configuración global del usuario. En futuro será por user_id'
+}
+
+// ====================================
+// PERFILES DE SISTEMA DE BATERÍA
+// ====================================
+
+Table battery_profiles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null, note: 'Ej: "Sistema Principal", "Batería Respaldo"']
+  
+  // Configuración básica de batería
+  chemistry varchar [default: 'LiFePO₄', note: 'LiFePO₄, AGM, Gel, etc.']
+  nominal_voltage decimal(4,2) [default: 12.8, note: 'Voltaje nominal del sistema']
+  battery_capacity_ah integer [not null, default: 108]
+  battery_capacity_wh integer [not null, default: 1380]
+  battery_capacity_kwh decimal(4,2) [default: 1.38, note: 'Capacidad en kWh']
+  
+  // Configuración detallada de baterías
+  battery_configuration text [note: 'Ej: "6 baterías de 12.8V/18Ah en paralelo"']
+  number_of_batteries integer [default: 6]
+  battery_capacity_each decimal(6,2) [default: 18, note: 'Capacidad de cada batería en Ah']
+  
+  // Rangos de operación
+  min_voltage decimal(3,1) [not null, default: 10.0]
+  max_voltage decimal(3,1) [not null, default: 14.6]
+  safety_reserve_percent integer [default: 20, note: '0-30%']
+  
+  // Consumo estimado
+  daily_consumption_ah decimal(6,2) [default: 45, note: 'Consumo diario estimado en Ah']
+  
+  // Referencia a tabla de conversión
+  voltage_soc_table_id uuid [ref: > voltage_soc_tables.id]
+  
+  // Estado
+  is_active boolean [default: true]
+  
+  // Metadata
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  
+  Note: 'Cada perfil representa una configuración completa de sistema de batería'
+}
+
+// ====================================
+// CONFIGURACIÓN DEL SISTEMA SOLAR
+// ====================================
+
+Table solar_system_config {
+  id uuid [pk, default: `gen_random_uuid()`]
+  profile_id uuid [not null, unique, ref: - battery_profiles.id]
+  
+  // Configuración de paneles
+  solar_power_total integer [default: 720, note: 'Potencia total en watts']
+  number_of_panels integer [default: 12]
+  panel_power_each decimal(6,2) [default: 60, note: 'Potencia de cada panel en watts']
+  panel_type varchar [default: 'Monocristalino', note: 'Monocristalino, Policristalino, etc.']
+  panel_configuration text [default: '12 paneles en paralelo', note: 'Descripción de la configuración']
+  panel_voltage decimal(4,2) [default: 18, note: 'Voltaje nominal del panel']
+  panel_current decimal(4,2) [default: 3.2, note: 'Corriente nominal del panel']
+  
+  // Configuración del controlador
+  controller_type varchar [default: 'MPPT', note: 'MPPT o PWM']
+  controller_capacity integer [default: 30, note: 'Capacidad en amperios']
+  
+  // Metadata
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  
+  Note: 'Configuración detallada del sistema solar por perfil'
+}
+
+// ====================================
+// TABLAS DE CONVERSIÓN VOLTAJE-SOC
+// ====================================
+
+Table voltage_soc_tables {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name varchar [not null, note: 'Ej: "LiFePO4 Standard", "Custom Calibrada"']
+  description text
+  
+  // Los puntos de la tabla se guardan en voltage_soc_points
+  is_default boolean [default: false]
+  
+  created_at timestamptz [default: `now()`]
+  
+  Note: 'Tabla maestra para grupos de puntos voltaje-SOC'
+}
+
+Table voltage_soc_points {
+  id uuid [pk, default: `gen_random_uuid()`]
+  table_id uuid [not null, ref: > voltage_soc_tables.id]
+  
+  voltage decimal(4,2) [not null]
+  soc decimal(4,1) [not null, note: '0.0 - 100.0']
+  
+  Indexes {
+    (table_id, voltage) [unique]
+    table_id
+  }
+  
+  Note: 'Puntos individuales de conversión voltaje->SOC'
+}
+
+// ====================================
+// MEDICIONES Y REGISTROS
+// ====================================
+
+Table voltage_readings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  profile_id uuid [not null, ref: > battery_profiles.id]
+  
+  voltage decimal(4,2) [not null]
+  calculated_soc integer [note: 'SOC calculado en el momento']
+  
+  // Metadata de contexto
+  is_manual_entry boolean [default: true]
+  notes text
+  
+  created_at timestamptz [default: `now()`, note: 'Timestamp exacto de la lectura']
+  
+  Indexes {
+    (profile_id, created_at) [name: 'idx_readings_profile_time']
+  }
+  
+  Note: 'Todas las lecturas de voltaje, múltiples por día'
+}
+
+Table daily_soc_records {
+  id uuid [pk, default: `gen_random_uuid()`]
+  profile_id uuid [not null, ref: > battery_profiles.id]
+  
+  date date [not null]
+  soc integer [not null, note: 'SOC al momento del guardado (típicamente 5-6pm)']
+  voltage decimal(4,2) [note: 'Voltaje al momento del guardado']
+  
+  // Estadísticas del día (calculadas)
+  max_soc integer
+  min_soc integer
+  max_voltage decimal(4,2)
+  min_voltage decimal(4,2)
+  
+  notes text
+  created_at timestamptz [default: `now()`]
+  
+  Indexes {
+    (profile_id, date) [unique, name: 'idx_daily_profile_date']
+  }
+  
+  Note: 'Un registro por día cuando el usuario presiona "Guardar"'
+}
+
+// ====================================
+// CONFIGURACIÓN DE CONSUMO
+// ====================================
+
+Table consumption_segments {
+  id uuid [pk, default: `gen_random_uuid()`]
+  profile_id uuid [not null, ref: > battery_profiles.id]
+  
+  // Identificación
+  segment_id varchar [not null, note: 'ID personalizable: "A", "B", "custom-123456"']
+  name varchar [not null, note: 'Ej: "Luces", "TV", "Ventilador"']
+  period_label varchar [note: 'Ej: "17:00-19:00"']
+  
+  // Horario (hora local Ecuador)
+  start_hour integer [not null, note: '0-23']
+  end_hour integer [not null, note: '0-24, 24 significa medianoche del día siguiente']
+  
+  // Consumo
+  watts decimal(6,2) [not null]
+  hours decimal(3,1) [not null, note: 'Calculado: end-start o cruza medianoche']
+  wh decimal(8,2) [not null, note: 'Calculado: watts * hours']
+  ah decimal(6,2) [not null, note: 'Calculado: wh / 12.8']
+  
+  // UI
+  color varchar [default: 'bg-blue-500', note: 'Clase de Tailwind para color en UI']
+  
+  // Estado
+  is_active boolean [default: true]
+  
+  // Metadata
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  
+  Indexes {
+    profile_id
+    (profile_id, start_hour)
+    (profile_id, segment_id) [unique]
+  }
+  
+  Note: 'Tramos de consumo configurables para proyección nocturna'
+}
+
+// ====================================
+// CACHE DE PREDICCIONES SOLARES
+// ====================================
+
+Table solar_predictions_cache {
+  id uuid [pk, default: `gen_random_uuid()`]
+  
+  // Ubicación y fecha
+  prediction_date date [not null]
+  latitude decimal(10,7) [default: -2.1894]
+  longitude decimal(10,7) [default: -79.8891]
+  
+  // Datos de la API (JSONB para flexibilidad)
+  weather_data jsonb [not null, note: 'Respuesta completa de Open-Meteo']
+  
+  // Cálculos derivados (para queries rápidos)
+  total_ghi_wh_m2 decimal(8,2)
+  total_dni_wh_m2 decimal(8,2)
+  total_dhi_wh_m2 decimal(8,2)
+  effective_psh decimal(4,2)
+  estimated_ah decimal(6,2)
+  estimated_wh decimal(8,2)
+  cloud_cover_avg decimal(5,2)
+  temperature_avg decimal(4,1)
+  
+  // Control de cache
+  expires_at timestamptz [not null]
+  created_at timestamptz [default: `now()`]
+  
+  Indexes {
+    (prediction_date, latitude, longitude) [unique]
+    expires_at
+  }
+  
+  Note: 'Cache de predicciones meteorológicas para cálculo solar'
+}
+
+// ====================================
+// AUDITORÍA Y LOGS (Futuro)
+// ====================================
+
+Table activity_logs {
+  id uuid [pk, default: `gen_random_uuid()`]
+  
+  action varchar [not null, note: 'voltage_reading, daily_save, config_change, etc']
+  entity_type varchar [note: 'battery_profiles, consumption_segments, etc']
+  entity_id uuid
+  
+  old_values jsonb
+  new_values jsonb
+  
+  metadata jsonb [note: 'IP, user agent, etc']
+  created_at timestamptz [default: `now()`]
+  
+  Indexes {
+    created_at
+    action
+  }
+  
+  Note: 'Para tracking de cambios y debugging'
+}
+
+// ====================================
+// NOTIFICACIONES (Futuro PWA)
+// ====================================
+
+Table notification_settings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  
+  // Tipos de notificación
+  missing_daily_reading boolean [default: true]
+  low_solar_prediction boolean [default: true]
+  consumption_anomaly boolean [default: true]
+  
+  // Horarios
+  daily_summary_time time [default: '19:00']
+  morning_reminder_time time [default: '08:00']
+  
+  // Push notification tokens
+  push_tokens jsonb [default: '[]', note: 'Array de tokens FCM']
+  
+  updated_at timestamptz [default: `now()`]
+  
+  Note: 'Configuración para futuras notificaciones push'
+}
+
+// ====================================
+// RELACIONES COMENTADAS
+// ====================================
+
+// battery_profiles.voltage_soc_table_id -> voltage_soc_tables.id
+// solar_system_config.profile_id -> battery_profiles.id (1:1)
+// voltage_soc_points.table_id -> voltage_soc_tables.id  
+// voltage_readings.profile_id -> battery_profiles.id
+// daily_soc_records.profile_id -> battery_profiles.id
+// consumption_segments.profile_id -> battery_profiles.id
+// user_preferences.active_battery_profile_id -> battery_profiles.id

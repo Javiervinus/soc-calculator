@@ -7,46 +7,59 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { interpolateSOC } from '@/lib/battery-calculations';
-import { useBatteryStore } from '@/lib/store';
-import { Check, Save } from 'lucide-react';
-import { toast } from 'sonner';
+import { useVoltage } from '@/lib/hooks/use-voltage';
+import { useBatteryProfile } from '@/lib/hooks/use-battery-profile';
+import { useDailySOC } from '@/lib/hooks/use-daily-soc';
+import { interpolateSOC } from '@/lib/supabase-store/calculations';
+import { Check, Save, Loader2 } from 'lucide-react';
 
 interface SOCSaveButtonProps {
   compact?: boolean;
 }
 
 export function SOCSaveButton({ compact = true }: SOCSaveButtonProps) {
-  const { currentVoltage, getCurrentProfile, saveDailySOC, getTodaySOCEntry, getSOCHistory } = useBatteryStore();
-  const profile = getCurrentProfile();
+  const { voltage } = useVoltage();
+  const { voltageSOCPoints, isLoading: profileLoading } = useBatteryProfile();
+  const { 
+    todayEntry, 
+    saveDailySOC, 
+    isSaving,
+    isSavedToday,
+    todaySOC,
+    isLoadingToday 
+  } = useDailySOC();
   
-  // Obtener directamente del store - esto se actualizará automáticamente
-  const todayEntry = getTodaySOCEntry();
-  const historyLength = getSOCHistory().length; // Usar como dependencia para forzar re-render
-  
-  const isSaved = !!todayEntry;
-  const todaySOC = todayEntry?.soc || null;
-  const lastSavedTime = todayEntry ? new Date(todayEntry.timestamp).toLocaleTimeString('es-EC', { 
+  const lastSavedTime = todayEntry ? new Date(todayEntry.created_at || '').toLocaleTimeString('es-EC', { 
     hour: '2-digit', 
     minute: '2-digit',
     timeZone: 'America/Guayaquil'
   }) : null;
+  
+  const isLoading = profileLoading || isLoadingToday;
 
   const handleSave = () => {
-    const socResult = interpolateSOC(currentVoltage, profile.voltageSOCTable);
-    const result = saveDailySOC(socResult.soc);
-    
-    if (result.success) {
-      toast.success(result.message, {
-        description: `SOC: ${socResult.soc}%`
-      });
-    } else {
-      toast.error(result.message);
+    if (!voltageSOCPoints || voltageSOCPoints.length === 0) {
+      return;
     }
+    
+    const socResult = interpolateSOC(voltage, voltageSOCPoints);
+    saveDailySOC({ 
+      soc: socResult.soc, 
+      voltage: voltage 
+    });
   };
+  
+  // Si está cargando, mostrar loader
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-8 h-8">
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   // Si ya se guardó hoy, mostrar indicador compacto
-  if (isSaved && compact) {
+  if (isSavedToday && compact) {
     return (
       <TooltipProvider>
         <Tooltip>
@@ -79,8 +92,13 @@ export function SOCSaveButton({ compact = true }: SOCSaveButtonProps) {
             size="icon"
             variant="outline"
             className="h-8 w-8 rounded-full"
+            disabled={isSaving || !voltageSOCPoints}
           >
-            <Save className="h-4 w-4" />
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>

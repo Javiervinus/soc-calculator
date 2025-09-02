@@ -1,0 +1,1863 @@
+{
+  "currentVoltage": 13.8,
+  "currentProfileId": "default",
+  "profiles": [
+    {
+      "id": "default",
+      "name": "Perfil Principal",
+      "voltageSOCTable": [
+        {
+          "voltage": 14.3,
+          "soc": 100
+        },
+        {
+          "voltage": 14.29,
+          "soc": 100
+        },
+        {
+          "voltage": 14.28,
+          "soc": 100
+        },
+        {
+          "voltage": 14.27,
+          "soc": 100
+        },
+        {
+          "voltage": 14.26,
+          "soc": 100
+        },
+        {
+          "voltage": 14.25,
+          "soc": 100
+        },
+        {
+          "voltage": 14.24,
+          "soc": 100
+        },
+        {
+          "voltage": 14.23,
+          "soc": 100
+        },
+        {
+          "voltage": 14.22,
+          "soc": 100
+        },
+        {
+          "voltage": 14.21,
+          "soc": 100
+        },
+        {
+          "voltage": 14.2,
+          "soc": 100
+        },
+        {
+          "voltage": 14.19,
+          "soc": 100
+        },
+        {
+          "voltage": 14.18,
+          "soc": 100
+        },
+        {
+          "voltage": 14.17,
+          "soc": 100
+        },
+        {
+          "voltage": 14.16,
+          "soc": 100
+        },
+        {
+          "voltage": 14.15,
+          "soc": 100
+        },
+        {
+          "voltage": 14.14,
+          "soc": 100
+        },
+        {
+          "voltage": 14.13,
+          "soc": 100
+        },
+        {
+          "voltage": 14.12,
+          "soc": 100
+        },
+        {
+          "voltage": 14.11,
+          "soc": 100
+        },
+        {
+          "voltage": 14.1,
+          "soc": 100
+        },
+        {
+          "voltage": 14.09,
+          "soc": 100
+        },
+        {
+          "voltage": 14.08,
+          "soc": 100
+        },
+        {
+          "voltage": 14.07,
+          "soc": 100
+        },
+        {
+          "voltage": 14.06,
+          "soc": 100
+        },
+        {
+          "voltage": 14.05,
+          "soc": 100
+        },
+        {
+          "voltage": 14.04,
+          "soc": 100
+        },
+        {
+          "voltage": 14.03,
+          "soc": 100
+        },
+        {
+          "voltage": 14.02,
+          "soc": 100
+        },
+        {
+          "voltage": 14.01,
+          "soc": 100
+        },
+        {
+          "voltage": 14,
+          "soc": 100
+        },
+        {
+          "voltage": 13.99,
+          "soc": 100
+        },
+        {
+          "voltage": 13.98,
+          "soc": 100
+        },
+        {
+          "voltage": 13.97,
+          "soc": 100
+        },
+        {
+          "voltage": 13.96,
+          "soc": 100
+        },
+        {
+          "voltage": 13.95,
+          "soc": 100
+        },
+        {
+          "voltage": 13.94,
+          "soc": 100
+        },
+        {
+          "voltage": 13.93,
+          "soc": 100
+        },
+        {
+          "voltage": 13.92,
+          "soc": 100
+        },
+        {
+          "voltage": 13.91,
+          "soc": 100
+        },
+        {
+          "voltage": 13.9,
+          "soc": 100
+        },
+        {
+          "voltage": 13.89,
+          "soc": 100
+        },
+        {
+          "voltage": 13.88,
+          "soc": 100
+        },
+        {
+          "voltage": 13.87,
+          "soc": 100
+        },
+        {
+          "voltage": 13.86,
+          "soc": 100
+        },
+        {
+          "voltage": 13.85,
+          "soc": 100
+        },
+        {
+          "voltage": 13.84,
+          "soc": 100
+        },
+        {
+          "voltage": 13.83,
+          "soc": 100
+        },
+        {
+          "voltage": 13.82,
+          "soc": 100
+        },
+        {
+          "voltage": 13.81,
+          "soc": 100
+        },
+        {
+          "voltage": 13.8,
+          "soc": 100
+        },
+        {
+          "voltage": 13.79,
+          "soc": 99.9
+        },
+        {
+          "voltage": 13.78,
+          "soc": 99.8
+        },
+        {
+          "voltage": 13.77,
+          "soc": 99.7
+        },
+        {
+          "voltage": 13.76,
+          "soc": 99.6
+        },
+        {
+          "voltage": 13.75,
+          "soc": 99.5
+        },
+        {
+          "voltage": 13.74,
+          "soc": 99.4
+        },
+        {
+          "voltage": 13.73,
+          "soc": 99.3
+        },
+        {
+          "voltage": 13.72,
+          "soc": 99.2
+        },
+        {
+          "voltage": 13.71,
+          "soc": 99.1
+        },
+        {
+          "voltage": 13.7,
+          "soc": 99
+        },
+        {
+          "voltage": 13.69,
+          "soc": 98.6
+        },
+        {
+          "voltage": 13.68,
+          "soc": 98.2
+        },
+        {
+          "voltage": 13.67,
+          "soc": 97.7
+        },
+        {
+          "voltage": 13.66,
+          "soc": 97.3
+        },
+        {
+          "voltage": 13.65,
+          "soc": 96.8
+        },
+        {
+          "voltage": 13.64,
+          "soc": 96.4
+        },
+        {
+          "voltage": 13.63,
+          "soc": 96
+        },
+        {
+          "voltage": 13.62,
+          "soc": 95.5
+        },
+        {
+          "voltage": 13.61,
+          "soc": 95.1
+        },
+        {
+          "voltage": 13.6,
+          "soc": 94.6
+        },
+        {
+          "voltage": 13.59,
+          "soc": 94.2
+        },
+        {
+          "voltage": 13.58,
+          "soc": 93.8
+        },
+        {
+          "voltage": 13.57,
+          "soc": 93.3
+        },
+        {
+          "voltage": 13.56,
+          "soc": 92.9
+        },
+        {
+          "voltage": 13.55,
+          "soc": 92.4
+        },
+        {
+          "voltage": 13.54,
+          "soc": 92
+        },
+        {
+          "voltage": 13.53,
+          "soc": 91.6
+        },
+        {
+          "voltage": 13.52,
+          "soc": 91.1
+        },
+        {
+          "voltage": 13.51,
+          "soc": 90.7
+        },
+        {
+          "voltage": 13.5,
+          "soc": 90
+        },
+        {
+          "voltage": 13.49,
+          "soc": 89.3
+        },
+        {
+          "voltage": 13.48,
+          "soc": 88.7
+        },
+        {
+          "voltage": 13.47,
+          "soc": 88
+        },
+        {
+          "voltage": 13.46,
+          "soc": 87.3
+        },
+        {
+          "voltage": 13.45,
+          "soc": 86.7
+        },
+        {
+          "voltage": 13.44,
+          "soc": 86
+        },
+        {
+          "voltage": 13.43,
+          "soc": 85.3
+        },
+        {
+          "voltage": 13.42,
+          "soc": 84.7
+        },
+        {
+          "voltage": 13.41,
+          "soc": 84
+        },
+        {
+          "voltage": 13.4,
+          "soc": 83.3
+        },
+        {
+          "voltage": 13.39,
+          "soc": 82.7
+        },
+        {
+          "voltage": 13.38,
+          "soc": 82
+        },
+        {
+          "voltage": 13.37,
+          "soc": 81.3
+        },
+        {
+          "voltage": 13.36,
+          "soc": 80.7
+        },
+        {
+          "voltage": 13.35,
+          "soc": 80
+        },
+        {
+          "voltage": 13.34,
+          "soc": 79.3
+        },
+        {
+          "voltage": 13.33,
+          "soc": 78.7
+        },
+        {
+          "voltage": 13.32,
+          "soc": 78
+        },
+        {
+          "voltage": 13.31,
+          "soc": 77.3
+        },
+        {
+          "voltage": 13.3,
+          "soc": 76.7
+        },
+        {
+          "voltage": 13.29,
+          "soc": 76
+        },
+        {
+          "voltage": 13.28,
+          "soc": 75.3
+        },
+        {
+          "voltage": 13.27,
+          "soc": 74.7
+        },
+        {
+          "voltage": 13.26,
+          "soc": 74
+        },
+        {
+          "voltage": 13.25,
+          "soc": 73.3
+        },
+        {
+          "voltage": 13.24,
+          "soc": 72.7
+        },
+        {
+          "voltage": 13.23,
+          "soc": 72
+        },
+        {
+          "voltage": 13.22,
+          "soc": 71.3
+        },
+        {
+          "voltage": 13.21,
+          "soc": 70.7
+        },
+        {
+          "voltage": 13.2,
+          "soc": 70
+        },
+        {
+          "voltage": 13.19,
+          "soc": 67
+        },
+        {
+          "voltage": 13.18,
+          "soc": 64
+        },
+        {
+          "voltage": 13.17,
+          "soc": 61
+        },
+        {
+          "voltage": 13.16,
+          "soc": 58
+        },
+        {
+          "voltage": 13.15,
+          "soc": 55
+        },
+        {
+          "voltage": 13.14,
+          "soc": 52
+        },
+        {
+          "voltage": 13.13,
+          "soc": 49
+        },
+        {
+          "voltage": 13.12,
+          "soc": 46
+        },
+        {
+          "voltage": 13.11,
+          "soc": 43
+        },
+        {
+          "voltage": 13.1,
+          "soc": 40
+        },
+        {
+          "voltage": 13.09,
+          "soc": 39
+        },
+        {
+          "voltage": 13.08,
+          "soc": 38
+        },
+        {
+          "voltage": 13.07,
+          "soc": 37
+        },
+        {
+          "voltage": 13.06,
+          "soc": 36
+        },
+        {
+          "voltage": 13.05,
+          "soc": 35
+        },
+        {
+          "voltage": 13.04,
+          "soc": 34
+        },
+        {
+          "voltage": 13.03,
+          "soc": 33
+        },
+        {
+          "voltage": 13.02,
+          "soc": 32
+        },
+        {
+          "voltage": 13.01,
+          "soc": 31
+        },
+        {
+          "voltage": 13,
+          "soc": 30
+        },
+        {
+          "voltage": 12.99,
+          "soc": 29
+        },
+        {
+          "voltage": 12.98,
+          "soc": 28
+        },
+        {
+          "voltage": 12.97,
+          "soc": 27
+        },
+        {
+          "voltage": 12.96,
+          "soc": 26
+        },
+        {
+          "voltage": 12.95,
+          "soc": 25
+        },
+        {
+          "voltage": 12.94,
+          "soc": 24
+        },
+        {
+          "voltage": 12.93,
+          "soc": 23
+        },
+        {
+          "voltage": 12.92,
+          "soc": 22
+        },
+        {
+          "voltage": 12.91,
+          "soc": 21
+        },
+        {
+          "voltage": 12.9,
+          "soc": 20
+        },
+        {
+          "voltage": 12.89,
+          "soc": 19.5
+        },
+        {
+          "voltage": 12.88,
+          "soc": 19
+        },
+        {
+          "voltage": 12.87,
+          "soc": 18.5
+        },
+        {
+          "voltage": 12.86,
+          "soc": 18
+        },
+        {
+          "voltage": 12.85,
+          "soc": 17.5
+        },
+        {
+          "voltage": 12.84,
+          "soc": 17
+        },
+        {
+          "voltage": 12.83,
+          "soc": 16.5
+        },
+        {
+          "voltage": 12.82,
+          "soc": 16
+        },
+        {
+          "voltage": 12.81,
+          "soc": 15.5
+        },
+        {
+          "voltage": 12.8,
+          "soc": 10
+        },
+        {
+          "voltage": 12.79,
+          "soc": 9.6
+        },
+        {
+          "voltage": 12.78,
+          "soc": 9.5
+        },
+        {
+          "voltage": 12.77,
+          "soc": 9.5
+        },
+        {
+          "voltage": 12.76,
+          "soc": 9.4
+        },
+        {
+          "voltage": 12.75,
+          "soc": 9.3
+        },
+        {
+          "voltage": 12.74,
+          "soc": 9.3
+        },
+        {
+          "voltage": 12.73,
+          "soc": 9.2
+        },
+        {
+          "voltage": 12.72,
+          "soc": 9.1
+        },
+        {
+          "voltage": 12.71,
+          "soc": 9.1
+        },
+        {
+          "voltage": 12.7,
+          "soc": 9
+        },
+        {
+          "voltage": 12.69,
+          "soc": 8.9
+        },
+        {
+          "voltage": 12.68,
+          "soc": 8.8
+        },
+        {
+          "voltage": 12.67,
+          "soc": 8.8
+        },
+        {
+          "voltage": 12.66,
+          "soc": 8.7
+        },
+        {
+          "voltage": 12.65,
+          "soc": 8.6
+        },
+        {
+          "voltage": 12.64,
+          "soc": 8.6
+        },
+        {
+          "voltage": 12.63,
+          "soc": 8.5
+        },
+        {
+          "voltage": 12.62,
+          "soc": 8.4
+        },
+        {
+          "voltage": 12.61,
+          "soc": 8.4
+        },
+        {
+          "voltage": 12.6,
+          "soc": 8.3
+        },
+        {
+          "voltage": 12.59,
+          "soc": 8.2
+        },
+        {
+          "voltage": 12.58,
+          "soc": 9
+        },
+        {
+          "voltage": 12.57,
+          "soc": 8.9
+        },
+        {
+          "voltage": 12.56,
+          "soc": 8.8
+        },
+        {
+          "voltage": 12.55,
+          "soc": 8.8
+        },
+        {
+          "voltage": 12.54,
+          "soc": 8.7
+        },
+        {
+          "voltage": 12.53,
+          "soc": 8.6
+        },
+        {
+          "voltage": 12.52,
+          "soc": 8.6
+        },
+        {
+          "voltage": 12.51,
+          "soc": 8.5
+        },
+        {
+          "voltage": 12.5,
+          "soc": 8.4
+        },
+        {
+          "voltage": 12.49,
+          "soc": 8.4
+        },
+        {
+          "voltage": 12.48,
+          "soc": 8.3
+        },
+        {
+          "voltage": 12.47,
+          "soc": 8.2
+        },
+        {
+          "voltage": 12.46,
+          "soc": 8.1
+        },
+        {
+          "voltage": 12.45,
+          "soc": 8.1
+        },
+        {
+          "voltage": 12.44,
+          "soc": 8
+        },
+        {
+          "voltage": 12.43,
+          "soc": 7.9
+        },
+        {
+          "voltage": 12.42,
+          "soc": 7.9
+        },
+        {
+          "voltage": 12.41,
+          "soc": 7.8
+        },
+        {
+          "voltage": 12.4,
+          "soc": 7.7
+        },
+        {
+          "voltage": 12.39,
+          "soc": 7.7
+        },
+        {
+          "voltage": 12.38,
+          "soc": 7.6
+        },
+        {
+          "voltage": 12.37,
+          "soc": 7.5
+        },
+        {
+          "voltage": 12.36,
+          "soc": 7.4
+        },
+        {
+          "voltage": 12.35,
+          "soc": 7.4
+        },
+        {
+          "voltage": 12.34,
+          "soc": 7.3
+        },
+        {
+          "voltage": 12.33,
+          "soc": 7.2
+        },
+        {
+          "voltage": 12.32,
+          "soc": 7.2
+        },
+        {
+          "voltage": 12.31,
+          "soc": 7.1
+        },
+        {
+          "voltage": 12.3,
+          "soc": 7
+        },
+        {
+          "voltage": 12.29,
+          "soc": 7
+        },
+        {
+          "voltage": 12.28,
+          "soc": 6.9
+        },
+        {
+          "voltage": 12.27,
+          "soc": 6.8
+        },
+        {
+          "voltage": 12.26,
+          "soc": 6.8
+        },
+        {
+          "voltage": 12.25,
+          "soc": 6.7
+        },
+        {
+          "voltage": 12.24,
+          "soc": 6.6
+        },
+        {
+          "voltage": 12.23,
+          "soc": 6.6
+        },
+        {
+          "voltage": 12.22,
+          "soc": 6.5
+        },
+        {
+          "voltage": 12.21,
+          "soc": 6.4
+        },
+        {
+          "voltage": 12.2,
+          "soc": 6.4
+        },
+        {
+          "voltage": 12.19,
+          "soc": 6.3
+        },
+        {
+          "voltage": 12.18,
+          "soc": 6.2
+        },
+        {
+          "voltage": 12.17,
+          "soc": 6.1
+        },
+        {
+          "voltage": 12.16,
+          "soc": 6.1
+        },
+        {
+          "voltage": 12.15,
+          "soc": 6
+        },
+        {
+          "voltage": 12.14,
+          "soc": 5.9
+        },
+        {
+          "voltage": 12.13,
+          "soc": 5.9
+        },
+        {
+          "voltage": 12.12,
+          "soc": 5.8
+        },
+        {
+          "voltage": 12.11,
+          "soc": 5.7
+        },
+        {
+          "voltage": 12.1,
+          "soc": 5.7
+        },
+        {
+          "voltage": 12.09,
+          "soc": 5.6
+        },
+        {
+          "voltage": 12.08,
+          "soc": 5.5
+        },
+        {
+          "voltage": 12.07,
+          "soc": 5.5
+        },
+        {
+          "voltage": 12.06,
+          "soc": 5.4
+        },
+        {
+          "voltage": 12.05,
+          "soc": 5.3
+        },
+        {
+          "voltage": 12.04,
+          "soc": 5.3
+        },
+        {
+          "voltage": 12.03,
+          "soc": 5.2
+        },
+        {
+          "voltage": 12.02,
+          "soc": 5.1
+        },
+        {
+          "voltage": 12.01,
+          "soc": 5.1
+        },
+        {
+          "voltage": 12,
+          "soc": 5
+        },
+        {
+          "voltage": 11.99,
+          "soc": 4.9
+        },
+        {
+          "voltage": 11.98,
+          "soc": 4.9
+        },
+        {
+          "voltage": 11.97,
+          "soc": 4.8
+        },
+        {
+          "voltage": 11.96,
+          "soc": 4.7
+        },
+        {
+          "voltage": 11.95,
+          "soc": 4.7
+        },
+        {
+          "voltage": 11.94,
+          "soc": 4.6
+        },
+        {
+          "voltage": 11.93,
+          "soc": 4.5
+        },
+        {
+          "voltage": 11.92,
+          "soc": 4.5
+        },
+        {
+          "voltage": 11.91,
+          "soc": 4.4
+        },
+        {
+          "voltage": 11.9,
+          "soc": 4.3
+        },
+        {
+          "voltage": 11.89,
+          "soc": 4.3
+        },
+        {
+          "voltage": 11.88,
+          "soc": 4.2
+        },
+        {
+          "voltage": 11.87,
+          "soc": 4.1
+        },
+        {
+          "voltage": 11.86,
+          "soc": 4.1
+        },
+        {
+          "voltage": 11.85,
+          "soc": 4
+        },
+        {
+          "voltage": 11.84,
+          "soc": 3.9
+        },
+        {
+          "voltage": 11.83,
+          "soc": 3.9
+        },
+        {
+          "voltage": 11.82,
+          "soc": 3.8
+        },
+        {
+          "voltage": 11.81,
+          "soc": 3.7
+        },
+        {
+          "voltage": 11.8,
+          "soc": 3.7
+        },
+        {
+          "voltage": 11.79,
+          "soc": 3.6
+        },
+        {
+          "voltage": 11.78,
+          "soc": 3.5
+        },
+        {
+          "voltage": 11.77,
+          "soc": 3.5
+        },
+        {
+          "voltage": 11.76,
+          "soc": 3.4
+        },
+        {
+          "voltage": 11.75,
+          "soc": 3.3
+        },
+        {
+          "voltage": 11.74,
+          "soc": 3.3
+        },
+        {
+          "voltage": 11.73,
+          "soc": 3.2
+        },
+        {
+          "voltage": 11.72,
+          "soc": 3.1
+        },
+        {
+          "voltage": 11.71,
+          "soc": 3.1
+        },
+        {
+          "voltage": 11.7,
+          "soc": 3
+        },
+        {
+          "voltage": 11.69,
+          "soc": 2.9
+        },
+        {
+          "voltage": 11.68,
+          "soc": 2.9
+        },
+        {
+          "voltage": 11.67,
+          "soc": 2.8
+        },
+        {
+          "voltage": 11.66,
+          "soc": 2.7
+        },
+        {
+          "voltage": 11.65,
+          "soc": 2.7
+        },
+        {
+          "voltage": 11.64,
+          "soc": 2.6
+        },
+        {
+          "voltage": 11.63,
+          "soc": 2.5
+        },
+        {
+          "voltage": 11.62,
+          "soc": 2.5
+        },
+        {
+          "voltage": 11.61,
+          "soc": 2.4
+        },
+        {
+          "voltage": 11.6,
+          "soc": 2.3
+        },
+        {
+          "voltage": 11.59,
+          "soc": 2.3
+        },
+        {
+          "voltage": 11.58,
+          "soc": 2.2
+        },
+        {
+          "voltage": 11.57,
+          "soc": 2.1
+        },
+        {
+          "voltage": 11.56,
+          "soc": 2.1
+        },
+        {
+          "voltage": 11.55,
+          "soc": 2
+        },
+        {
+          "voltage": 11.54,
+          "soc": 1.9
+        },
+        {
+          "voltage": 11.53,
+          "soc": 1.9
+        },
+        {
+          "voltage": 11.52,
+          "soc": 1.8
+        },
+        {
+          "voltage": 11.51,
+          "soc": 1.7
+        },
+        {
+          "voltage": 11.5,
+          "soc": 1.7
+        },
+        {
+          "voltage": 11.49,
+          "soc": 1.6
+        },
+        {
+          "voltage": 11.48,
+          "soc": 1.5
+        },
+        {
+          "voltage": 11.47,
+          "soc": 1.5
+        },
+        {
+          "voltage": 11.46,
+          "soc": 1.4
+        },
+        {
+          "voltage": 11.45,
+          "soc": 1.4
+        },
+        {
+          "voltage": 11.44,
+          "soc": 1.4
+        },
+        {
+          "voltage": 11.43,
+          "soc": 1.3
+        },
+        {
+          "voltage": 11.42,
+          "soc": 1.3
+        },
+        {
+          "voltage": 11.41,
+          "soc": 1.3
+        },
+        {
+          "voltage": 11.4,
+          "soc": 1.2
+        },
+        {
+          "voltage": 11.39,
+          "soc": 1.2
+        },
+        {
+          "voltage": 11.38,
+          "soc": 1.2
+        },
+        {
+          "voltage": 11.37,
+          "soc": 1.1
+        },
+        {
+          "voltage": 11.36,
+          "soc": 1.1
+        },
+        {
+          "voltage": 11.35,
+          "soc": 1.1
+        },
+        {
+          "voltage": 11.34,
+          "soc": 1
+        },
+        {
+          "voltage": 11.33,
+          "soc": 1
+        },
+        {
+          "voltage": 11.32,
+          "soc": 1
+        },
+        {
+          "voltage": 11.31,
+          "soc": 1
+        },
+        {
+          "voltage": 11.3,
+          "soc": 1
+        },
+        {
+          "voltage": 11.29,
+          "soc": 1
+        },
+        {
+          "voltage": 11.28,
+          "soc": 1
+        },
+        {
+          "voltage": 11.27,
+          "soc": 1
+        },
+        {
+          "voltage": 11.26,
+          "soc": 1
+        },
+        {
+          "voltage": 11.25,
+          "soc": 1
+        },
+        {
+          "voltage": 11.24,
+          "soc": 1
+        },
+        {
+          "voltage": 11.23,
+          "soc": 1
+        },
+        {
+          "voltage": 11.22,
+          "soc": 1
+        },
+        {
+          "voltage": 11.21,
+          "soc": 1
+        },
+        {
+          "voltage": 11.2,
+          "soc": 1
+        },
+        {
+          "voltage": 11.19,
+          "soc": 1
+        },
+        {
+          "voltage": 11.18,
+          "soc": 1
+        },
+        {
+          "voltage": 11.17,
+          "soc": 1
+        },
+        {
+          "voltage": 11.16,
+          "soc": 1
+        },
+        {
+          "voltage": 11.15,
+          "soc": 1
+        },
+        {
+          "voltage": 11.14,
+          "soc": 1
+        },
+        {
+          "voltage": 11.13,
+          "soc": 1
+        },
+        {
+          "voltage": 11.12,
+          "soc": 1
+        },
+        {
+          "voltage": 11.11,
+          "soc": 1
+        },
+        {
+          "voltage": 11.1,
+          "soc": 1
+        },
+        {
+          "voltage": 11.09,
+          "soc": 1
+        },
+        {
+          "voltage": 11.08,
+          "soc": 1
+        },
+        {
+          "voltage": 11.07,
+          "soc": 1
+        },
+        {
+          "voltage": 11.06,
+          "soc": 1
+        },
+        {
+          "voltage": 11.05,
+          "soc": 1
+        },
+        {
+          "voltage": 11.04,
+          "soc": 1
+        },
+        {
+          "voltage": 11.03,
+          "soc": 1
+        },
+        {
+          "voltage": 11.02,
+          "soc": 1
+        },
+        {
+          "voltage": 11.01,
+          "soc": 1
+        },
+        {
+          "voltage": 11,
+          "soc": 1
+        },
+        {
+          "voltage": 10.99,
+          "soc": 1
+        },
+        {
+          "voltage": 10.98,
+          "soc": 1
+        },
+        {
+          "voltage": 10.97,
+          "soc": 1
+        },
+        {
+          "voltage": 10.96,
+          "soc": 1
+        },
+        {
+          "voltage": 10.95,
+          "soc": 1
+        },
+        {
+          "voltage": 10.94,
+          "soc": 1
+        },
+        {
+          "voltage": 10.93,
+          "soc": 1
+        },
+        {
+          "voltage": 10.92,
+          "soc": 1
+        },
+        {
+          "voltage": 10.91,
+          "soc": 1
+        },
+        {
+          "voltage": 10.9,
+          "soc": 1
+        },
+        {
+          "voltage": 10.89,
+          "soc": 1
+        },
+        {
+          "voltage": 10.88,
+          "soc": 1
+        },
+        {
+          "voltage": 10.87,
+          "soc": 1
+        },
+        {
+          "voltage": 10.86,
+          "soc": 1
+        },
+        {
+          "voltage": 10.85,
+          "soc": 1
+        },
+        {
+          "voltage": 10.84,
+          "soc": 1
+        },
+        {
+          "voltage": 10.83,
+          "soc": 1
+        },
+        {
+          "voltage": 10.82,
+          "soc": 1
+        },
+        {
+          "voltage": 10.81,
+          "soc": 1
+        },
+        {
+          "voltage": 10.8,
+          "soc": 1
+        }
+      ],
+      "batteryConfig": {
+        "chemistry": "LiFePO₄",
+        "nominalVoltage": 12.8,
+        "capacityAh": 108,
+        "capacityWh": 1380,
+        "capacityKwh": 1.38,
+        "batteryConfiguration": "6 baterías de 12.8V/18Ah en paralelo",
+        "numberOfBatteries": 6,
+        "batteryCapacityEach": 18,
+        "solarPowerTotal": 720,
+        "numberOfPanels": 12,
+        "panelPowerEach": 60,
+        "panelType": "Monocristalino",
+        "panelConfiguration": "12 paneles en paralelo",
+        "panelVoltage": 18,
+        "panelCurrent": 3.2,
+        "controllerType": "MPPT",
+        "controllerCapacity": 30,
+        "dailyConsumptionAh": 45,
+        "safetyReserve": 20,
+        "timezone": "America/Guayaquil"
+      },
+      "consumptionProfile": [
+        {
+          "startHour": 17,
+          "endHour": 19,
+          "watts": 15,
+          "label": "17:00-19:00 (Tramo A)"
+        },
+        {
+          "startHour": 19,
+          "endHour": 24,
+          "watts": 50,
+          "label": "19:00-00:00 (Tramo B)"
+        },
+        {
+          "startHour": 0,
+          "endHour": 6,
+          "watts": 23,
+          "label": "00:00-06:00 (Tramo C)"
+        },
+        {
+          "startHour": 6,
+          "endHour": 8,
+          "watts": 7,
+          "label": "06:00-08:00 (Tramo D)"
+        },
+        {
+          "startHour": 0,
+          "endHour": 24,
+          "watts": 0,
+          "label": "00:00-00:00 (RefriCervecera )"
+        },
+        {
+          "startHour": 0,
+          "endHour": 24,
+          "watts": 8,
+          "label": "00:00-00:00 (Inversor )"
+        }
+      ],
+      "createdAt": "2025-08-10T00:54:39.640Z",
+      "updatedAt": "2025-08-31T21:32:38.611Z",
+      "consumptionTramos": [
+        {
+          "id": "A",
+          "name": "Tramo A",
+          "period": "17:00-19:00",
+          "startHour": 17,
+          "endHour": 19,
+          "watts": 15,
+          "hours": 2,
+          "wh": 30,
+          "ah": 2.3,
+          "color": "bg-green-500"
+        },
+        {
+          "id": "B",
+          "name": "Tramo B",
+          "period": "19:00-00:00",
+          "startHour": 19,
+          "endHour": 24,
+          "watts": 50,
+          "hours": 5,
+          "wh": 250,
+          "ah": 19.5,
+          "color": "bg-orange-500"
+        },
+        {
+          "id": "C",
+          "name": "Tramo C",
+          "period": "00:00-06:00",
+          "startHour": 0,
+          "endHour": 6,
+          "watts": 23,
+          "hours": 6,
+          "wh": 138,
+          "ah": 10.8,
+          "color": "bg-yellow-500"
+        },
+        {
+          "id": "D",
+          "name": "Tramo D",
+          "period": "06:00-08:00",
+          "startHour": 6,
+          "endHour": 8,
+          "watts": 7,
+          "hours": 2,
+          "wh": 14,
+          "ah": 1.1,
+          "color": "bg-green-500"
+        },
+        {
+          "id": "custom-1755353024346",
+          "name": "RefriCervecera ",
+          "period": "00:00-00:00",
+          "startHour": 0,
+          "endHour": 24,
+          "watts": 0,
+          "hours": 24,
+          "wh": 0,
+          "ah": 0,
+          "color": "bg-blue-500"
+        },
+        {
+          "id": "custom-1755630149513",
+          "name": "Inversor ",
+          "period": "00:00-00:00",
+          "startHour": 0,
+          "endHour": 24,
+          "watts": 8,
+          "hours": 24,
+          "wh": 192,
+          "ah": 15,
+          "color": "bg-blue-500"
+        }
+      ],
+      "socHistory": [
+        {
+          "date": "2025-06-29",
+          "timestamp": "2025-06-29T22:00:00.000Z",
+          "soc": 90
+        },
+        {
+          "date": "2025-06-30",
+          "timestamp": "2025-06-30T22:00:00.000Z",
+          "soc": 80
+        },
+        {
+          "date": "2025-07-01",
+          "timestamp": "2025-07-01T22:00:00.000Z",
+          "soc": 80
+        },
+        {
+          "date": "2025-07-02",
+          "timestamp": "2025-07-02T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-04",
+          "timestamp": "2025-07-04T22:00:00.000Z",
+          "soc": 95
+        },
+        {
+          "date": "2025-07-05",
+          "timestamp": "2025-07-05T22:00:00.000Z",
+          "soc": 85
+        },
+        {
+          "date": "2025-07-06",
+          "timestamp": "2025-07-06T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-07",
+          "timestamp": "2025-07-07T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-08",
+          "timestamp": "2025-07-08T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-09",
+          "timestamp": "2025-07-09T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-10",
+          "timestamp": "2025-07-10T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-11",
+          "timestamp": "2025-07-11T22:00:00.000Z",
+          "soc": 88
+        },
+        {
+          "date": "2025-07-12",
+          "timestamp": "2025-07-12T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-13",
+          "timestamp": "2025-07-13T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-14",
+          "timestamp": "2025-07-14T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-15",
+          "timestamp": "2025-07-15T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-16",
+          "timestamp": "2025-07-16T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-17",
+          "timestamp": "2025-07-17T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-18",
+          "timestamp": "2025-07-18T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-19",
+          "timestamp": "2025-07-19T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-20",
+          "timestamp": "2025-07-20T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-21",
+          "timestamp": "2025-07-21T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-22",
+          "timestamp": "2025-07-22T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-23",
+          "timestamp": "2025-07-23T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-24",
+          "timestamp": "2025-07-24T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-25",
+          "timestamp": "2025-07-25T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-26",
+          "timestamp": "2025-07-26T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-27",
+          "timestamp": "2025-07-27T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-28",
+          "timestamp": "2025-07-28T22:00:00.000Z",
+          "soc": 80
+        },
+        {
+          "date": "2025-07-29",
+          "timestamp": "2025-07-29T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-30",
+          "timestamp": "2025-07-30T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-07-31",
+          "timestamp": "2025-07-31T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-01",
+          "timestamp": "2025-08-01T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-02",
+          "timestamp": "2025-08-02T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-03",
+          "timestamp": "2025-08-03T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-04",
+          "timestamp": "2025-08-04T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-05",
+          "timestamp": "2025-08-05T22:00:00.000Z",
+          "soc": 90
+        },
+        {
+          "date": "2025-08-06",
+          "timestamp": "2025-08-06T22:00:00.000Z",
+          "soc": 80
+        },
+        {
+          "date": "2025-08-07",
+          "timestamp": "2025-08-07T22:00:00.000Z",
+          "soc": 87
+        },
+        {
+          "date": "2025-08-08",
+          "timestamp": "2025-08-08T22:00:00.000Z",
+          "soc": 90
+        },
+        {
+          "date": "2025-08-09",
+          "timestamp": "2025-08-09T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-10",
+          "timestamp": "2025-08-10T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-11",
+          "timestamp": "2025-08-11T22:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-12",
+          "timestamp": "2025-08-12T20:56:23.292Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-13",
+          "timestamp": "2025-08-13T20:40:42.550Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-14",
+          "timestamp": "2025-08-14T19:01:20.076Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-16",
+          "timestamp": "2025-08-16T05:45:30.064Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-17",
+          "timestamp": "2025-08-17T22:33:31.039Z",
+          "soc": 92.3
+        },
+        {
+          "date": "2025-08-18",
+          "timestamp": "2025-08-18T23:03:30.784Z",
+          "soc": 79.3
+        },
+        {
+          "date": "2025-08-19",
+          "timestamp": "2025-08-19T22:06:12.535Z",
+          "soc": 88.7
+        },
+        {
+          "date": "2025-08-20",
+          "timestamp": "2025-08-20T23:00:00.000Z",
+          "soc": 86.7
+        },
+        {
+          "date": "2025-08-21",
+          "timestamp": "2025-08-21T23:00:00.000Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-23",
+          "timestamp": "2025-08-23T20:06:50.018Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-24",
+          "timestamp": "2025-08-24T20:52:48.786Z",
+          "soc": 90.7
+        },
+        {
+          "date": "2025-08-25",
+          "timestamp": "2025-08-25T21:09:06.387Z",
+          "soc": 76.7
+        },
+        {
+          "date": "2025-08-26",
+          "timestamp": "2025-08-26T23:53:39.905Z",
+          "soc": 89.3
+        },
+        {
+          "date": "2025-08-27",
+          "timestamp": "2025-08-27T21:29:33.459Z",
+          "soc": 91.1
+        },
+        {
+          "date": "2025-08-28",
+          "timestamp": "2025-08-28T21:10:01.718Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-29",
+          "timestamp": "2025-08-29T21:35:36.643Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-30",
+          "timestamp": "2025-08-30T21:04:31.400Z",
+          "soc": 100
+        },
+        {
+          "date": "2025-08-31",
+          "timestamp": "2025-08-31T21:32:38.610Z",
+          "soc": 100
+        }
+      ]
+    }
+  ],
+  "theme": "light",
+  "appTheme": "default",
+  "exportedAt": "2025-08-31T21:32:50.825Z",
+  "version": "1.0.0"
+}

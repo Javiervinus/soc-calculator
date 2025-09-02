@@ -2,24 +2,38 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { calculateAvailableEnergy, calculateUsableEnergy, interpolateSOC } from '@/lib/battery-calculations';
-import { useBatteryStore } from '@/lib/store';
-import { AlertTriangle, Battery } from 'lucide-react';
+import { AlertTriangle, Battery, Loader2 } from 'lucide-react';
 import { SOCSaveButton } from './soc-save-button';
 import { HippieCardWrapper } from './hippie-card-wrapper';
 import { HippieProgress } from './hippie-progress';
 import { HippieIcon } from './hippie-icon';
 import { HippieText } from './hippie-text';
 import { HippieCornerFlorals } from './hippie-corner-florals';
+import { useVoltage } from '@/lib/hooks/use-voltage';
+import { useBatteryProfile } from '@/lib/hooks/use-battery-profile';
+import { 
+  interpolateSOC, 
+  calculateAvailableEnergy, 
+  calculateUsableEnergy 
+} from '@/lib/supabase-store/calculations';
 
 export function SOCDisplay() {
-  const { currentVoltage, getCurrentProfile } = useBatteryStore();
-  const profile = getCurrentProfile();
+  const { voltage } = useVoltage();
+  const { profile, voltageSOCPoints, isLoading } = useBatteryProfile();
   
-  const socResult = interpolateSOC(currentVoltage, profile.voltageSOCTable);
-  const availableEnergy = calculateAvailableEnergy(socResult.soc, profile.batteryConfig);
-  const usableEnergy = profile.batteryConfig.safetyReserve > 0
-    ? calculateUsableEnergy(socResult.soc, profile.batteryConfig)
+  // Calcular SOC basado en los datos actuales
+  const socResult = voltageSOCPoints && voltageSOCPoints.length > 0
+    ? interpolateSOC(voltage, voltageSOCPoints)
+    : { soc: 0, confidence: 'low' as const, isOutOfRange: true };
+    
+  const availableEnergy = calculateAvailableEnergy(
+    socResult.soc, 
+    profile || null
+  );
+  
+  const usableEnergy = profile?.safety_reserve_percent && 
+                       profile.safety_reserve_percent > 0
+    ? calculateUsableEnergy(socResult.soc, profile)
     : availableEnergy;
 
   const getSOCColor = () => {
@@ -29,6 +43,30 @@ export function SOCDisplay() {
     return 'text-red-600';
   };
 
+  // Mostrar loading solo si está cargando el perfil
+  if (isLoading) {
+    return (
+      <HippieCardWrapper className="p-3 sm:p-4 lg:p-5">
+        <div className="flex items-center justify-center h-32">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      </HippieCardWrapper>
+    );
+  }
+
+  // Si no hay datos después de cargar, mostrar mensaje
+  if (!profile) {
+    return (
+      <HippieCardWrapper className="p-3 sm:p-4 lg:p-5">
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            No se pudo cargar el perfil de batería. Por favor, recarga la página.
+          </AlertDescription>
+        </Alert>
+      </HippieCardWrapper>
+    );
+  }
 
   return (
     <HippieCardWrapper className="p-3 sm:p-4 lg:p-5">
@@ -52,7 +90,7 @@ export function SOCDisplay() {
         <Alert className="mb-3 p-2 border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20">
           <AlertDescription className="text-xs flex items-center gap-1 text-yellow-900 dark:text-yellow-300">
             <AlertTriangle className="h-3 w-3" />
-            Voltaje fuera de rango
+            Voltaje fuera de rango ({voltage.toFixed(2)}V)
           </AlertDescription>
         </Alert>
       )}
@@ -69,21 +107,20 @@ export function SOCDisplay() {
               </HippieText>
               <p className="text-xs lg:text-sm text-muted-foreground">SOC Actual</p>
             </div>
-            {/* Botón de guardar SOC  prueba*/}
+            {/* Botón de guardar SOC */}
           </div>
           
           <div className="text-right">
             <div className="text-sm lg:text-base font-semibold text-foreground">{availableEnergy.whAvailable} Wh</div>
             <div className="text-xs lg:text-sm text-muted-foreground">{availableEnergy.ahAvailable} Ah</div>
-            {profile.batteryConfig.safetyReserve > 0 && (
+            {profile.safety_reserve_percent && profile.safety_reserve_percent > 0 && (
               <div className="text-[10px] sm:text-sm text-blue-600 mt-1">
                 Útil: {usableEnergy.whAvailable} Wh
               </div>
             )}
           </div>
         </div>
-            <SOCSaveButton />
-
+        <SOCSaveButton />
 
         {/* Progress Bar */}
         <div>
@@ -102,15 +139,15 @@ export function SOCDisplay() {
         <div className="grid grid-cols-3 gap-2 pt-2 border-t">
           <div className="text-center">
             <p className="text-[10px] sm:text-sm text-muted-foreground">Capacidad</p>
-            <p className="text-xs lg:text-sm font-semibold text-foreground">{profile.batteryConfig.capacityAh} Ah</p>
+            <p className="text-xs lg:text-sm font-semibold text-foreground">{profile.battery_capacity_ah} Ah</p>
           </div>
           <div className="text-center">
             <p className="text-[10px] sm:text-sm text-muted-foreground">Energía</p>
-            <p className="text-xs lg:text-sm font-semibold text-foreground">{profile.batteryConfig.capacityWh} Wh</p>
+            <p className="text-xs lg:text-sm font-semibold text-foreground">{profile.battery_capacity_wh} Wh</p>
           </div>
           <div className="text-center">
             <p className="text-[10px] sm:text-sm text-muted-foreground">Reserva</p>
-            <p className="text-xs lg:text-sm font-semibold text-foreground">{profile.batteryConfig.safetyReserve}%</p>
+            <p className="text-xs lg:text-sm font-semibold text-foreground">{profile.safety_reserve_percent || 0}%</p>
           </div>
         </div>
       </div>

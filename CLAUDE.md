@@ -7,14 +7,15 @@ Aplicación web móvil-first para monitoreo en tiempo real del estado de la bate
 ## Stack Técnico
 - **Framework**: Next.js 15.4.6 con App Router
 - **TypeScript**: Modo estricto
+- **Base de datos**: Supabase (PostgreSQL) - MIGRACIÓN EN PROCESO
 - **Gestor de paquetes**: pnpm (NO usar npm)
 - **Estilos**: Tailwind CSS v4
 - **UI**: shadcn/ui (Radix UI + Tailwind)
-- **Estado**: Zustand con localStorage
+- **Estado**: Zustand con localStorage (migrando a Supabase)
 - **Gráficos**: Recharts
 - **Fechas**: date-fns + date-fns-tz
 - **Notificaciones**: Sonner
-- **Cloud Storage**: Vercel Blob (backups)
+- **Cloud Storage**: Vercel Blob (backups) + Supabase (datos principales)
 
 ## Datos Críticos del Sistema
 
@@ -217,18 +218,103 @@ Lógica del ciclo:
 4. Optimizar rendimiento: usar useMemo(), constantes pre-calculadas
 5. Verificar que componentes no activos retornen null inmediatamente
 
-## Variables de Entorno
+## Modelo de Base de Datos - IMPORTANTE
+
+### 🚨 **NO HAY BASE DE DATOS LOCAL**
+- **Se usa ÚNICAMENTE la base de datos de producción de Supabase**
+- **NO se usa base de datos local ni contenedores Docker**
+- Todos los cambios se hacen directamente en producción con extremo cuidado
+
+### 🔄 **Modelo Híbrido de Desarrollo**
+
+#### **1. Cambios Estructurales Grandes → MIGRACIONES**
+- Crear nuevas tablas
+- Modificar relaciones entre tablas
+- Cambios que afectan múltiples tablas
+- Reestructuración del schema
+
+**Proceso:**
 ```bash
-# .env.local
-BLOB_READ_WRITE_TOKEN="vercel_blob_..."  # Para backups cloud
+# 1. Crear migración
+pnpm db:migration:new nombre_descriptivo
+
+# 2. Editar el archivo .sql generado en supabase/migrations/
+
+# 3. Aplicar migración (CUIDADO: es producción)
+pnpm db:push
+
+# 4. Regenerar tipos
+pnpm db:types
 ```
 
-## Comandos
+#### **2. Cambios Pequeños → DASHBOARD DE SUPABASE**
+- Agregar/quitar columnas individuales
+- Cambiar tipos de datos simples
+- Ajustar constraints básicos
+- Cambios menores que no afectan la estructura general
+
+**Proceso:**
 ```bash
+# 1. Hacer cambio en https://supabase.com/dashboard
+# 2. Regenerar tipos para el código
+pnpm db:types
+# 3. Listo para usar en el código
+```
+
+### ⚠️ **Reglas Críticas de Seguridad**
+1. **SIEMPRE hacer backup** antes de migraciones grandes
+2. **NUNCA ejecutar migraciones** sin probar el SQL primero
+3. **VERIFICAR dos veces** antes de `pnpm db:push`
+4. **Las migraciones son irreversibles** en producción
+
+## Variables de Entorno
+```bash
+# .env.local - Copia desde .env.example y llena tus valores
+NEXT_PUBLIC_SUPABASE_URL="https://aaceknnsrcjhspwpotao.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJ..."  # Requerido para conexión con Supabase
+SUPABASE_PROJECT_ID="aaceknnsrcjhspwpotao"  # Para comandos CLI
+SUPABASE_DB_PASSWORD="soc-calculator123"    # Para conexiones directas
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."     # Para backups Vercel Blob
+```
+
+## Comandos - USAR SOLO ESTOS
+```bash
+# Desarrollo
 pnpm dev    # Desarrollo
 pnpm build  # Verificar antes de commit
 pnpm lint   # Linting
+
+# Base de datos (Supabase) - SOLO ESTOS COMANDOS
+pnpm db:push             # ⚠️ PELIGROSO: Ejecutar migraciones en PRODUCCIÓN
+pnpm db:types            # ✅ SEGURO: Generar tipos TypeScript
+pnpm db:migration:new    # ✅ SEGURO: Crear nueva migración (solo archivo local)
+pnpm db:migration:list   # ✅ SEGURO: Ver lista de migraciones
+pnpm db:remote:set       # ⚙️ SETUP: Configurar conexión remota (una vez)
+pnpm db:reset            # 🚨 EXTREMO: Reset completo (NUNCA usar en producción)
+
+# IMPORTANTE: Si necesitas otros comandos de supabase, agrégalos al package.json
+# NO ejecutar comandos supabase directos, usar siempre pnpm [script]
 ```
+
+## Estado de Migración a Supabase
+
+### ✅ Completado (2025-01-30)
+- Proyecto Supabase creado y configurado
+- Migración 001: Schema inicial con 10 tablas
+- Tipos TypeScript generados
+- Cliente Supabase configurado (browser y server)
+- Comandos npm para gestión de DB
+
+### 🚧 En Proceso
+- Migración 002: Importar datos desde backup JSON
+- Capa de datos abstracta (DataLayer)
+- Dual-write (localStorage + Supabase)
+
+### 📋 Pendiente
+- Migración de componentes uno por uno
+- Dual-read con fallback
+- Cutover final a Supabase
+- Features avanzados (análisis, alertas, PWA)
 
 ## Testing Manual Crítico
 1. Cambiar hora del sistema para probar proyecciones

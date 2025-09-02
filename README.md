@@ -25,14 +25,17 @@ Calculadora de Estado de Carga (SOC) para sistema de batería LiFePO₄ de 12.8V
 
 ## 🛠️ Stack Técnico
 
-- **Framework**: Next.js 15.4.6 con App Router
+- **Framework**: Next.js 15.4.6 con App Router + SSR
 - **TypeScript**: Modo estricto para máxima seguridad de tipos
+- **Base de datos**: Supabase (PostgreSQL) - ✅ Migración completada
 - **Gestor de paquetes**: pnpm (recomendado)
 - **UI**: shadcn/ui (Radix UI + Tailwind CSS v4)
-- **Estado**: Zustand con persistencia en localStorage
+- **Estado**: React Query v5 + Supabase (sin Zustand)
+- **Caché**: React Query con persistencia automática en localStorage
 - **Gráficos**: Recharts para visualizaciones interactivas
 - **Fechas**: date-fns con soporte para zona horaria Ecuador
 - **Notificaciones**: Sonner con temas personalizados
+- **Cloud Storage**: Vercel Blob (backups) + Supabase (datos principales)
 
 ## 🚀 Instalación y Desarrollo
 
@@ -49,9 +52,9 @@ cd soc-calculator
 # Instalar dependencias
 pnpm install
 
-# Configurar variables de entorno (opcional para backup en nube)
+# Configurar variables de entorno
 cp .env.example .env.local
-# Editar .env.local y agregar BLOB_READ_WRITE_TOKEN si deseas backup en nube
+# Editar .env.local con tus credenciales de Supabase y Vercel Blob
 
 # Ejecutar en modo desarrollo
 pnpm dev
@@ -59,9 +62,57 @@ pnpm dev
 
 Abre [http://localhost:3000](http://localhost:3000) para ver la aplicación.
 
-### Scripts Disponibles
+## 🗄️ Base de Datos - Modelo Híbrido
+
+### ⚠️ **IMPORTANTE: NO HAY BASE DE DATOS LOCAL**
+Este proyecto usa **ÚNICAMENTE la base de datos de producción** de Supabase. NO se usa ninguna base de datos local, contenedores Docker para BD, ni ambientes de desarrollo separados.
+
+### 🔄 **Estrategia de Desarrollo Híbrido**
+
+#### **Cambios Estructurales Grandes → Migraciones SQL**
+Para cambios que afectan múltiples tablas, relaciones o reestructuración:
 ```bash
-pnpm dev         # Servidor de desarrollo
+# 1. Crear archivo de migración
+pnpm db:migration:new descripcion_del_cambio
+
+# 2. Editar el archivo .sql en supabase/migrations/
+
+# 3. ⚠️ APLICAR EN PRODUCCIÓN (ten cuidado!)
+pnpm db:push
+
+# 4. Actualizar tipos TypeScript
+pnpm db:types
+```
+
+#### **Cambios Pequeños → Dashboard de Supabase**
+Para agregar columnas, cambios de tipos simples, etc.:
+```bash
+# 1. Hacer cambio en https://supabase.com/dashboard
+# 2. Actualizar tipos en el código
+pnpm db:types
+```
+
+### Scripts de Base de Datos - USAR SOLO ESTOS
+```bash
+# ✅ SEGUROS
+pnpm db:types            # Generar tipos TypeScript
+pnpm db:migration:new    # Crear migración (solo archivo local)
+pnpm db:migration:list   # Ver migraciones existentes
+
+# ⚠️ PELIGROSOS (ejecutan en producción)
+pnpm db:push             # Aplicar migraciones pendientes
+pnpm db:remote:set       # Configurar conexión remota
+
+# 🚨 EXTREMOS
+pnpm db:reset            # Reset completo (NUNCA usar)
+
+# REGLA: Si necesitas otros comandos supabase, agrégalos al package.json
+# NO ejecutes comandos supabase CLI directos
+```
+
+### Scripts de Desarrollo
+```bash
+pnpm dev         # Servidor de desarrollo con Turbopack
 pnpm build       # Build de producción
 pnpm start       # Servidor de producción
 pnpm lint        # Linting con ESLint
@@ -119,9 +170,13 @@ La aplicación incluye 5 temas únicos, cada uno con modo claro y oscuro:
 # Configurar proyecto en Vercel
 vercel
 
-# Para backup en nube, agregar variable de entorno:
-# BLOB_READ_WRITE_TOKEN=tu_token_de_vercel_blob
+# Variables de entorno requeridas en Vercel:
+# NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
+# BLOB_READ_WRITE_TOKEN=tu_token_de_vercel_blob (opcional)
 ```
+
+**Nota**: Las migraciones de base de datos se ejecutan localmente con `pnpm db:push`. Vercel se conecta directamente a la base de datos remota de Supabase.
 
 ### Docker
 ```bash

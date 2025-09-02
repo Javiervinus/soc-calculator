@@ -3,32 +3,66 @@
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Activity, TrendingUp, BarChart3 } from 'lucide-react';
-import { useBatteryStore } from '@/lib/store';
+import { Activity, TrendingUp, BarChart3, Loader2 } from 'lucide-react';
 import { getChartColors } from '@/lib/chart-colors';
+import { useBatteryProfile } from '@/lib/hooks/use-battery-profile';
+import { useConsumptionSegments } from '@/lib/hooks/use-consumption-segments';
+import { useUserPreferences } from '@/lib/hooks/use-user-preferences';
 
 export function BatteryChart() {
-  const { getCurrentProfile, theme, appTheme } = useBatteryStore();
-  const profile = getCurrentProfile();
-  const colors = getChartColors(theme, appTheme);
+  const { theme, appTheme } = useUserPreferences();
+  const { voltageSOCPoints, isLoading: profileLoading } = useBatteryProfile();
+  const { segments, isLoading: segmentsLoading } = useConsumptionSegments();
+  const colors = getChartColors(theme as 'light' | 'dark', appTheme);
+  
+  const isLoading = profileLoading || segmentsLoading;
+  
+  // Si está cargando, mostrar loader
+  if (isLoading) {
+    return (
+      <Card className="p-6 bg-card border-border">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </Card>
+    );
+  }
+  
+  // Si no hay datos, mostrar mensaje
+  if (!voltageSOCPoints || voltageSOCPoints.length === 0) {
+    return (
+      <Card className="p-6 bg-card border-border">
+        <div className="text-center text-muted-foreground">
+          No hay datos de voltaje disponibles
+        </div>
+      </Card>
+    );
+  }
 
-  const voltageData = profile.voltageSOCTable
+  // Preparar datos de voltaje - filtrar cada 5 puntos para no sobrecargar el gráfico
+  const voltageData = voltageSOCPoints
     .filter((_, index) => index % 5 === 0)
-    .map(entry => ({
-      voltage: entry.voltage.toFixed(2),
-      soc: entry.soc,
+    .map(point => ({
+      voltage: point.voltage.toFixed(2),
+      soc: point.soc,
     }));
 
-  const consumptionData = profile.consumptionProfile.map(period => ({
-    period: period.label,
-    watts: period.watts,
-    hours: period.endHour > period.startHour 
-      ? period.endHour - period.startHour 
-      : (24 - period.startHour) + period.endHour,
-    totalWh: period.watts * (period.endHour > period.startHour 
-      ? period.endHour - period.startHour 
-      : (24 - period.startHour) + period.endHour),
-  }));
+  // Preparar datos de consumo
+  const consumptionData = segments.map(segment => {
+    const hours = segment.end_hour > segment.start_hour 
+      ? segment.end_hour - segment.start_hour 
+      : (24 - segment.start_hour) + segment.end_hour;
+    
+    const periodLabel = segment.period_label || 
+      `${String(segment.start_hour).padStart(2, '0')}:00-${String(segment.end_hour).padStart(2, '0')}:00`;
+    
+    return {
+      period: `${periodLabel} (${segment.name})`,
+      watts: segment.watts,
+      hours: hours,
+      totalWh: segment.watts * hours,
+    };
+  });
 
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ color: string; name: string; value: number; unit?: string }>; label?: string }) => {
     if (active && payload && payload.length) {
