@@ -5,7 +5,7 @@ import {
   CURRENT_USER_ID,
 } from "@/lib/constants/user-constants";
 import { getSupabase } from "@/lib/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 interface UsePWAOptions {
@@ -22,9 +22,10 @@ export function usePWA(options: UsePWAOptions = {}) {
   const [notificationPermission, setNotificationPermission] =
     useState<NotificationPermission>("default");
   const supabase = getSupabase();
+  const queryClient = useQueryClient();
 
   // Query para obtener el SOC actual - optimizada pero simple
-  const { data: socData } = useQuery({
+  const { data: socData, refetch: refetchSOC } = useQuery({
     queryKey: ["pwa-soc", CURRENT_USER_ID],
     queryFn: async () => {
       console.log("🔄 [PWA] Obteniendo SOC para badge...");
@@ -205,6 +206,20 @@ export function usePWA(options: UsePWAOptions = {}) {
     }
   }, []);
 
+  // Escuchar cambios en el voltaje para actualizar el badge inmediatamente
+  useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      // Si se actualiza el voltaje, refrescar inmediatamente el SOC
+      if (event?.query?.queryKey?.[0] === 'voltage' && event.type === 'updated') {
+        console.log("⚡ [PWA] Voltaje actualizado, recalculando SOC para badge...");
+        // Refrescar inmediatamente sin esperar al intervalo
+        refetchSOC();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [queryClient, refetchSOC]);
+
   // Actualizar el badge cuando cambie el SOC
   useEffect(() => {
     if (
@@ -219,45 +234,9 @@ export function usePWA(options: UsePWAOptions = {}) {
         /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-      // Actualizar badge directamente si está disponible
-      if ("setAppBadge" in navigator) {
-        // iOS Safari requiere un número y permisos de notificación
-        if (isIOS) {
-          // En iOS, el badge solo funciona si:
-          // 1. La app está instalada en la pantalla de inicio
-          // 2. Se tiene permisos de notificación (a veces)
-          // 3. Se pasa un número (no funciona sin argumento)
-          (navigator as any)
-            .setAppBadge(socRounded)
-            .then(() => {
-              console.log(`✅ [PWA iOS] Badge actualizado: ${socRounded}%`);
-            })
-            .catch((error: any) => {
-              console.error("❌ [PWA iOS] Error actualizando badge:", error);
-              console.log("💡 [PWA iOS] Verifica que:");
-              console.log(
-                "  1. La app esté instalada en la pantalla de inicio"
-              );
-              console.log("  2. Tengas iOS 16.4 o superior");
-              console.log(
-                "  3. Los permisos de notificación estén habilitados (opcional)"
-              );
-            });
-        } else {
-          // Para otras plataformas
-          (navigator as any)
-            .setAppBadge(socRounded)
-            .then(() => {
-              console.log(`✅ [PWA] Badge actualizado: ${socRounded}%`);
-            })
-            .catch((error: any) => {
-              console.error("❌ [PWA] Error actualizando badge:", error);
-            });
-        }
-      }
-
-      // Enviar mensaje al Service Worker (incluye opción de notificación para Android)
+      // IMPORTANTE: Primero enviar al Service Worker para que mantenga el valor
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        console.log(`📤 [PWA] Enviando SOC al Service Worker: ${socRounded}%`);
         navigator.serviceWorker.controller.postMessage({
           type: "UPDATE_BADGE",
           soc: socData,
@@ -266,6 +245,34 @@ export function usePWA(options: UsePWAOptions = {}) {
             notificationsEnabled &&
             notificationPermission === "granted",
         });
+      }
+
+      // Luego actualizar el badge directamente
+      if ("setAppBadge" in navigator) {
+        // Forzar actualización del badge múltiples veces para iOS
+        const updateBadge = () => {
+          (navigator as any)
+            .setAppBadge(socRounded)
+            .then(() => {
+              console.log(`✅ [PWA] Badge actualizado localmente: ${socRounded}%`);
+            })
+            .catch((error: any) => {
+              console.error("❌ [PWA] Error actualizando badge:", error);
+            });
+        };
+
+        // Actualizar inmediatamente
+        updateBadge();
+
+        // En iOS, actualizar varias veces para asegurar que se registre
+        if (isIOS) {
+          // Actualizar después de 100ms
+          setTimeout(updateBadge, 100);
+          // Actualizar después de 500ms
+          setTimeout(updateBadge, 500);
+          // Actualizar después de 1 segundo
+          setTimeout(updateBadge, 1000);
+        }
       }
     }
   }, [socData, isAndroid, notificationsEnabled, notificationPermission]);

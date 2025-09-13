@@ -123,17 +123,45 @@ self.addEventListener('message', (event) => {
     // Guardar el SOC actual
     if (socValue !== undefined && socValue !== null) {
       currentSOC = socValue;
-      console.log('Service Worker: SOC actualizado a', currentSOC);
-    }
+      console.log('🔄 Service Worker: SOC recibido:', currentSOC);
 
-    // Actualizar el badge (en iOS muestra número, en Android muestra punto)
-    if ('setAppBadge' in self.navigator) {
-      if (socValue !== undefined && socValue !== null) {
-        // Mostrar el SOC como número en el badge (iOS) o punto (Android)
-        self.navigator.setAppBadge(Math.round(socValue));
-        console.log('Service Worker: Badge actualizado a', Math.round(socValue));
-      } else {
-        // Limpiar el badge si no hay valor
+      // Actualizar el badge inmediatamente y varias veces
+      const socRounded = Math.round(socValue);
+
+      // Función para actualizar el badge
+      const performBadgeUpdate = () => {
+        if ('setAppBadge' in self.navigator) {
+          self.navigator.setAppBadge(socRounded)
+            .then(() => {
+              console.log('✅ Service Worker: Badge actualizado a', socRounded);
+            })
+            .catch((error) => {
+              console.error('❌ Service Worker: Error actualizando badge:', error);
+            });
+        }
+      };
+
+      // Actualizar inmediatamente
+      performBadgeUpdate();
+
+      // Actualizar varias veces para asegurar que iOS lo registre
+      setTimeout(performBadgeUpdate, 100);
+      setTimeout(performBadgeUpdate, 500);
+      setTimeout(performBadgeUpdate, 1000);
+      setTimeout(performBadgeUpdate, 2000);
+
+      // Continuar actualizando periódicamente por 10 segundos
+      let updateCount = 0;
+      const interval = setInterval(() => {
+        performBadgeUpdate();
+        updateCount++;
+        if (updateCount >= 10) {
+          clearInterval(interval);
+        }
+      }, 1000);
+    } else if (socValue === null) {
+      // Limpiar el badge si no hay valor
+      if ('setAppBadge' in self.navigator) {
         self.navigator.clearAppBadge();
       }
     }
