@@ -7,6 +7,10 @@ const urlsToCache = [
   '/icon.svg',
 ];
 
+// Variables para el badge
+let badgeInterval = null;
+let currentSOC = null;
+
 // Instalar el Service Worker
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -35,7 +39,46 @@ self.addEventListener('activate', (event) => {
   );
   // Tomar control inmediatamente
   self.clients.claim();
+
+  // Iniciar actualización periódica del badge
+  startBadgeUpdates();
 });
+
+// Función para actualizar el badge periódicamente
+function startBadgeUpdates() {
+  // Limpiar intervalo previo si existe
+  if (badgeInterval) {
+    clearInterval(badgeInterval);
+  }
+
+  // Actualizar inmediatamente
+  updateBadgeFromAPI();
+
+  // Actualizar cada minuto
+  badgeInterval = setInterval(() => {
+    updateBadgeFromAPI();
+  }, 60000); // 1 minuto
+}
+
+// Función para obtener el SOC y actualizar el badge
+async function updateBadgeFromAPI() {
+  try {
+    // Si tenemos un SOC almacenado, usarlo primero
+    if (currentSOC !== null && 'setAppBadge' in self.navigator) {
+      self.navigator.setAppBadge(Math.round(currentSOC));
+    }
+
+    // Notificar a todos los clientes para que actualicen
+    const clients = await self.clients.matchAll({ type: 'window' });
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'REQUEST_SOC_UPDATE'
+      });
+    });
+  } catch (error) {
+    console.error('Error actualizando badge desde SW:', error);
+  }
+}
 
 // Interceptar peticiones - estrategia network-first
 self.addEventListener('fetch', (event) => {
@@ -77,11 +120,18 @@ self.addEventListener('message', (event) => {
     const socValue = event.data.soc;
     const showNotification = event.data.showNotification;
 
+    // Guardar el SOC actual
+    if (socValue !== undefined && socValue !== null) {
+      currentSOC = socValue;
+      console.log('Service Worker: SOC actualizado a', currentSOC);
+    }
+
     // Actualizar el badge (en iOS muestra número, en Android muestra punto)
     if ('setAppBadge' in self.navigator) {
       if (socValue !== undefined && socValue !== null) {
         // Mostrar el SOC como número en el badge (iOS) o punto (Android)
         self.navigator.setAppBadge(Math.round(socValue));
+        console.log('Service Worker: Badge actualizado a', Math.round(socValue));
       } else {
         // Limpiar el badge si no hay valor
         self.navigator.clearAppBadge();

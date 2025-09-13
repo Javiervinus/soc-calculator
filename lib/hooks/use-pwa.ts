@@ -186,6 +186,14 @@ export function usePWA(options: UsePWAOptions = {}) {
           .catch((error) => {
             console.error("❌ [PWA] Error registrando Service Worker:", error);
           });
+
+        // Escuchar mensajes del Service Worker
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data && event.data.type === 'REQUEST_SOC_UPDATE') {
+            console.log("📱 [PWA] Service Worker solicitó actualización de SOC");
+            // El efecto de actualización se encargará de esto
+          }
+        });
       }
 
       // Verificar soporte de Badge API
