@@ -47,14 +47,14 @@ export function useSolarPredictions() {
     }
 
     return {
-      // Parámetros de usuario (con valores por defecto)
+      // Parámetros de usuario (ahora todos en user_preferences)
       etaElec: preferences.prediction_efficiency || DEFAULT_PREDICTION_PARAMS.etaElec,
-      etaSoil: DEFAULT_PREDICTION_PARAMS.etaSoil, // No está en user_preferences
-      etaCtrl: DEFAULT_PREDICTION_PARAMS.etaCtrl, // No está en user_preferences
-      etaAOI: DEFAULT_PREDICTION_PARAMS.etaAOI,   // No está en user_preferences
-      svf: DEFAULT_PREDICTION_PARAMS.svf,         // No está en user_preferences
-      midStart: DEFAULT_PREDICTION_PARAMS.midStart, // No está en user_preferences
-      midEnd: DEFAULT_PREDICTION_PARAMS.midEnd,     // No está en user_preferences
+      etaSoil: preferences.prediction_eta_soil || DEFAULT_PREDICTION_PARAMS.etaSoil,
+      etaCtrl: preferences.prediction_eta_ctrl || DEFAULT_PREDICTION_PARAMS.etaCtrl,
+      etaAOI: preferences.prediction_eta_aoi || DEFAULT_PREDICTION_PARAMS.etaAOI,
+      svf: preferences.prediction_svf || DEFAULT_PREDICTION_PARAMS.svf,
+      midStart: preferences.prediction_mid_start || DEFAULT_PREDICTION_PARAMS.midStart,
+      midEnd: preferences.prediction_mid_end || DEFAULT_PREDICTION_PARAMS.midEnd,
       // Parámetros del sistema solar
       nPanels: solarConfig.number_of_panels || 12,
       pPanelSTC_W: solarConfig.panel_power_each || 60
@@ -296,6 +296,12 @@ export function useSolarPredictions() {
       prediction_tilt_angle: number;
       prediction_azimuth: number;
       prediction_temperature_coefficient: number;
+      prediction_eta_soil: number;
+      prediction_eta_ctrl: number;
+      prediction_eta_aoi: number;
+      prediction_svf: number;
+      prediction_mid_start: number;
+      prediction_mid_end: number;
     }>) => {
       const { error } = await supabase
         .from('user_preferences')
@@ -420,8 +426,8 @@ export function useSolarPredictions() {
     useWeekPredictions,
     
     // Mutations
-    updatePredictionParams: updatePredictionParams.mutate,
-    clearCache: clearPredictionCache.mutate,
+    updatePredictionParams: updatePredictionParams.mutateAsync,
+    clearCache: clearPredictionCache.mutateAsync,
     
     // Estados de mutations
     isUpdatingParams: updatePredictionParams.isPending,

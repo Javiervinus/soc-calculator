@@ -382,6 +382,12 @@ export type Database = {
           id: string
           prediction_azimuth: number | null
           prediction_efficiency: number | null
+          prediction_eta_aoi: number | null
+          prediction_eta_ctrl: number | null
+          prediction_eta_soil: number | null
+          prediction_mid_end: number | null
+          prediction_mid_start: number | null
+          prediction_svf: number | null
           prediction_temperature_coefficient: number | null
           prediction_tilt_angle: number | null
           theme: string | null
@@ -396,6 +402,12 @@ export type Database = {
           id?: string
           prediction_azimuth?: number | null
           prediction_efficiency?: number | null
+          prediction_eta_aoi?: number | null
+          prediction_eta_ctrl?: number | null
+          prediction_eta_soil?: number | null
+          prediction_mid_end?: number | null
+          prediction_mid_start?: number | null
+          prediction_svf?: number | null
           prediction_temperature_coefficient?: number | null
           prediction_tilt_angle?: number | null
           theme?: string | null
@@ -410,6 +422,12 @@ export type Database = {
           id?: string
           prediction_azimuth?: number | null
           prediction_efficiency?: number | null
+          prediction_eta_aoi?: number | null
+          prediction_eta_ctrl?: number | null
+          prediction_eta_soil?: number | null
+          prediction_mid_end?: number | null
+          prediction_mid_start?: number | null
+          prediction_svf?: number | null
           prediction_temperature_coefficient?: number | null
           prediction_tilt_angle?: number | null
           theme?: string | null

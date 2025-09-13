@@ -37,7 +37,7 @@ import { useSolarPredictions } from '@/lib/hooks/use-solar-predictions';
 import { useUserPreferences } from '@/lib/hooks/use-user-preferences';
 
 export function PredictionsClient() {
-  const { 
+  const {
     fullParams,
     isConfigLoaded,
     useSinglePrediction,
@@ -59,6 +59,9 @@ export function PredictionsClient() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [singlePredictionEnabled, setSinglePredictionEnabled] = useState(false);
   const [weekPredictionEnabled, setWeekPredictionEnabled] = useState(false);
+
+  // Estado local temporal para parámetros (solo mientras el usuario ajusta sliders)
+  const [tempParams, setTempParams] = useState<Record<string, number>>({});
   
   const isMobile = useIsMobile();
   const resultRef = useRef<HTMLDivElement>(null);
@@ -120,19 +123,24 @@ export function PredictionsClient() {
   }, [clearCache]);
 
   // Recalcular con nuevos parámetros
-  const handleRecalculate = useCallback(() => {
+  const handleRecalculate = useCallback(async () => {
+    // Si hay parámetros temporales, guardarlos en BD
+    if (Object.keys(tempParams).length > 0) {
+      await updatePredictionParams(tempParams);
+      setTempParams({}); // Limpiar temporales después de guardar
+    }
+
+    // Limpiar caché y forzar recalculo
+    await clearCache(mode === 'single' ? selectedDateStr : undefined);
+
     if (mode === 'single') {
-      // Limpiar caché de esta fecha y recalcular
-      clearCache(selectedDateStr);
       setSinglePredictionEnabled(false);
       setTimeout(() => setSinglePredictionEnabled(true), 100);
     } else {
-      // Limpiar todo el caché y recalcular semana
-      clearCache(undefined);
       setWeekPredictionEnabled(false);
       setTimeout(() => setWeekPredictionEnabled(true), 100);
     }
-  }, [mode, selectedDateStr, clearCache]);
+  }, [mode, selectedDateStr, clearCache, tempParams, updatePredictionParams]);
 
   // Actualizar predicción al cambiar de modo
   useEffect(() => {
@@ -161,33 +169,35 @@ export function PredictionsClient() {
 
   // Manejar cambio de parámetros
   const handleParamChange = (key: string, value: number) => {
-    const updates: any = {};
-    
-    // Mapear parámetros a campos de user_preferences
-    if (key === 'etaElec') {
-      updates.prediction_efficiency = value;
-    } else if (key === 'tiltAngle') {
-      updates.prediction_tilt_angle = value;
-    } else if (key === 'azimuth') {
-      updates.prediction_azimuth = value;
-    } else if (key === 'tempCoeff') {
-      updates.prediction_temperature_coefficient = value;
-    }
+    // Mapear keys a nombres de campos en BD
+    const fieldMap: Record<string, string> = {
+      etaElec: 'prediction_efficiency',
+      etaSoil: 'prediction_eta_soil',
+      etaCtrl: 'prediction_eta_ctrl',
+      etaAOI: 'prediction_eta_aoi',
+      svf: 'prediction_svf',
+      midStart: 'prediction_mid_start',
+      midEnd: 'prediction_mid_end',
+    };
 
-    if (Object.keys(updates).length > 0) {
-      updatePredictionParams(updates);
+    const dbField = fieldMap[key];
+    if (dbField) {
+      setTempParams(prev => ({
+        ...prev,
+        [dbField]: value
+      }));
     }
   };
 
-  // Parámetros para mostrar en el panel
+  // Parámetros para mostrar (combinar guardados + temporales)
   const displayParams = {
-    etaElec: preferences?.prediction_efficiency || DEFAULT_PREDICTION_PARAMS.etaElec,
-    etaSoil: DEFAULT_PREDICTION_PARAMS.etaSoil,
-    etaCtrl: DEFAULT_PREDICTION_PARAMS.etaCtrl,
-    etaAOI: DEFAULT_PREDICTION_PARAMS.etaAOI,
-    svf: DEFAULT_PREDICTION_PARAMS.svf,
-    midStart: DEFAULT_PREDICTION_PARAMS.midStart,
-    midEnd: DEFAULT_PREDICTION_PARAMS.midEnd,
+    etaElec: tempParams.prediction_efficiency ?? preferences?.prediction_efficiency ?? DEFAULT_PREDICTION_PARAMS.etaElec,
+    etaSoil: tempParams.prediction_eta_soil ?? preferences?.prediction_eta_soil ?? DEFAULT_PREDICTION_PARAMS.etaSoil,
+    etaCtrl: tempParams.prediction_eta_ctrl ?? preferences?.prediction_eta_ctrl ?? DEFAULT_PREDICTION_PARAMS.etaCtrl,
+    etaAOI: tempParams.prediction_eta_aoi ?? preferences?.prediction_eta_aoi ?? DEFAULT_PREDICTION_PARAMS.etaAOI,
+    svf: tempParams.prediction_svf ?? preferences?.prediction_svf ?? DEFAULT_PREDICTION_PARAMS.svf,
+    midStart: tempParams.prediction_mid_start ?? preferences?.prediction_mid_start ?? DEFAULT_PREDICTION_PARAMS.midStart,
+    midEnd: tempParams.prediction_mid_end ?? preferences?.prediction_mid_end ?? DEFAULT_PREDICTION_PARAMS.midEnd,
   };
 
   if (!isConfigLoaded) {

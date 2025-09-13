@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
-import { Settings2, ChevronRight, RefreshCw } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { cn } from '@/lib/utils';
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
+import { ChevronRight, RefreshCw, Settings2 } from "lucide-react";
 
 interface PredictionParamsProps {
   params: {
@@ -35,7 +35,7 @@ export function PredictionParams({
   onRecalculate,
   loading,
   open,
-  onOpenChange
+  onOpenChange,
 }: PredictionParamsProps) {
   const formatValue = (value: number, decimals: number = 2) => {
     return value.toFixed(decimals);
@@ -51,10 +51,12 @@ export function PredictionParams({
                 <Settings2 className="h-4 w-4" />
                 Parámetros de simulación
               </div>
-              <ChevronRight className={cn(
-                "h-4 w-4 transition-transform",
-                open && "rotate-90"
-              )} />
+              <ChevronRight
+                className={cn(
+                  "h-4 w-4 transition-transform",
+                  open && "rotate-90"
+                )}
+              />
             </CardTitle>
           </CardHeader>
         </CollapsibleTrigger>
@@ -64,16 +66,20 @@ export function PredictionParams({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Columna 1: Pérdidas */}
               <div className="space-y-3">
-                <h3 className="text-xs font-medium text-muted-foreground">Pérdidas del sistema</h3>
-                
+                <h3 className="text-xs font-medium text-muted-foreground">
+                  Pérdidas del sistema
+                </h3>
+
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label className="text-xs">Eléctrica</Label>
-                    <span className="text-xs font-mono">{formatValue(params.etaElec * 100, 0)}%</span>
+                    <span className="text-xs font-mono">
+                      {formatValue(params.etaElec * 100, 0)}%
+                    </span>
                   </div>
                   <Slider
                     value={[params.etaElec * 100]}
-                    onValueChange={([v]) => onParamChange('etaElec', v / 100)}
+                    onValueChange={([v]) => onParamChange("etaElec", v / 100)}
                     min={85}
                     max={95}
                     step={1}
@@ -84,11 +90,13 @@ export function PredictionParams({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label className="text-xs">Suciedad</Label>
-                    <span className="text-xs font-mono">{formatValue(params.etaSoil * 100, 0)}%</span>
+                    <span className="text-xs font-mono">
+                      {formatValue(params.etaSoil * 100, 0)}%
+                    </span>
                   </div>
                   <Slider
                     value={[params.etaSoil * 100]}
-                    onValueChange={([v]) => onParamChange('etaSoil', v / 100)}
+                    onValueChange={([v]) => onParamChange("etaSoil", v / 100)}
                     min={90}
                     max={97}
                     step={1}
@@ -99,13 +107,15 @@ export function PredictionParams({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label className="text-xs">MPPT</Label>
-                    <span className="text-xs font-mono">{formatValue(params.etaCtrl * 100, 0)}%</span>
+                    <span className="text-xs font-mono">
+                      {formatValue(params.etaCtrl * 100, 0)}%
+                    </span>
                   </div>
                   <Slider
                     value={[params.etaCtrl * 100]}
-                    onValueChange={([v]) => onParamChange('etaCtrl', v / 100)}
+                    onValueChange={([v]) => onParamChange("etaCtrl", v / 100)}
                     min={70}
-                    max={90}
+                    max={100}
                     step={1}
                     className="w-full"
                   />
@@ -114,11 +124,13 @@ export function PredictionParams({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label className="text-xs">Ángulo</Label>
-                    <span className="text-xs font-mono">{formatValue(params.etaAOI * 100, 0)}%</span>
+                    <span className="text-xs font-mono">
+                      {formatValue(params.etaAOI * 100, 0)}%
+                    </span>
                   </div>
                   <Slider
                     value={[params.etaAOI * 100]}
-                    onValueChange={([v]) => onParamChange('etaAOI', v / 100)}
+                    onValueChange={([v]) => onParamChange("etaAOI", v / 100)}
                     min={90}
                     max={97}
                     step={1}
@@ -129,16 +141,20 @@ export function PredictionParams({
 
               {/* Columna 2: Geometría */}
               <div className="space-y-3">
-                <h3 className="text-xs font-medium text-muted-foreground">Geometría y sombras</h3>
-                
+                <h3 className="text-xs font-medium text-muted-foreground">
+                  Geometría y sombras
+                </h3>
+
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label className="text-xs">Cielo visible</Label>
-                    <span className="text-xs font-mono">{formatValue(params.svf, 2)}</span>
+                    <span className="text-xs font-mono">
+                      {formatValue(params.svf, 2)}
+                    </span>
                   </div>
                   <Slider
                     value={[params.svf * 100]}
-                    onValueChange={([v]) => onParamChange('svf', v / 100)}
+                    onValueChange={([v]) => onParamChange("svf", v / 100)}
                     min={50}
                     max={80}
                     step={1}
@@ -149,12 +165,14 @@ export function PredictionParams({
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <Label className="text-xs">Sol directo</Label>
-                    <span className="text-xs font-mono">{params.midStart}:00 - {params.midEnd}:00</span>
+                    <span className="text-xs font-mono">
+                      {params.midStart}:00 - {params.midEnd}:00
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <Slider
                       value={[params.midStart]}
-                      onValueChange={([v]) => onParamChange('midStart', v)}
+                      onValueChange={([v]) => onParamChange("midStart", v)}
                       min={8}
                       max={10}
                       step={1}
@@ -162,7 +180,7 @@ export function PredictionParams({
                     />
                     <Slider
                       value={[params.midEnd]}
-                      onValueChange={([v]) => onParamChange('midEnd', v)}
+                      onValueChange={([v]) => onParamChange("midEnd", v)}
                       min={13}
                       max={15}
                       step={1}
@@ -174,7 +192,7 @@ export function PredictionParams({
             </div>
 
             {/* Botón para recalcular */}
-            <Button 
+            <Button
               onClick={onRecalculate}
               disabled={loading}
               className="w-full"

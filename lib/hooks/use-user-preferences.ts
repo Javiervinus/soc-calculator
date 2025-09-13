@@ -8,8 +8,10 @@ import type { Tables } from '@/lib/supabase/database.types';
 
 type UserPreferences = Pick<
   Tables<'user_preferences'>,
-  'theme' | 'app_theme' | 'timezone' | 'prediction_efficiency' | 
-  'prediction_tilt_angle' | 'prediction_azimuth' | 'prediction_temperature_coefficient'
+  'theme' | 'app_theme' | 'timezone' | 'prediction_efficiency' |
+  'prediction_tilt_angle' | 'prediction_azimuth' | 'prediction_temperature_coefficient' |
+  'prediction_eta_soil' | 'prediction_eta_ctrl' | 'prediction_eta_aoi' |
+  'prediction_svf' | 'prediction_mid_start' | 'prediction_mid_end'
 >;
 
 /**
@@ -26,7 +28,7 @@ export function useUserPreferences() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_preferences')
-        .select('theme, app_theme, timezone, prediction_efficiency, prediction_tilt_angle, prediction_azimuth, prediction_temperature_coefficient')
+        .select('theme, app_theme, timezone, prediction_efficiency, prediction_tilt_angle, prediction_azimuth, prediction_temperature_coefficient, prediction_eta_soil, prediction_eta_ctrl, prediction_eta_aoi, prediction_svf, prediction_mid_start, prediction_mid_end')
         .eq('id', CURRENT_USER_ID)
         .single();
 
