@@ -181,6 +181,61 @@ export function useUpdateVoltage() {
       }
       console.error('Error actualizando voltaje:', err);
     },
+    onSuccess: (newVoltage: number | null, variables) => {
+      if (newVoltage === null) return;
+      // Forzar actualización inmediata del badge
+      console.log('⚡ [VOLTAGE] Voltaje actualizado exitosamente, actualizando badge...');
+
+      // Invalidar la query del PWA-SOC para forzar recálculo inmediato
+      queryClient.invalidateQueries({ queryKey: ['pwa-soc', CURRENT_USER_ID] });
+
+      // También enviar mensaje directo al Service Worker si está disponible
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        // Calcular el SOC aquí mismo si tenemos los datos en caché
+        const batteryProfileData = queryClient.getQueryData<any>(['battery-profile', CURRENT_BATTERY_PROFILE_ID]);
+        if (batteryProfileData?.voltageSOCPoints) {
+          const points = batteryProfileData.voltageSOCPoints;
+          const sortedPoints = [...points].sort((a: any, b: any) => b.voltage - a.voltage);
+
+          let calculatedSoc: number | null = null;
+          for (let i = 0; i < sortedPoints.length - 1; i++) {
+            const higher = sortedPoints[i];
+            const lower = sortedPoints[i + 1];
+
+            if (newVoltage === higher.voltage) {
+              calculatedSoc = higher.soc;
+              break;
+            }
+
+            if (newVoltage > lower.voltage && newVoltage < higher.voltage) {
+              const range = higher.voltage - lower.voltage;
+              const position = newVoltage - lower.voltage;
+              const socRange = higher.soc - lower.soc;
+              calculatedSoc = Math.round((lower.soc + (position / range) * socRange) * 10) / 10;
+              break;
+            }
+          }
+
+          if (calculatedSoc === null) {
+            if (newVoltage >= sortedPoints[0].voltage) {
+              calculatedSoc = 100;
+            } else if (newVoltage <= sortedPoints[sortedPoints.length - 1].voltage) {
+              calculatedSoc = 0;
+            }
+          }
+
+          // Enviar SOC al Service Worker para actualizar el badge (sin notificación)
+          if (calculatedSoc !== null) {
+            console.log('📤 [VOLTAGE] Enviando SOC al Service Worker para badge:', calculatedSoc);
+            navigator.serviceWorker.controller.postMessage({
+              type: 'UPDATE_BADGE',
+              soc: calculatedSoc,
+              // NO enviamos notificación aquí para evitar spam
+            });
+          }
+        }
+      }
+    },
     onSettled: () => {
       // Revalidar después de la mutación
       queryClient.invalidateQueries({ queryKey: ['voltage', CURRENT_USER_ID] });

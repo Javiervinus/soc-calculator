@@ -60,11 +60,142 @@ function startBadgeUpdates() {
   }, 60000); // 1 minuto
 }
 
+// Función para obtener el SOC desde Supabase (para sincronización entre dispositivos)
+async function fetchSOCFromSupabase() {
+  try {
+    console.log('🔄 [SW] Consultando SOC desde Supabase...');
+
+    // Construir la URL de la API de Supabase
+    const SUPABASE_URL = 'https://aaceknnsrcjhspwpotao.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhY2Vrbm5zcmNqaHNwd3BvdGFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgzNjQ0MzcsImV4cCI6MjA1Mzk0MDQzN30.z8RJVmZvXF0I0QdC3-iB5T9fIIsBpmsBRQy6gBh-QQs';
+    const CURRENT_USER_ID = 'd51dbd52-d285-415b-b99f-ab399e828dff';
+    const CURRENT_BATTERY_PROFILE_ID = '1e60ecb6-b0e0-48e1-a265-bed99de33ffc';
+
+    // Obtener el voltaje actual
+    const voltageResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/user_preferences?id=eq.${CURRENT_USER_ID}&select=current_voltage`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!voltageResponse.ok) {
+      throw new Error('Error obteniendo voltaje');
+    }
+
+    const voltageData = await voltageResponse.json();
+    const currentVoltage = voltageData[0]?.current_voltage;
+
+    if (currentVoltage === null || currentVoltage === undefined) {
+      console.log('❌ [SW] No se pudo obtener el voltaje');
+      return null;
+    }
+
+    console.log('✅ [SW] Voltaje obtenido:', currentVoltage);
+
+    // Obtener el perfil de batería para saber qué tabla SOC usar
+    const profileResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/battery_profiles?id=eq.${CURRENT_BATTERY_PROFILE_ID}&select=voltage_soc_table_id`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!profileResponse.ok) {
+      throw new Error('Error obteniendo perfil de batería');
+    }
+
+    const profileData = await profileResponse.json();
+    const tableId = profileData[0]?.voltage_soc_table_id;
+
+    if (!tableId) {
+      console.log('❌ [SW] No se pudo obtener el ID de la tabla SOC');
+      return null;
+    }
+
+    // Obtener los puntos de la tabla SOC REAL de la base de datos
+    const socTableResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/voltage_soc_points?table_id=eq.${tableId}&order=voltage.desc`,
+      {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!socTableResponse.ok) {
+      throw new Error('Error obteniendo tabla SOC');
+    }
+
+    const socTable = await socTableResponse.json();
+    console.log('✅ [SW] Tabla SOC obtenida con', socTable.length, 'puntos');
+
+    // Calcular SOC por interpolación usando la tabla REAL
+    let calculatedSoc = null;
+
+    // Primero buscar coincidencia exacta
+    const exactMatch = socTable.find(point => point.voltage === currentVoltage);
+    if (exactMatch) {
+      calculatedSoc = exactMatch.soc;
+      console.log('✅ [SW] SOC exacto encontrado:', calculatedSoc);
+    } else {
+      // Si no hay coincidencia exacta, interpolar
+      for (let i = 0; i < socTable.length - 1; i++) {
+        const higher = socTable[i];
+        const lower = socTable[i + 1];
+
+        if (currentVoltage < higher.voltage && currentVoltage > lower.voltage) {
+          // Interpolación lineal
+          const range = higher.voltage - lower.voltage;
+          const position = currentVoltage - lower.voltage;
+          const socRange = higher.soc - lower.soc;
+          calculatedSoc = Math.round((lower.soc + (position / range) * socRange) * 10) / 10;
+          console.log('✅ [SW] SOC interpolado:', calculatedSoc);
+          break;
+        }
+      }
+
+      // Si está fuera de rango
+      if (calculatedSoc === null) {
+        if (currentVoltage >= socTable[0].voltage) {
+          calculatedSoc = socTable[0].soc; // Máximo SOC
+        } else if (currentVoltage <= socTable[socTable.length - 1].voltage) {
+          calculatedSoc = socTable[socTable.length - 1].soc; // Mínimo SOC
+        }
+      }
+    }
+
+    return calculatedSoc;
+  } catch (error) {
+    console.error('❌ [SW] Error obteniendo SOC desde Supabase:', error);
+    return null;
+  }
+}
+
 // Función para obtener el SOC y actualizar el badge
 async function updateBadgeFromAPI() {
   try {
-    // Si tenemos un SOC almacenado, usarlo primero
-    if (currentSOC !== null && 'setAppBadge' in self.navigator) {
+    // Intentar obtener el SOC desde Supabase para sincronización
+    const socFromSupabase = await fetchSOCFromSupabase();
+
+    if (socFromSupabase !== null) {
+      currentSOC = socFromSupabase;
+      console.log('✅ [SW] SOC sincronizado desde Supabase:', currentSOC);
+
+      // Actualizar el badge con el valor sincronizado
+      if ('setAppBadge' in self.navigator) {
+        self.navigator.setAppBadge(Math.round(currentSOC));
+        console.log('✅ [SW] Badge actualizado desde Supabase:', Math.round(currentSOC));
+      }
+    } else if (currentSOC !== null && 'setAppBadge' in self.navigator) {
+      // Si no se pudo obtener de Supabase, usar el valor almacenado
       self.navigator.setAppBadge(Math.round(currentSOC));
     }
 
@@ -72,7 +203,8 @@ async function updateBadgeFromAPI() {
     const clients = await self.clients.matchAll({ type: 'window' });
     clients.forEach(client => {
       client.postMessage({
-        type: 'REQUEST_SOC_UPDATE'
+        type: 'SOC_UPDATED',
+        soc: currentSOC
       });
     });
   } catch (error) {
@@ -118,7 +250,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'UPDATE_BADGE') {
     const socValue = event.data.soc;
-    const showNotification = event.data.showNotification;
+    const isManualNotificationUpdate = event.data.isManualUpdate || false;
 
     // Guardar el SOC actual
     if (socValue !== undefined && socValue !== null) {
@@ -165,9 +297,12 @@ self.addEventListener('message', (event) => {
         self.navigator.clearAppBadge();
       }
     }
+  }
 
-    // Para Android: Mostrar notificación persistente si está habilitado
-    if (showNotification && socValue !== undefined && socValue !== null) {
+  // Manejo separado para notificaciones manuales de Android
+  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
+    const socValue = event.data.soc;
+    if (socValue !== undefined && socValue !== null) {
       const socRounded = Math.round(socValue);
       const batteryLevel = socRounded >= 80 ? '🔋' :
                            socRounded >= 50 ? '🔋' :

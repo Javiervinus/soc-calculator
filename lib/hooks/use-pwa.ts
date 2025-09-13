@@ -16,6 +16,7 @@ interface UsePWAOptions {
 export function usePWA(options: UsePWAOptions = {}) {
   const { updateInterval = 60000, enableNotifications = false } = options;
   const swRegistrationRef = useRef<ServiceWorkerRegistration | null>(null);
+  const notificationIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] =
     useState(enableNotifications);
   const [isAndroid, setIsAndroid] = useState(false);
@@ -170,9 +171,8 @@ export function usePWA(options: UsePWAOptions = {}) {
         // En iOS, solicitar permisos si es PWA y no los tiene
         if (isIOS && isPWA && Notification.permission === "default") {
           console.log(
-            "📱 [PWA iOS] Solicitando permisos de notificación para badges..."
+            "📱 [PWA iOS] Permisos de notificación necesarios para badges"
           );
-          // No solicitar automáticamente, dejar que el usuario lo haga
         }
       }
 
@@ -197,9 +197,25 @@ export function usePWA(options: UsePWAOptions = {}) {
         });
       }
 
-      // Verificar soporte de Badge API
+      // Verificar soporte REAL de Badge API
+      // En Android, aunque navigator.setAppBadge exista, puede no funcionar
       if ("setAppBadge" in navigator) {
-        console.log("✅ [PWA] Badge API soportada");
+        // Probar si realmente funciona
+        if (isAndroidDevice) {
+          // En Android, intentar setear un badge de prueba
+          (navigator as any).setAppBadge(1)
+            .then(() => {
+              console.log("✅ [PWA] Badge API soportada en este Android");
+              // Limpiar el badge de prueba
+              (navigator as any).clearAppBadge();
+            })
+            .catch((error: any) => {
+              console.log("⚠️ [PWA] Badge API presente pero NO funcional en este Android");
+              console.log("⚠️ [PWA] Este dispositivo solo mostrará un punto, no números");
+            });
+        } else {
+          console.log("✅ [PWA] Badge API soportada");
+        }
       } else {
         console.log("❌ [PWA] Badge API NO soportada en este navegador");
       }
@@ -234,16 +250,13 @@ export function usePWA(options: UsePWAOptions = {}) {
         /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-      // IMPORTANTE: Primero enviar al Service Worker para que mantenga el valor
+      // IMPORTANTE: Solo actualizar el badge, NO enviar notificaciones
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         console.log(`📤 [PWA] Enviando SOC al Service Worker: ${socRounded}%`);
         navigator.serviceWorker.controller.postMessage({
           type: "UPDATE_BADGE",
           soc: socData,
-          showNotification:
-            isAndroid &&
-            notificationsEnabled &&
-            notificationPermission === "granted",
+          // NO enviar notificaciones automáticamente
         });
       }
 
@@ -315,6 +328,50 @@ export function usePWA(options: UsePWAOptions = {}) {
     return "denied";
   };
 
+  // Actualizar notificación periódicamente si están habilitadas
+  useEffect(() => {
+    // Solo en Android y si es PWA instalada
+    const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isAndroid && isPWA && notificationsEnabled && socData !== null && socData !== undefined) {
+      // Actualizar inmediatamente
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "SHOW_NOTIFICATION",
+          soc: socData,
+        });
+      }
+
+      // Limpiar intervalo anterior si existe
+      if (notificationIntervalRef.current) {
+        clearInterval(notificationIntervalRef.current);
+      }
+
+      // Actualizar cada 5 minutos
+      notificationIntervalRef.current = setInterval(() => {
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          console.log('🔔 [PWA] Actualizando notificación periódica');
+          navigator.serviceWorker.controller.postMessage({
+            type: "SHOW_NOTIFICATION",
+            soc: socData,
+          });
+        }
+      }, 5 * 60 * 1000); // 5 minutos
+
+      return () => {
+        if (notificationIntervalRef.current) {
+          clearInterval(notificationIntervalRef.current);
+        }
+      };
+    } else if (!notificationsEnabled) {
+      // Limpiar intervalo si se deshabilitan
+      if (notificationIntervalRef.current) {
+        clearInterval(notificationIntervalRef.current);
+        notificationIntervalRef.current = null;
+      }
+    }
+  }, [isAndroid, notificationsEnabled, socData]);
+
   // Función para habilitar/deshabilitar notificaciones
   const toggleNotifications = async (enable: boolean) => {
     if (enable && notificationPermission !== "granted") {
@@ -326,12 +383,8 @@ export function usePWA(options: UsePWAOptions = {}) {
 
     setNotificationsEnabled(enable);
 
-    // Si se deshabilitan, limpiar notificaciones existentes
-    if (
-      !enable &&
-      navigator.serviceWorker &&
-      navigator.serviceWorker.controller
-    ) {
+    if (!enable && navigator.serviceWorker && navigator.serviceWorker.controller) {
+      // Si se deshabilitan, limpiar notificaciones existentes
       navigator.serviceWorker.controller.postMessage({
         type: "CLEAR_NOTIFICATIONS",
       });

@@ -21,6 +21,7 @@ import {
   Home,
   Moon,
   Settings,
+  Smartphone,
   Sun,
   TrendingUp,
   X,
@@ -77,6 +78,11 @@ export function AppSidebar() {
         icon: TrendingUp,
         href: "/predictions",
         isNew: true,
+      },
+      {
+        title: "PWA",
+        icon: Smartphone,
+        href: "/pwa",
       },
     ],
     []
