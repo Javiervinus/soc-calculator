@@ -7,6 +7,7 @@ import { Bell, BellOff, Smartphone } from 'lucide-react';
 
 export function PWAInitializer() {
   const [hasShownAndroidMessage, setHasShownAndroidMessage] = useState(false);
+  const [hasShownIOSMessage, setHasShownIOSMessage] = useState(false);
   const {
     isSupported,
     isBadgeSupported,
@@ -15,6 +16,7 @@ export function PWAInitializer() {
     notificationsEnabled,
     notificationPermission,
     toggleNotifications,
+    requestNotificationPermission,
   } = usePWA({
     updateInterval: 60000, // Actualizar cada minuto
     enableNotifications: false, // Por defecto deshabilitado
@@ -75,8 +77,54 @@ export function PWAInitializer() {
           }, 3000); // Esperar 3 segundos después de cargar
         }
       }
+
+      // Mostrar mensaje para iOS si es necesario
+      const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+
+      if (isIOS && isPWA && !hasShownIOSMessage && isBadgeSupported) {
+        const iosMessageShown = localStorage.getItem('pwa-ios-badge-message-shown');
+        if (!iosMessageShown && notificationPermission === 'default') {
+          setTimeout(() => {
+            toast.info(
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🍎</span>
+                  <span className="font-semibold">iPhone detectado</span>
+                </div>
+                <p className="text-sm">
+                  Para ver el SOC en el ícono de la app, necesitas habilitar las notificaciones.
+                </p>
+                <button
+                  onClick={async () => {
+                    const permission = await requestNotificationPermission();
+                    if (permission === 'granted') {
+                      toast.success('¡Badges activados! El SOC aparecerá en el ícono.');
+                    } else {
+                      toast.error('Sin permisos, el badge no funcionará.');
+                    }
+                  }}
+                  className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded w-fit"
+                >
+                  Habilitar badges
+                </button>
+              </div>,
+              {
+                duration: 10000,
+                action: {
+                  label: 'No mostrar de nuevo',
+                  onClick: () => {
+                    localStorage.setItem('pwa-ios-badge-message-shown', 'true');
+                  },
+                },
+              }
+            );
+            setHasShownIOSMessage(true);
+          }, 5000); // Esperar 5 segundos
+        }
+      }
     }
-  }, [isSupported, isBadgeSupported, currentSOC, isAndroid, notificationsEnabled, hasShownAndroidMessage, toggleNotifications]);
+  }, [isSupported, isBadgeSupported, currentSOC, isAndroid, notificationsEnabled, hasShownAndroidMessage, hasShownIOSMessage, toggleNotifications, requestNotificationPermission, notificationPermission]);
 
   // Este componente no renderiza nada, solo inicializa la PWA
   return null;
