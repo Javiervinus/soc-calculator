@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { PWAInitializer } from "@/components/pwa-initializer";
 import { ThemeProvider } from "@/components/theme-provider";
 import {
   SidebarInset,
@@ -111,6 +112,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           <ThemeProvider>
+            <PWAInitializer />
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>
