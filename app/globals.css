@@ -954,3 +954,48 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* PWA Specific Styles */
+@media (display-mode: standalone) {
+  /* El contenedor principal debe manejar el overflow correctamente */
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Asegurar que el header funcione correctamente */
+  header {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* El main debe poder hacer scroll */
+  main {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    height: calc(100vh - 4rem); /* Altura menos el header */
+  }
+}
+
+/* Safe area para notch en iPhones */
+@supports (padding: env(safe-area-inset-top)) {
+  @media (display-mode: standalone) {
+    header {
+      padding-top: calc(1rem + env(safe-area-inset-top));
+      height: calc(4rem + env(safe-area-inset-top));
+    }
+
+    main {
+      height: calc(100vh - 4rem - env(safe-area-inset-top));
+    }
+  }
+}
