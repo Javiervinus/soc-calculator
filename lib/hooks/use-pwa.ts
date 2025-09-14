@@ -197,27 +197,26 @@ export function usePWA(options: UsePWAOptions = {}) {
         });
       }
 
-      // Verificar soporte REAL de Badge API
-      // En Android, aunque navigator.setAppBadge exista, puede no funcionar
+      // Verificar soporte de Badge API
       if ("setAppBadge" in navigator) {
-        // Probar si realmente funciona
-        if (isAndroidDevice) {
-          // En Android, intentar setear un badge de prueba
-          (navigator as any).setAppBadge(1)
-            .then(() => {
-              console.log("✅ [PWA] Badge API soportada en este Android");
-              // Limpiar el badge de prueba
-              (navigator as any).clearAppBadge();
-            })
-            .catch((error: any) => {
-              console.log("⚠️ [PWA] Badge API presente pero NO funcional en este Android");
-              console.log("⚠️ [PWA] Este dispositivo solo mostrará un punto, no números");
-            });
-        } else {
-          console.log("✅ [PWA] Badge API soportada");
-        }
+        console.log("✅ [PWA] Badge API disponible");
+
+        // Intentar setear un badge de prueba para verificar soporte real
+        (navigator as any).setAppBadge(1)
+          .then(() => {
+            console.log("✅ [PWA] Badge API funcional - soporta badges numéricos");
+            // Limpiar el badge de prueba
+            (navigator as any).clearAppBadge();
+          })
+          .catch((error: any) => {
+            if (isAndroidDevice) {
+              console.log("⚠️ [PWA] Badge API limitada en Android - puede que solo muestre un punto");
+            } else {
+              console.log("⚠️ [PWA] Error usando Badge API:", error);
+            }
+          });
       } else {
-        console.log("❌ [PWA] Badge API NO soportada en este navegador");
+        console.log("❌ [PWA] Badge API NO disponible en este navegador");
       }
     }
   }, []);
@@ -250,19 +249,18 @@ export function usePWA(options: UsePWAOptions = {}) {
         /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-      // IMPORTANTE: Solo actualizar el badge, NO enviar notificaciones
+      // Enviar SOC al Service Worker
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         console.log(`📤 [PWA] Enviando SOC al Service Worker: ${socRounded}%`);
         navigator.serviceWorker.controller.postMessage({
           type: "UPDATE_BADGE",
           soc: socData,
-          // NO enviar notificaciones automáticamente
         });
       }
 
-      // Luego actualizar el badge directamente
+      // Actualizar el badge directamente
       if ("setAppBadge" in navigator) {
-        // Forzar actualización del badge múltiples veces para iOS
+        // Forzar actualización del badge múltiples veces
         const updateBadge = () => {
           (navigator as any)
             .setAppBadge(socRounded)
@@ -277,15 +275,11 @@ export function usePWA(options: UsePWAOptions = {}) {
         // Actualizar inmediatamente
         updateBadge();
 
-        // En iOS, actualizar varias veces para asegurar que se registre
-        if (isIOS) {
-          // Actualizar después de 100ms
-          setTimeout(updateBadge, 100);
-          // Actualizar después de 500ms
-          setTimeout(updateBadge, 500);
-          // Actualizar después de 1 segundo
-          setTimeout(updateBadge, 1000);
-        }
+        // Actualizar varias veces para asegurar que se registre
+        setTimeout(updateBadge, 100);
+        setTimeout(updateBadge, 500);
+        setTimeout(updateBadge, 1000);
+        setTimeout(updateBadge, 2000);
       }
     }
   }, [socData, isAndroid, notificationsEnabled, notificationPermission]);
@@ -328,49 +322,31 @@ export function usePWA(options: UsePWAOptions = {}) {
     return "denied";
   };
 
-  // Actualizar notificación periódicamente si están habilitadas
+  // Actualizar notificación cuando cambien las notificaciones o el SOC
   useEffect(() => {
     // Solo en Android y si es PWA instalada
     const isPWA = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
 
-    if (isAndroid && isPWA && notificationsEnabled && socData !== null && socData !== undefined) {
-      // Actualizar inmediatamente
+    if (isAndroid && isPWA && notificationsEnabled && notificationPermission === "granted" && socData !== null && socData !== undefined) {
+      console.log('🔔 [PWA Android] Notificaciones habilitadas, actualizando...');
+
+      // Actualizar notificación inmediatamente
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        console.log('🔔 [PWA Android] Enviando notificación con SOC:', socData);
         navigator.serviceWorker.controller.postMessage({
           type: "SHOW_NOTIFICATION",
           soc: socData,
         });
+      } else {
+        console.log('⚠️ [PWA Android] Service Worker no disponible');
       }
-
-      // Limpiar intervalo anterior si existe
-      if (notificationIntervalRef.current) {
-        clearInterval(notificationIntervalRef.current);
-      }
-
-      // Actualizar cada 5 minutos
-      notificationIntervalRef.current = setInterval(() => {
-        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-          console.log('🔔 [PWA] Actualizando notificación periódica');
-          navigator.serviceWorker.controller.postMessage({
-            type: "SHOW_NOTIFICATION",
-            soc: socData,
-          });
-        }
-      }, 5 * 60 * 1000); // 5 minutos
-
-      return () => {
-        if (notificationIntervalRef.current) {
-          clearInterval(notificationIntervalRef.current);
-        }
-      };
-    } else if (!notificationsEnabled) {
-      // Limpiar intervalo si se deshabilitan
-      if (notificationIntervalRef.current) {
-        clearInterval(notificationIntervalRef.current);
-        notificationIntervalRef.current = null;
-      }
+    } else if (!notificationsEnabled && navigator.serviceWorker && navigator.serviceWorker.controller) {
+      // Limpiar notificaciones si se deshabilitan
+      navigator.serviceWorker.controller.postMessage({
+        type: "CLEAR_NOTIFICATIONS",
+      });
     }
-  }, [isAndroid, notificationsEnabled, socData]);
+  }, [isAndroid, notificationsEnabled, notificationPermission, socData]);
 
   // Función para habilitar/deshabilitar notificaciones
   const toggleNotifications = async (enable: boolean) => {

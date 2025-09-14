@@ -302,27 +302,32 @@ self.addEventListener('message', (event) => {
   // Manejo separado para notificaciones manuales de Android
   if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
     const socValue = event.data.soc;
+    console.log('🔔 [SW] Solicitud de notificación recibida con SOC:', socValue);
+
     if (socValue !== undefined && socValue !== null) {
       const socRounded = Math.round(socValue);
       const batteryLevel = socRounded >= 80 ? '🔋' :
                            socRounded >= 50 ? '🔋' :
                            socRounded >= 20 ? '🪫' : '🪫';
 
-      // Notificación silenciosa y persistente
+      // Notificación persistente para Android
       self.registration.showNotification('SOC Calculator', {
         body: `${batteryLevel} Batería: ${socRounded}%`,
-        icon: '/icon-192x192.svg',
-        badge: '/icon-192x192.svg',
+        icon: '/icon-192x192.png', // Usar PNG para mejor compatibilidad
+        badge: '/icon-192x192.png',
         silent: true,
         tag: 'soc-status', // Reemplaza la notificación anterior
-        renotify: false, // No volver a notificar
-        requireInteraction: false, // No requiere interacción
+        renotify: false, // No volver a notificar con sonido
+        requireInteraction: false, // No requiere interacción del usuario
+        vibrate: [100], // Vibración corta
         data: {
           soc: socRounded,
           timestamp: Date.now()
         }
+      }).then(() => {
+        console.log('✅ [SW] Notificación mostrada con SOC:', socRounded);
       }).catch(error => {
-        console.error('Error mostrando notificación:', error);
+        console.error('❌ [SW] Error mostrando notificación:', error);
       });
     }
   }

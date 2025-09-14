@@ -59,6 +59,44 @@ export function PWASettings() {
     }
   };
 
+  const handleTestNotification = () => {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      console.log('🖾️ Enviando notificación de prueba con SOC:', currentSOC);
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SHOW_NOTIFICATION',
+        soc: currentSOC || 75, // Usar 75% si no hay SOC actual
+      });
+      toast.info('Notificación de prueba enviada');
+    } else {
+      toast.error('Service Worker no disponible');
+    }
+  };
+
+  const handleTestBadge = async () => {
+    const testValue = currentSOC ? Math.round(currentSOC) : 88;
+
+    try {
+      if ('setAppBadge' in navigator) {
+        await (navigator as any).setAppBadge(testValue);
+        toast.success(`Badge establecido a ${testValue}`, {
+          description: 'Revisa el ícono de la app en tu pantalla de inicio',
+        });
+
+        // Limpiar después de 5 segundos
+        setTimeout(async () => {
+          await (navigator as any).clearAppBadge();
+        }, 5000);
+      } else {
+        toast.error('Badge API no disponible');
+      }
+    } catch (error) {
+      console.error('Error probando badge:', error);
+      toast.error('Error al establecer badge', {
+        description: 'Tu dispositivo puede no soportar badges numéricos',
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -125,18 +163,32 @@ export function PWASettings() {
       <div className="space-y-2">
         <h3 className="text-lg font-semibold">Notificaciones</h3>
         
-        {/* Aviso para Android */}
+        {/* Botón de prueba de Badge para Android */}
         {isAndroid && isPWA && (
           <Card className="p-3 bg-muted/50">
-            <div className="flex gap-2">
-              <AlertCircle className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="text-sm text-muted-foreground">
-                <p className="font-medium">Limitación de Android</p>
-                <p className="mt-1">
-                  La mayoría de dispositivos Android no muestran números en el ícono de la app.
-                  Las notificaciones te permiten ver el SOC exacto en la barra de estado.
-                </p>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <AlertCircle className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium">Prueba de Badge en Android</p>
+                  <p className="mt-1">
+                    Algunos dispositivos Android sí soportan badges numéricos.
+                    Prueba si tu dispositivo los muestra:
+                  </p>
+                </div>
               </div>
+              <Button
+                onClick={handleTestBadge}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                Probar Badge (mostrará {currentSOC ? Math.round(currentSOC) : '88'})
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Después de presionar, revisa el ícono de la app en tu pantalla de inicio.
+                Si solo ves un punto, tu launcher no soporta badges numéricos.
+              </p>
             </div>
           </Card>
         )}
@@ -193,31 +245,43 @@ export function PWASettings() {
 
           {/* Toggle de notificaciones (solo si tiene permisos) */}
           {notificationPermission === 'granted' && isAndroid && (
-            <div className="flex items-center justify-between py-2">
-              <div className="space-y-0.5">
-                <span className="text-sm font-medium">Notificaciones activas</span>
-                <span className="text-xs text-muted-foreground">
-                  Muestra el SOC en la barra de notificaciones
-                </span>
+            <>
+              <div className="flex items-center justify-between py-2">
+                <div className="space-y-0.5">
+                  <span className="text-sm font-medium">Notificaciones activas</span>
+                  <span className="text-xs text-muted-foreground">
+                    Muestra el SOC en la barra de notificaciones
+                  </span>
+                </div>
+                <Button
+                  onClick={handleToggleNotifications}
+                  variant={notificationsEnabled ? 'default' : 'outline'}
+                  size="sm"
+                >
+                  {notificationsEnabled ? (
+                    <>
+                      <BellOff className="h-4 w-4 mr-1" />
+                      Desactivar
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="h-4 w-4 mr-1" />
+                      Activar
+                    </>
+                  )}
+                </Button>
               </div>
+
+              {/* Botón de prueba para Android */}
               <Button
-                onClick={handleToggleNotifications}
-                variant={notificationsEnabled ? 'default' : 'outline'}
-                size="sm"
+                onClick={handleTestNotification}
+                variant="outline"
+                className="w-full"
               >
-                {notificationsEnabled ? (
-                  <>
-                    <BellOff className="h-4 w-4 mr-1" />
-                    Desactivar
-                  </>
-                ) : (
-                  <>
-                    <Bell className="h-4 w-4 mr-1" />
-                    Activar
-                  </>
-                )}
+                <Bell className="h-4 w-4 mr-2" />
+                Probar notificación (SOC: {currentSOC ? Math.round(currentSOC) : '75'}%)
               </Button>
-            </div>
+            </>
           )}
         </div>
       </div>
