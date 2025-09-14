@@ -39,7 +39,7 @@ export function PWAInitializer() {
       if (isAndroid && isPWA && !hasShownAndroidMessage) {
         const storedMessage = localStorage.getItem('pwa-android-message-shown');
         if (!storedMessage) {
-          setTimeout(() => {
+          setTimeout(async () => {
             // Verificar si el dispositivo soporta badges numéricos
             const checkBadgeSupport = async () => {
               try {
@@ -105,7 +105,6 @@ export function PWAInitializer() {
 
       // Mostrar mensaje para iOS si es necesario
       const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-      const isPWA = window.matchMedia('(display-mode: standalone)').matches;
 
       if (isIOS && isPWA && !hasShownIOSMessage && isBadgeSupported) {
         const iosMessageShown = localStorage.getItem('pwa-ios-badge-message-shown');
